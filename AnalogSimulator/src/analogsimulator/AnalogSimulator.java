@@ -18,6 +18,11 @@ public class AnalogSimulator {
         // TODO code application logic here
         GameBoard gb = new GameBoard(GameBoard.RED);
         gb.player[GameBoard.RED].showStatus();
+        gb.setWorker(GameBoard.RED, 0, "ex");
+        gb.setWorker(GameBoard.BLUE, 1, "ex");
+        gb.setWorker(GameBoard.RED, 1, "se");
+        System.out.println("semi:" + gb.semi);
+        System.out.println("experiment:" + gb.experiment);
     }
     
 }
