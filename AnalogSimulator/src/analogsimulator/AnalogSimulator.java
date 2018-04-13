@@ -17,11 +17,19 @@ public class AnalogSimulator {
     public static void main(String[] args) {
         // TODO code application logic here
         GameBoard gb = new GameBoard(GameBoard.RED);
-        gb.player[GameBoard.RED].showStatus();
-        gb.setWorker(GameBoard.RED, Player.WK_DOCTOR, "se");
-        gb.setWorker(GameBoard.BLUE, Player.WK_STUDENT, "ex");
-        gb.setWorker(GameBoard.RED, Player.WK_ASSISTANT, "se");
-        gb.player[GameBoard.RED].showStatus();
+        gb.player[GameBoard.BLUE].flasks = 10;
+        gb.player[GameBoard.BLUE].showStatus();
+        
+        gb.setWorker(GameBoard.BLUE, Player.WK_STUDENT, "pr0");
+        gb.player[GameBoard.BLUE].showStatus();
+        
+        gb.setWorker(GameBoard.BLUE, Player.WK_DOCTOR, "pr2");
+        gb.player[GameBoard.BLUE].showStatus();
+        
+        gb.setWorker(GameBoard.BLUE, Player.WK_STUDENT, "pr0");
+        gb.player[GameBoard.BLUE].showStatus();
+        
+        gb.player[GameBoard.BLUE].showStatus();
     }
     
 }

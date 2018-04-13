@@ -35,15 +35,38 @@ public class Player {
     }
 
     public void showStatus() {
+        System.out.println("====== " + name + "======");
         System.out.println("workers : " + workers);
         System.out.println("money : " + money);
         System.out.println("flasks : " + flasks);
         System.out.println("allStars : " + allStars);
+        System.out.println("\n");
+    }
+    
+    public boolean existWoker(int workerKind){
+        if(remainWorkers[workerKind] <= 0) return false;
+        return true;
     }
     
     public boolean putWorker(int workerKind){
         if(remainWorkers[workerKind] == 0) return false;
         remainWorkers[workerKind] -= 1;
+        return true;
+    }
+    
+    public boolean payMoney(int cost) {
+        int m = money;
+        int sub = m - cost;
+        if (sub < 0) return false;
+        money = sub;
+        return true;
+    }
+    
+    public boolean payFlasks(int cost) {
+        int f = flasks;
+        int sub = f - cost;
+        if (sub < 0) return false;
+        flasks = sub;
         return true;
     }
 
