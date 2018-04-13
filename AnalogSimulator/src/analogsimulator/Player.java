@@ -16,14 +16,14 @@ public class Player {
     // プレイヤーのクラス
 
     // ワーカーの種類
-    public static final int WK_DOCTOR = 0;
-    public static final int WK_ASSISTANT = 1;
-    public static final int WK_STUDENT = 2;
+    public static final int KOMA_D = 0;         // 教授
+    public static final int KOMA_A = 1;         // 助手
+    public static final int KOMA_S = 2;         // 学生
 
     public String name;                         // 自分の名前
     public GameBoard board;                     // 自分がいるボード
-    public int workers[] = {1,0,1};             // ワーカー人数
-    private int remainWorkers[] = {1,0,1};       // 手元のワーカー人数
+    public int[] komas = {1,0,1};             // コマ人数
+    private int[] remainKomas = {1,0,1};       // 手元のコマ人数
     public int money = 5;                       // 資金
     public int flasks = 0;                      // フラスコ(研究成果)
     public int allStars = 0;                    // 星(研究業績)の総和
@@ -36,21 +36,21 @@ public class Player {
 
     public void showStatus() {
         System.out.println("====== " + name + "======");
-        System.out.println("workers : " + workers);
+        System.out.println("koma : " + komas);
         System.out.println("money : " + money);
         System.out.println("flasks : " + flasks);
         System.out.println("allStars : " + allStars);
         System.out.println("\n");
     }
     
-    public boolean existWoker(int workerKind){
-        if(remainWorkers[workerKind] <= 0) return false;
+    public boolean existKoma(int workerKind){
+        if(remainKomas[workerKind] <= 0) return false;
         return true;
     }
     
-    public boolean putWorker(int workerKind){
-        if(remainWorkers[workerKind] == 0) return false;
-        remainWorkers[workerKind] -= 1;
+    public boolean putKoma(int workerKind){
+        if(remainKomas[workerKind] == 0) return false;
+        remainKomas[workerKind] -= 1;
         return true;
     }
     

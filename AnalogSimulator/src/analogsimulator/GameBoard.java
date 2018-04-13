@@ -13,12 +13,12 @@ import java.util.ArrayList;
  */
 class GameBoard {
 
-    // プレイヤー番号
+    // プレイヤーID
     public static final int BLUE = 0;
     public static final int RED = 1;
 
     // プレイヤー
-    public Player player[] = new Player[2];
+    public Player players[] = new Player[2];
 
     // ゼミ
     public ArrayList semi = new ArrayList();
@@ -50,107 +50,107 @@ class GameBoard {
 
     // コンストラクタ
     public GameBoard(int s) {
-        player[BLUE] = new Player(this, "blue");
-        player[RED] = new Player(this, "red");
+        players[BLUE] = new Player(this, "blue");
+        players[RED] = new Player(this, "red");
 
         startPlayer = s;
     }
 
-    // ワーカーを作業スペースに置く
-    public boolean setWorker(int playerNum, int workerKind, String workspaceName) {
-        // 配置するワーカーの情報
-        int w[] = {playerNum, workerKind};
+    // コマをアクションに置く
+    public boolean setKoma(int playerNum, int KomaKind, String actionName) {
+        // 配置するコマの情報
+        int w[] = {playerNum, KomaKind};
 
-        // ワーカー人数を確認
-        if (!player[playerNum].existWoker(workerKind)) {
+        // コマ人数を確認
+        if (!players[playerNum].existKoma(KomaKind)) {
             System.out.println("Error!");
             return false;
         }
 
         // 文字列を解釈
-        String workspaceKind = workspaceName.substring(0, 2);
-        int workspaceNum = 0;
-        if (workspaceName.length() == 3) {
-            workspaceNum = Integer.parseInt(workspaceName.substring(2));
+        int actionKind = Integer.parseInt(actionName.substring(0, 1));
+        int actionNum = 0;
+        if (actionName.length() == 3) {
+            actionNum = Integer.parseInt(actionName.substring(2));
         }
 
         // マスに置きに行く & 支払い
-        switch (workspaceKind) {
-            case "se":
+        switch (actionKind) {
+            case 1:
                 // ゼミ
                 semi.add(w.clone());
-                player[playerNum].putWorker(workerKind);
-                System.out.println("put semi : " + playerNum + "," + workerKind);
+                players[playerNum].putKoma(KomaKind);
+                System.out.println("put semi(1-1) : " + playerNum + "," + KomaKind);
                 return true;
-            case "ex":
+            case 2:
                 // 実験
                 for (int i = 0; i < 3; i++) {
                     // 空きを調べて
                     if (experiment[i][0] == -1) {
                         // 空いてれば
-                        if (!player[playerNum].payMoney(2)) {
+                        if (!players[playerNum].payMoney(2)) {
                             // 金がなければエラー、戻す
                             System.out.println("Error!");
                             return false;
                         }
                         // 追加
                         experiment[i] = w.clone();
-                        player[playerNum].putWorker(workerKind);
-                        System.out.println("put experiment : " + playerNum + "," + workerKind);
+                        players[playerNum].putKoma(KomaKind);
+                        System.out.println("put experiment(2-" + (i+1) + ") : " + playerNum + "," + KomaKind);
                         return true;
                     }
                 }
                 // 空きが無ければエラー、
                 System.out.println("Error!");
                 return false;
-            case "pr":
+            case 3:
                 // プレゼンテーション
-                if(presentation[workspaceNum][0] != -1){
+                if(presentation[actionNum][0] != -1){
                     // 空いてなければエラー
                     System.out.println("Error!");
                     return false;
                 }
                 // 空きに応じて支払い、追加
-                switch (workspaceNum) {
-                    case 0:
-                        if(!player[playerNum].payFlasks(2)){
+                switch (actionNum) {
+                    case 1:
+                        if(!players[playerNum].payFlasks(2)){
                             // フラスコが足りない、エラー
                             System.out.println("Error!");
                             return false;
                         }
                         presentation[0] = w.clone();
-                        player[playerNum].putWorker(workerKind);
-                        System.out.println("put presentation[0] : " + playerNum + "," + workerKind);
-                        return true;
-                    case 1:
-                        if(!player[playerNum].payFlasks(4)){
-                            // フラスコが足りない、エラー
-                            System.out.println("Error!");
-                            return false;
-                        }
-                        if(!player[playerNum].payMoney(1)){
-                            // 金が足りない、エラー
-                            System.out.println("Error!");
-                            return false;
-                        }
-                        presentation[1] = w.clone();
-                        player[playerNum].putWorker(workerKind);
-                        System.out.println("put presentation[1] : " + playerNum + "," + workerKind);
+                        players[playerNum].putKoma(KomaKind);
+                        System.out.println("put presentation(3-1) : " + playerNum + "," + KomaKind);
                         return true;
                     case 2:
-                        if(!player[playerNum].payFlasks(8)){
+                        if(!players[playerNum].payFlasks(4)){
                             // フラスコが足りない、エラー
                             System.out.println("Error!");
                             return false;
                         }
-                        if(!player[playerNum].payMoney(1)){
+                        if(!players[playerNum].payMoney(1)){
                             // 金が足りない、エラー
                             System.out.println("Error!");
                             return false;
                         }
                         presentation[1] = w.clone();
-                        player[playerNum].putWorker(workerKind);
-                        System.out.println("put presentation[2] : " + playerNum + "," + workerKind);
+                        players[playerNum].putKoma(KomaKind);
+                        System.out.println("put presentation(3-2) : " + playerNum + "," + KomaKind);
+                        return true;
+                    case 3:
+                        if(!players[playerNum].payFlasks(8)){
+                            // フラスコが足りない、エラー
+                            System.out.println("Error!");
+                            return false;
+                        }
+                        if(!players[playerNum].payMoney(1)){
+                            // 金が足りない、エラー
+                            System.out.println("Error!");
+                            return false;
+                        }
+                        presentation[2] = w.clone();
+                        players[playerNum].putKoma(KomaKind);
+                        System.out.println("put presentation(3-3) : " + playerNum + "," + KomaKind);
                         return true;
                 }
             default:
