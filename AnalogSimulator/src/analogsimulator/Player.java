@@ -16,9 +16,9 @@ public class Player {
     // プレイヤーのクラス
 
     // ワーカーの種類
-    public static final int W_DOCTOR = 1;
-    public static final int W_ASSISTANT = 2;
-    public static final int W_STUDENT = 3;
+    public static final int WK_DOCTOR = 1;
+    public static final int WK_ASSISTANT = 2;
+    public static final int WK_STUDENT = 3;
 
     public String name;                        // 自分の名前
     public GameBoard board;                    // 自分がいるボード
@@ -31,7 +31,7 @@ public class Player {
     public Player(GameBoard gb, String n) {
         board = gb;
         name = n;
-        workers = new ArrayList<>(Arrays.asList(W_DOCTOR, W_STUDENT));
+        workers = new ArrayList<>(Arrays.asList(WK_DOCTOR, WK_STUDENT));
         remainWorkers = (ArrayList<Integer>) workers.clone();
         money = 5;
         flasks = 0;
@@ -48,5 +48,6 @@ public class Player {
         System.out.println("flasks : " + flasks);
         System.out.println("allStars : " + allStars);
     }
+    
 
 }
