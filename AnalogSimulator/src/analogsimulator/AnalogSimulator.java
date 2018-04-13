@@ -16,7 +16,7 @@ public class AnalogSimulator {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        GameBoard gb = new GameBoard();
+        GameBoard gb = new GameBoard(GameBoard.RED);
         gb.player[GameBoard.RED].showStatus();
     }
     
