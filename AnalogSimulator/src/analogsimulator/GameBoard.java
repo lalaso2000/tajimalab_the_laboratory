@@ -75,21 +75,18 @@ class GameBoard {
             workspaceNum = Integer.parseInt(workspaceName.substring(2));
         }
         
-        System.out.println("kind : " + workspaceKind);
-        System.out.println("num : " + workspaceNum);
-        
         // マスに置きに行く & 支払い
         switch(workspaceKind){
             case "se":
                 semi.add(w.clone());
-                System.out.println("put semi.");
+                System.out.println("put semi : " + playerNum + "," + workerNum);
                 break;
             case "ex":
                 for (int i = 0; i < 3; i++) {
                     if(experiment[i][0] == -1){
                         experiment[i] = w.clone();
                         player[playerNum].money -= 2;
-                        System.out.println("put experiment.");
+                        System.out.println("put experiment : " + playerNum + "," + workerNum);
                         break;
                     }
                 }

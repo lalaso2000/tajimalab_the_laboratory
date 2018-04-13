@@ -21,8 +21,7 @@ public class AnalogSimulator {
         gb.setWorker(GameBoard.RED, 0, "ex");
         gb.setWorker(GameBoard.BLUE, 1, "ex");
         gb.setWorker(GameBoard.RED, 1, "se");
-        System.out.println("semi:" + gb.semi);
-        System.out.println("experiment:" + gb.experiment);
+        gb.player[GameBoard.RED].showStatus();
     }
     
 }
