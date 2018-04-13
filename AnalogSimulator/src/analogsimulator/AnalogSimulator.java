@@ -17,7 +17,19 @@ public class AnalogSimulator {
     public static void main(String[] args) {
         // TODO code application logic here
         GameBoard gb = new GameBoard(GameBoard.RED);
-        gb.player[GameBoard.RED].showStatus();
+        gb.players[GameBoard.BLUE].allStars = 20;
+        gb.players[GameBoard.RED].flasks = 8;
+        gb.players[GameBoard.RED].showStatus();
+        
+        gb.setKoma(GameBoard.BLUE, Player.KOMA_S, "6-2");
+        gb.players[GameBoard.BLUE].showStatus();
+        
+        gb.setKoma(GameBoard.RED, Player.KOMA_S, "5-2");
+        gb.players[GameBoard.RED].showStatus();
+        
+        gb.setKoma(GameBoard.RED, Player.KOMA_D, "6-1");
+        gb.players[GameBoard.RED].showStatus();
+        
     }
     
 }
