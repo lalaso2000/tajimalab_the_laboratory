@@ -18,9 +18,9 @@ public class AnalogSimulator {
         // TODO code application logic here
         GameBoard gb = new GameBoard(GameBoard.RED);
         gb.player[GameBoard.RED].showStatus();
-        gb.setWorker(GameBoard.RED, 0, "ex");
-        gb.setWorker(GameBoard.BLUE, 1, "ex");
-        gb.setWorker(GameBoard.RED, 1, "se");
+        gb.setWorker(GameBoard.RED, Player.WK_DOCTOR, "se");
+        gb.setWorker(GameBoard.BLUE, Player.WK_STUDENT, "ex");
+        gb.setWorker(GameBoard.RED, Player.WK_ASSISTANT, "se");
         gb.player[GameBoard.RED].showStatus();
     }
     

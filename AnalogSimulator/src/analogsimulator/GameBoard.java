@@ -61,12 +61,15 @@ class GameBoard {
     
     
     // ワーカーを作業スペースに置く
-    public void setWorker(int playerNum, int workerNum, String workspaceName){
-        // 残りワーカーを減らす
-        player[playerNum].remainWorkers.set(workerNum, -1);
-        
+    public void setWorker(int playerNum, int workerKind, String workspaceName){
         // 配置するワーカーの情報
-        int w[] = {playerNum, workerNum};
+        int w[] = {playerNum, workerKind};
+        
+        // ワーカー人数を減らす
+        if(!player[playerNum].putWorker(workerKind)){
+            System.out.println("Error!");
+            return;
+        }
         
         // 文字列を解釈
         String workspaceKind = workspaceName.substring(0, 2);
@@ -79,14 +82,14 @@ class GameBoard {
         switch(workspaceKind){
             case "se":
                 semi.add(w.clone());
-                System.out.println("put semi : " + playerNum + "," + workerNum);
+                System.out.println("put semi : " + playerNum + "," + workerKind);
                 break;
             case "ex":
                 for (int i = 0; i < 3; i++) {
                     if(experiment[i][0] == -1){
                         experiment[i] = w.clone();
                         player[playerNum].money -= 2;
-                        System.out.println("put experiment : " + playerNum + "," + workerNum);
+                        System.out.println("put experiment : " + playerNum + "," + workerKind);
                         break;
                     }
                 }
