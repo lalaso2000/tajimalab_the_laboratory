@@ -27,6 +27,7 @@ public class Player {
     public int money = 5;                       // 資金
     public int flasks = 0;                      // フラスコ(研究成果)
     public int allStars = 0;                    // 星(研究業績)の総和
+    public int blackStars = 0;                  // 黒い星(負債)の総和
 
     public Player(GameBoard gb, String n) {
         board = gb;
@@ -118,7 +119,17 @@ public class Player {
         allStars += profit;
     }
     
+    public void pulsBlackStars(int profit){
+        blackStars += profit;
+    }
+    
     public void remainKomaReset(){
         remainKomas = komas.clone();
     }
+
+    public int getMoney() {
+        return money;
+    }
+    
+    
 }

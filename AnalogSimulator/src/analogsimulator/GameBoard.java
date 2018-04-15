@@ -442,6 +442,12 @@ class GameBoard {
             int m = 0;
             m += player.komas[Player.KOMA_A] * 3;
             m += player.komas[Player.KOMA_S];
+            int playerMoney = player.getMoney();
+            if (playerMoney < m){
+                int b = (m - playerMoney) * 3;
+                System.out.println(player.name + " get " + b + " black stars.");
+                m = playerMoney;
+            }
             System.out.println(player.name + " has paid " + m + " money.");
             player.payMoney(m);
         }
