@@ -36,7 +36,7 @@ public class Player {
 
     public void showStatus() {
         System.out.println("====== " + name + "======");
-        System.out.println("koma : " + komas);
+        System.out.println("koma : " + Arrays.toString(komas));
         System.out.println("money : " + money);
         System.out.println("flasks : " + flasks);
         System.out.println("allStars : " + allStars);
@@ -86,5 +86,36 @@ public class Player {
         return allStars;
     }
     
+    
+    public void pulsMoney(int profit){
+        money += profit;
+    }
+    
+    public void pulsflasks(int profit){
+        flasks += profit;
+    }
+    
+    public boolean pulsKoma(int komaKind){
+        switch(komaKind){
+            case KOMA_A:
+                // 助手を雇う
+                if(komas[KOMA_A] == 0){
+                    // 1人しかダメよ
+                    komas[KOMA_A] = 1;
+                    return true;
+                }
+                return false;
+            case KOMA_S:
+                // 学生を雇う
+                komas[KOMA_S] += 1;
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    public void pulsStars(int profit){
+        allStars += profit;
+    }
     
 }

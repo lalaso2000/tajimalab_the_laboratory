@@ -21,7 +21,7 @@ class GameBoard {
     public Player players[] = new Player[2];
 
     // ゼミ
-    public ArrayList semi = new ArrayList();
+    public ArrayList<int[]> semi = new ArrayList<>();
 
     // 実験
     public int experiment[][] = {{-1, -1}, {-1, -1}, {-1, -1}};
@@ -106,7 +106,7 @@ class GameBoard {
                 return false;
             case 3:
                 // プレゼンテーション
-                if (presentation[actionNum-1][0] != -1) {
+                if (presentation[actionNum - 1][0] != -1) {
                     // 空いてなければエラー
                     System.out.println("Error!");
                     return false;
@@ -175,7 +175,7 @@ class GameBoard {
                 return false;
             case 5:
                 // 研究報告
-                if (report[actionNum-1][0] != -1) {
+                if (report[actionNum - 1][0] != -1) {
                     // 空いてなければエラー
                     System.out.println("Error!");
                     return false;
@@ -245,7 +245,7 @@ class GameBoard {
                         System.out.println("Error!");
                         return false;
                     case 2:
-                        if (KomaKind == Player.KOMA_D && players[playerNum].getAllStars() >= 10){
+                        if (KomaKind == Player.KOMA_D && players[playerNum].getAllStars() >= 10) {
                             // 条件を満たしていれば追加
                             employ[1] = w.clone();
                             players[playerNum].putKoma(KomaKind);
@@ -264,6 +264,169 @@ class GameBoard {
                 System.out.println("Error!");
                 return false;
         }
+    }
 
+    public void actionReturn() {
+        semiReturn();
+        experimentReturn();
+        presentationReturn();
+        paperReturn();
+        reportReturn();
+        employReturn();
+
+    }
+
+    private void semiReturn() {
+        // ゼミに対するリターン
+        int adults = 0;
+        int students = 0;
+        for (int[] s : semi) {
+            // 学生をカウント
+            if (s[1] == Player.KOMA_S) {
+                students += 1;
+            }
+            // 学生以外(大人)をカウント
+            if (s[1] == Player.KOMA_D || s[1] == Player.KOMA_A) {
+                adults += 1;
+            }
+        }
+
+//        System.out.println("adults : " + adults);
+//        System.out.println("students : " + students);
+        for (int[] s : semi) {
+            int playerNum = s[0];
+            int komaKind = s[1];
+            int f;
+
+            switch (komaKind) {
+                case Player.KOMA_D:
+                    f = 2;
+                    break;
+                case Player.KOMA_A:
+                    f = 3;
+                    break;
+                case Player.KOMA_S:
+                    f = (students / 2) * (adults);
+                    break;
+                default:
+                    f = 0;
+                    break;
+            }
+
+            if (f != 0) {
+                System.out.println(playerNum + " gets " + f + " flasks.");
+                players[playerNum].pulsflasks(f);
+            }
+        }
+    }
+
+    private void experimentReturn() {
+        for (int i = 0; i < 3; i++) {
+            int playerNum = experiment[i][0];
+
+            // 人がいない
+            if (playerNum == -1) {
+                return;
+            }
+
+            // フラスコ
+            int f = 3 + i;
+            System.out.println(playerNum + " gets " + f + " flasks.");
+            players[playerNum].pulsflasks(f);
+        }
+    }
+
+    private void presentationReturn() {
+        // タイムラインのどこに入れるか計算
+        int seasonDiv = (season / 2) % 3;
+
+        // それぞれの場所でそれぞれのコマがどれだけ星をもらえるか
+        int starsList[][] = {{1, 1, 2}, {3, 4, 4}, {7, 6, 5}};
+
+        for (int i = 0; i < 3; i++) {
+            int playerNum = presentation[i][0];
+            int komaKind = presentation[i][1];
+            // 人がいなければスキップ
+            if (playerNum == -1) {
+                continue;
+            }
+
+            int s = starsList[i][komaKind];
+            System.out.println(playerNum + " gets " + s + " stars.");
+            players[playerNum].pulsStars(s);
+            // 表彰用の星も計算
+            seasonStars[seasonDiv][playerNum] += s;
+        }
+    }
+
+    private void paperReturn() {
+        // タイムラインのどこに入れるか計算
+        int seasonDiv = (season / 2) % 3;
+
+        // それぞれの場所でそれぞれのコマがどれだけ星をもらえるか
+        int starsList[][] = {{8, 7, 6}, {7, 6, 5}, {6, 5, 4}};
+
+        for (int i = 0; i < 3; i++) {
+            int playerNum = paper[i][0];
+            int komaKind = paper[i][1];
+            // 人がいなければリターン
+            if (playerNum == -1) {
+                return;
+            }
+
+            int s = starsList[i][komaKind];
+            System.out.println(playerNum + " gets " + s + " stars.");
+            players[playerNum].pulsStars(s);
+            // 表彰用の星も計算
+            seasonStars[seasonDiv][playerNum] += s;
+        }
+    }
+    
+    private void reportReturn(){
+        // 5-1
+        if (report[0][0] != -1){
+            int playerNum = report[0][0];
+            int m = 3;
+            System.out.println(playerNum + " gets " + m + " money.");
+            players[playerNum].pulsMoney(m);
+            // スタートプレイヤーの変更
+            System.out.println(playerNum + " has become start player.");
+            startPlayer = playerNum;
+        }
+        
+        // 5-2
+        if (report[1][0] != -1){
+            int playerNum = report[1][0];
+            int m = 5;
+            System.out.println(playerNum + " gets " + m + " money.");
+            players[playerNum].pulsMoney(m);
+        }
+        
+        // 5-3
+        if (report[2][0] != -1){
+            int playerNum = report[2][0];
+            int m = 6;
+            System.out.println(playerNum + " gets " + m + " money.");
+            players[playerNum].pulsMoney(m);
+            // トレンド付与
+            trend = true;
+            System.out.println("The research has become a trend.");
+        }
+    }
+    
+    private void employReturn(){
+        // 6-1
+        if(employ[0][0] != -1){
+            int playerNum = employ[0][0];
+            System.out.println(playerNum + " has hired a Student.");
+            players[playerNum].pulsKoma(Player.KOMA_S);
+        }
+        
+        // 6-2
+        if(employ[1][0] != -1){
+            int playerNum = employ[1][0];
+            System.out.println(playerNum + " has hired an Assistant.");
+            players[playerNum].pulsKoma(Player.KOMA_A);
+        }
     }
 }
