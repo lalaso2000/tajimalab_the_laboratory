@@ -23,12 +23,17 @@ public class AnalogSimulator {
         gb.players[GameBoard.RED].flasks = 20;
         gb.players[GameBoard.RED].allStars = 20;
         
-        gb.action(0, 0, "6-1");
-        gb.action(1, 0, "6-2");
+        gb.action(0, 0, "4");
+        gb.action(1, 0, "5-3");
+        gb.action(0, 2, "4");
+        
         
         gb.reward();
         
+        gb.award();
+        
         gb.payment();
+        
         
         gb.players[GameBoard.BLUE].showStatus();
         gb.players[GameBoard.RED].showStatus();

@@ -35,7 +35,7 @@ public class Player {
     }
 
     public void showStatus() {
-        System.out.println("====== " + name + "======");
+        System.out.println("====== " + name + " ======");
         System.out.println("koma : " + Arrays.toString(komas));
         System.out.println("money : " + money);
         System.out.println("flasks : " + flasks);

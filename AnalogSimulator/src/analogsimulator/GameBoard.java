@@ -58,6 +58,8 @@ class GameBoard {
 
     // コマをアクションに置く
     public boolean action(int playerNum, int KomaKind, String actionName) {
+        System.out.println("====== action ======");
+        
         // 配置するコマの情報
         int w[] = {playerNum, KomaKind};
 
@@ -267,6 +269,7 @@ class GameBoard {
     }
 
     public void reward() {
+        System.out.println("====== reward ======");
         semiReward();
         experimentReward();
         presentationReward();
@@ -434,12 +437,38 @@ class GameBoard {
     }
 
     public void payment() {
+        System.out.println("====== payment ======");
         for (Player player : players) {
             int m = 0;
             m += player.komas[Player.KOMA_A] * 3;
             m += player.komas[Player.KOMA_S];
             System.out.println(player.name + " has paid " + m + " money.");
             player.payMoney(m);
+        }
+    }
+    
+    public void award() {
+        System.out.println("====== award ======");
+        // タイムラインのどこに入れるか計算
+        int seasonDiv = (season / 2) % 3;
+        
+        int m = 5;
+        // トレンド
+        if (trend) m = 8;
+        
+        if (seasonStars[seasonDiv][RED] > seasonStars[seasonDiv][BLUE]){
+            players[RED].pulsMoney(m);
+            System.out.println(players[RED].name + " gets " + m + " money.");
+        }
+        else if(seasonStars[seasonDiv][RED] < seasonStars[seasonDiv][BLUE]){
+            players[BLUE].pulsMoney(m);
+            System.out.println(players[BLUE].name + " gets " + m + " money.");
+        }
+        else{
+            players[RED].pulsMoney(m);
+            System.out.println(players[RED].name + " gets " + m + " money.");
+            players[BLUE].pulsMoney(m);
+            System.out.println(players[BLUE].name + " gets " + m + " money.");
         }
     }
 
