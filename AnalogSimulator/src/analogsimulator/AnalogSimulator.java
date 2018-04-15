@@ -23,11 +23,12 @@ public class AnalogSimulator {
         gb.players[GameBoard.RED].flasks = 20;
         gb.players[GameBoard.RED].allStars = 20;
         
-        gb.setKoma(0, 2, "4");
-        gb.setKoma(0, 0, "6-1");
-        gb.setKoma(1, 0, "6-2");
+        gb.action(0, 0, "6-1");
+        gb.action(1, 0, "6-2");
         
-        gb.actionReturn();
+        gb.reward();
+        
+        gb.payment();
         
         gb.players[GameBoard.BLUE].showStatus();
         gb.players[GameBoard.RED].showStatus();

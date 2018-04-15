@@ -118,4 +118,7 @@ public class Player {
         allStars += profit;
     }
     
+    public void remainKomaReset(){
+        remainKomas = komas.clone();
+    }
 }
