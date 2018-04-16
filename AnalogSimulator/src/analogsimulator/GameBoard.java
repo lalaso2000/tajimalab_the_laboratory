@@ -42,18 +42,21 @@ class GameBoard {
     public int startPlayer;
 
     // トレンド
-    public boolean trend = false;
+    public int trend = -1;
 
     // タイムライン
     public int season = 0;
     public int seasonStars[][] = {{0, 0}, {0, 0}, {0, 0}};
+    
+    // コマの数
+    public int komasCount = 4;
 
     // コンストラクタ
-    public GameBoard(int s) {
+    public GameBoard(int startPlayerNum) {
         players[BLUE] = new Player(this, "blue");
         players[RED] = new Player(this, "red");
 
-        startPlayer = s;
+        startPlayer = startPlayerNum;
     }
 
     // コマをアクションに置く
@@ -343,8 +346,7 @@ class GameBoard {
     }
 
     private void presentationReward() {
-        // タイムラインのどこに入れるか計算
-        int seasonDiv = (season / 2) % 3;
+        
 
         // それぞれの場所でそれぞれのコマがどれだけ星をもらえるか
         int starsList[][] = {{1, 1, 2}, {3, 4, 4}, {7, 6, 5}};
@@ -361,13 +363,12 @@ class GameBoard {
             System.out.println(players[playerNum].name + " gets " + s + " stars.");
             players[playerNum].pulsStars(s);
             // 表彰用の星も計算
-            seasonStars[seasonDiv][playerNum] += s;
+            seasonStars[season][playerNum] += s;
         }
     }
 
     private void paperReward() {
-        // タイムラインのどこに入れるか計算
-        int seasonDiv = (season / 2) % 3;
+        
 
         // それぞれの場所でそれぞれのコマがどれだけ星をもらえるか
         int starsList[][] = {{8, 7, 6}, {7, 6, 5}, {6, 5, 4}};
@@ -384,7 +385,7 @@ class GameBoard {
             System.out.println(players[playerNum].name + " gets " + s + " stars.");
             players[playerNum].pulsStars(s);
             // 表彰用の星も計算
-            seasonStars[seasonDiv][playerNum] += s;
+            seasonStars[season][playerNum] += s;
         }
     }
 
@@ -415,7 +416,7 @@ class GameBoard {
             System.out.println(players[playerNum].name + " gets " + m + " money.");
             players[playerNum].pulsMoney(m);
             // トレンド付与
-            trend = true;
+            trend = season;
             System.out.println("The research has become a trend.");
         }
     }
@@ -426,6 +427,7 @@ class GameBoard {
             int playerNum = employ[0][0];
             System.out.println(players[playerNum].name + " has hired a Student.");
             players[playerNum].pulsKoma(Player.KOMA_S);
+            komasCount += 1;
         }
 
         // 6-2
@@ -433,11 +435,12 @@ class GameBoard {
             int playerNum = employ[1][0];
             System.out.println(players[playerNum].name + " has hired an Assistant.");
             players[playerNum].pulsKoma(Player.KOMA_A);
+            komasCount += 1;
         }
     }
 
     public void payment() {
-        System.out.println("====== payment ======");
+        
         for (Player player : players) {
             int m = 0;
             m += player.komas[Player.KOMA_A] * 3;
@@ -454,19 +457,17 @@ class GameBoard {
     }
     
     public void award() {
-        System.out.println("====== award ======");
-        // タイムラインのどこに入れるか計算
-        int seasonDiv = (season / 2) % 3;
+        
         
         int m = 5;
         // トレンド
-        if (trend) m = 8;
+        if (trend == season) m = 8;
         
-        if (seasonStars[seasonDiv][RED] > seasonStars[seasonDiv][BLUE]){
+        if (seasonStars[season][RED] > seasonStars[season][BLUE]){
             players[RED].pulsMoney(m);
             System.out.println(players[RED].name + " gets " + m + " money.");
         }
-        else if(seasonStars[seasonDiv][RED] < seasonStars[seasonDiv][BLUE]){
+        else if(seasonStars[season][RED] < seasonStars[season][BLUE]){
             players[BLUE].pulsMoney(m);
             System.out.println(players[BLUE].name + " gets " + m + " money.");
         }
@@ -477,5 +478,11 @@ class GameBoard {
             System.out.println(players[BLUE].name + " gets " + m + " money.");
         }
     }
+
+    public void setSeason(int turnNum) {
+        this.season = (turnNum / 2) % 3;
+    }
+    
+    
 
 }

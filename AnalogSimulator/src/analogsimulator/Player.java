@@ -130,6 +130,11 @@ public class Player {
     public int getMoney() {
         return money;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     
     
 }
