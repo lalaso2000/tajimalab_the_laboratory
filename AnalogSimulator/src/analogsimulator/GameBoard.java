@@ -482,6 +482,10 @@ class GameBoard {
     public void setSeason(int turnNum) {
         this.season = (turnNum / 2) % 3;
     }
+
+    public int getKomasCount() {
+        return komasCount;
+    }
     
     
 
