@@ -1,0 +1,134 @@
+[recv]100 HELLO
+[send]101 NAME KAMIYAN
+[recv]102 PLAYERID 0
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 5-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 2-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-2
+[recv]206 PLAYED 1 S 3-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 2-2
+[recv]200 OK
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 5-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 2-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 4-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 6-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 3-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 6-2
+[recv]200 OK
+[recv]206 PLAYED 1 P 5-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 3-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]206 PLAYED 1 S 2-2
+[recv]206 PLAYED 1 P 5-3
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 3-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 3-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 1-1
+[recv]200 OK
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-2
+[recv]200 OK
+[recv]206 PLAYED 1 P 5-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-2
+[recv]206 PLAYED 1 P 5-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 3-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 5-3 T2
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 1-1
+[recv]200 OK
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0  A 1-1
+[recv]400 MESSAGE SYNTAX ERROR
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 4-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 2-2
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-3
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 4-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 5-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 2-2
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-3
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 5-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 4-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 3-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 3-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 1-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 2-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 P 4-1
+[recv]200 OK
+[recv]206 PLAYED 1 S 3-1
+[recv]204 DOPLAY
+[send]205 PLAY 0 S 2-1
+[recv]200 OK
+[recv]206 PLAYED 1 P 6-2
+[recv]204 DOPLAY
+[send]205 PLAY 0 A 5-2
+[recv]200 OK
+[recv]206 PLAYED 1 S 1-1
+[recv]503 SCORE 30 34
+[recv]501 WINNER 1
+[recv]502 GAME END
