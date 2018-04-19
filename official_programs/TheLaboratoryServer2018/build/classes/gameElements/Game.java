@@ -53,7 +53,7 @@ public class Game extends Observable{
     public int[] getScore(){
         int[] score = new int[2];
         score[0] = this.gameResource[0].getTotalScore();
-        score[1] = this.gameResource[0].getTotalScore();
+        score[1] = this.gameResource[1].getTotalScore();
         return score;
     }
     
@@ -299,17 +299,20 @@ public class Game extends Observable{
         }
 
         if(place.equals("6-1")){
-            if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
-                if(putmode){
-                    this.gameBoard.putWorker(player, place, typeOfWorker);
-                    this.gameResource[player].putWorker(typeOfWorker);
-                    this.changePlayer();
-                    this.setChanged();
-                    this.notifyObservers();
+            if(this.gameResource[player].getCurrentResrchPoint() >= 3){
+                if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
+                    if(putmode){
+                        this.gameResource[player].addReserchPoint(-3);
+                        this.gameBoard.putWorker(player, place, typeOfWorker);
+                        this.gameResource[player].putWorker(typeOfWorker);
+                        this.changePlayer();
+                        this.setChanged();
+                        this.notifyObservers();
+                    }
+                    return true;
+                } else {
+                    return false;
                 }
-                return true;
-            } else {
-                return false;
             }
         }
         if(place.equals("6-2")){
@@ -339,12 +342,12 @@ public class Game extends Observable{
             
     /** 通常の手番切換え */
     public void changePlayer(){
-        this.timerThread.StopTimeCount(this.CurrentPlayer);
+        //this.timerThread.StopTimeCount(this.CurrentPlayer);
 
         if(this.gameResource[(this.CurrentPlayer+1)%2].hasWorker()){
             //相手に手がうつせる場合
             this.CurrentPlayer = (this.CurrentPlayer+1)%2;
-            this.timerThread.StartTimeCount(this.CurrentPlayer);
+            //this..StartTimeCount(this.CurrentPlayer);
             this.setChanged();
             this.notifyObservers();
             return;
@@ -352,7 +355,7 @@ public class Game extends Observable{
             //相手がもう手が打てない場合
             if(this.gameResource[this.CurrentPlayer].hasWorker()){
                 //自分がまだ打てるんであれば、そのまま自分の手番で継続
-                this.timerThread.StartTimeCount(this.CurrentPlayer);
+                //this.timerThread.StartTimeCount(this.CurrentPlayer);
                 this.setChanged();
                 this.notifyObservers();
                 return;
@@ -609,10 +612,12 @@ public class Game extends Observable{
                 String worker = workers.get(key).get(0);
                 if(worker.endsWith("0")){
                     this.currentStartPlayer = 0;
+                    this.gameResource[0].addMoney(3);
                     this.gameResource[0].setStartPlayer(true);
                     this.gameResource[1].setStartPlayer(false);
                 } else if(worker.endsWith("1")){
                     this.currentStartPlayer = 1;
+                    this.gameResource[1].addMoney(3);
                     this.gameResource[0].setStartPlayer(false);
                     this.gameResource[1].setStartPlayer(true);
                 }

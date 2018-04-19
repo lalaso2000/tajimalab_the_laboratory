@@ -62,7 +62,8 @@ public class ClientConnectionThread implements Runnable {
     private Pattern MSGPTN = Pattern.compile("([0-9]+) (.*)");
     private Pattern NAMEMSGPTN = Pattern.compile("101 NAME (.*)");
     private Pattern CONFPRAMMSGPTN = Pattern.compile("210 CONFPRM");
-    private Pattern PLAYMSGPTN = Pattern.compile("205 PLAY ([01]) ([PAS]) (([1-6])-([1-3]))( (T[1-3]))?");
+    private Pattern PLAYMSGPTN = Pattern.compile("205 PLAY ([01]) ([PAS]) (([1-6])-([1-3])).*");
+    private Pattern PLAYMSGPTN_TREND = Pattern.compile("205 PLAY ([01]) ([PAS]) (([1-6])-([1-3])) (T[1-3])");
     /** クライアントからのメッセ―ジ到着 */
     public void getMessage(String message){
         message = message.trim();
@@ -126,9 +127,17 @@ public class ClientConnectionThread implements Runnable {
                                 String place = nmc.group(3);
                                 int placeType = Integer.parseInt(nmc.group(4));
                                 int placeNumber = Integer.parseInt(nmc.group(5));
-                                String treand = "";
-                                if(nmc.groupCount() > 6){
-                                    treand = nmc.group(7);
+                                
+                                String trend = "";
+                                //トレンド移動の手の場合には値が設定されているか確認
+                                if(place.equals("5-3")){
+                                    Matcher nmc2 = PLAYMSGPTN_TREND.matcher(message);
+                                    if(!nmc2.matches()){
+                                        this.sendMessage("400 MESSAGE SYNTAX ERROR");
+                                        return;
+                                    } else {
+                                        trend = nmc2.group(6);
+                                    }
                                 }
 
                                 //その手が打てるか確認
@@ -136,17 +145,11 @@ public class ClientConnectionThread implements Runnable {
                                 
                                 if(playable == true){
                                     boolean played = false;
-                                    //トレンド移動の手の場合には値が設定されているか確認
+                                    played = this.HostServer.getGameBoard().play(this.PlayerID, place, workerType);
                                     if(place.equals("5-3")){
-                                        if(!treand.equals("")){
-                                            this.HostServer.getGameBoard().setTreand(treand);
-                                            played = this.HostServer.getGameBoard().play(this.PlayerID, place, workerType);
-                                        } else {
-                                           this.sendMessage("400 MESSAGE SYNTAX ERROR");
-                                        }
-                                    } else {
-                                        played = this.HostServer.getGameBoard().play(this.PlayerID, place, workerType);
+                                        this.HostServer.getGameBoard().setTreand(trend);
                                     }
+
                                     //手を打つ処理をサーバに依頼
                                     if(played){
                                         //手が打てたらOKを返す
@@ -156,6 +159,7 @@ public class ClientConnectionThread implements Runnable {
                                         if(this.HostServer.getGameBoard().getGameState() == Game.STATE_GAME_END){
                                             this.HostServer.gameEnd(this, PlayerID);
                                         }
+                                        return;
                                     } else {
                                         //何らかのエラーで手が打てなかった場合は、手を打つように要求
                                         this.sendMessage("401 WORKER COULD NOT PUT"); 
