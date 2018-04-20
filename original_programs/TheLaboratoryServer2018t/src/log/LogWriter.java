@@ -38,11 +38,13 @@ public class LogWriter implements Observer {
         if (source instanceof Game) {
             try {
                 writer.flush();
-                writer.write(((Game) source).getBoardInformation() + "\n");
-                writer.write(((Game) source).getResourceInformation() + "\n");
-                if (arg instanceof String) {
-                    writer.write(arg.toString());
+                String line = ((Game) source).getInfomationForCsv();
+                if (line != null) {
+                    writer.write(line);
                 }
+//                if (arg instanceof String) {
+//                    writer.write(arg.toString());
+//                }
                 writer.flush();
             } catch (IOException e) {
                 System.err.println("ログファイルエラー");
