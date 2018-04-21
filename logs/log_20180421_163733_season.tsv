@@ -1,0 +1,15 @@
+	Num	Season	1-1(Seminor)	2-1(Experiment)	2-2(Experiment)	2-3(Experiment)	3-1(Presentation)	3-2(Presentation)	3-3(Presentation)	4-1(Paper)	4-2(Paper)	4-3(Paper)	5-1(Report)	5-2(Report)	5-3(Report)	6-1(Employ)	6-2(Employ)	Trend	player0_T1_Score	player1_T1_Score	player0_T2_Score	player1_T2_Score	player0_T3_Score	player1_T3_Score	player0_Money	player0_ReserchPoint	player0_TotalScore	player1_Money	player1_ReserchPoint	player1_TotalScore
+0	0	start	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T0	0	0	0	0	0	0	5	0	0	5	0	0
+1	4	1a	null	[S0]	[P0]	[S1]	null	null	null	null	null	null	[P1]	null	null	null	null	T0	0	0	0	0	0	0	1	0	0	3	0	0
+2	9	1b	[S0]	[S1]	null	null	null	null	null	null	null	null	[P1]	[P0]	null	null	null	T0	0	0	0	0	0	0	0	6	0	3	5	0
+3	14	2a	null	[S0]	[S1]	null	null	null	null	[P1]	null	null	null	[P0]	null	null	null	T0	0	0	0	0	0	0	7	5	0	7	0	0
+4	19	2b	null	[S1]	[S0]	null	null	null	null	[P0]	null	null	null	null	null	[P1]	null	T0	0	0	0	8	0	0	8	0	0	4	1	8
+5	25	3a	null	[S1]	[P0]	[S1]	null	[S0]	null	null	null	null	null	[P1]	null	null	null	T0	0	0	8	8	0	0	9	0	8	3	3	8
+6	31	3b	null	[S0]	[S1]	[P0]	[S1]	null	null	[P1]	null	null	null	null	null	null	null	T0	0	0	8	8	4	0	4	4	12	3	1	8
+7	37	4a	null	[S1]	[S1]	null	null	null	null	[S0]	null	null	[P1]	[P0]	null	null	null	T0	0	0	8	8	4	10	2	3	12	2	5	18
+8	43	4b	null	[S1]	[S0]	null	[S1]	null	null	null	null	null	[P0]	[P1]	null	null	null	T0	6	0	8	8	4	10	4	3	18	1	9	18
+9	49	5a	null	[S1]	[S0]	[S1]	null	null	null	null	null	null	null	null	[P1]	null	[P0]	T0	6	2	8	8	4	10	9	7	18	0	9	20
+10	56	5b	null	[S0]	null	null	[S1]	[S1]	null	[P0]	[P1]	null	[A0]	null	null	null	null	T2	6	2	8	8	4	10	2	3	18	1	3	20
+11	63	6a	null	[S1]	[S1]	[P1]	[S0]	null	null	null	null	null	null	[A0]	[P0]	null	null	T3	6	2	16	21	4	10	1	0	26	1	3	33
+12	70	6b	[P0, A0, S1, S0, P1]	null	null	null	[S1]	null	null	null	null	null	null	null	null	null	null	T3	6	2	16	21	6	10	8	0	28	0	13	30
+13	71	end	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T3	6	2	16	21	6	12	8	8	28	0	18	32
