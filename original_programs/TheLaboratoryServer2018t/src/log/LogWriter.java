@@ -27,6 +27,46 @@ public class LogWriter implements Observer {
         try {
             file = new File(filePath);
             writer = new FileWriter(file);
+            String line = "Num\t";
+            line += "Season\t";
+            line += "1-1\t";
+            line += "2-1\t";
+            line += "2-2\t";
+            line += "2-3\t";
+            line += "3-1\t";
+            line += "3-2\t";
+            line += "3-3\t";
+            line += "4-1\t";
+            line += "4-2\t";
+            line += "4-3\t";
+            line += "5-1\t";
+            line += "5-2\t";
+            line += "5-3\t";
+            line += "6-1\t";
+            line += "6-2\t";
+            line += "Trend\t";
+            line += "player0_T1_Score\t";
+            line += "player1_T1_Score\t";
+            line += "player0_T2_Score\t";
+            line += "player1_T2_Score\t";
+            line += "player0_T3_Score\t";
+            line += "player1_T3_Score\t";
+            line += "player0_P\t";
+            line += "player0_A\t";
+            line += "player0_S\t";
+            line += "player0_StudentCount\t";
+            line += "player0_Moey\t";
+            line += "player0_ReserchPoint\t";
+            line += "player0_TotalScore\t";
+            line += "player1_P\t";
+            line += "player1_A\t";
+            line += "player1_S\t";
+            line += "player1_StudentCount\t";
+            line += "player1_Moey\t";
+            line += "player1_ReserchPoint\t";
+            line += "player1_TotalScore\t";
+            line += "\n";
+            writer.write(line);
         } catch (IOException ex) {
             System.err.println("ログファイルエラー");
             Logger.getLogger(LogWriter.class.getName()).log(Level.SEVERE, null, ex);
@@ -38,7 +78,7 @@ public class LogWriter implements Observer {
         if (source instanceof Game) {
             try {
                 writer.flush();
-                String line = ((Game) source).getInfomationForCsv();
+                String line = ((Game) source).getInfomationForTsv();
                 if (line != null) {
                     writer.write(line);
                 }

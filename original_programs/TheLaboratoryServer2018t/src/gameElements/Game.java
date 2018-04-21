@@ -29,13 +29,13 @@ public class Game extends Observable {
     private int gameState;
     private GameResources[] gameResource;
     private int currentSeason;
-    public static String[] SEASON_NAMES = {"1a", "1b", "2a", "2b", "3a", "3b", "4a", "4b", "5a", "5b", "6a", "6b"};
+    public static String[] SEASON_NAMES = {"1a", "1b", "2a", "2b", "3a", "3b", "4a", "4b", "5a", "5b", "6a", "6b", "end"};
     private int trendID;
     public static String[] TREAND_ID_LIST = {"T1", "T2", "T3"};
     private int currentStartPlayer = 0;
-    
+
     // ログ番号
-    private int logNum = 0; 
+    private int logNum = 0;
     private int lastLogNum = -1;
 
     /**
@@ -724,6 +724,8 @@ public class Game extends Observable {
             if (this.currentSeason == 11) {
                 //最後の季節の終了
                 this.gameState = STATE_GAME_END;
+                //季節を一つ進める
+                this.currentSeason++;
             } else if (this.currentSeason % 2 == 1) {
                 //奇数は表彰のある季節なので表彰する
                 int addmoney = 5;
@@ -893,49 +895,53 @@ public class Game extends Observable {
         this.notifyObservers(text);
     }
 
-    public String getInfomationForCsv() {
-        if (this.logNum == this.lastLogNum){
+    public String getInfomationForTsv() {
+        if (this.logNum == this.lastLogNum) {
             return null;
         }
         StringBuilder sbuf = new StringBuilder();
-        sbuf.append(this.logNum + ",");
-        sbuf.append(this.getSeason() + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("1-1") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("2-1") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("2-2") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("2-3") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("3-1") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("3-2") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("3-3") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("4-1") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("4-2") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("4-3") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("5-1") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("5-2") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("5-3") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("6-1") + ",");
-        sbuf.append(this.gameBoard.getWorkersOnBoard().get("6-2") + ",");
-        sbuf.append(this.getTrend() + ",");
-        sbuf.append(this.gameResource[0].getSocreOf("T1") + "," + this.gameResource[1].getSocreOf("T1") + ",");
-        sbuf.append(this.gameResource[0].getSocreOf("T2") + "," + this.gameResource[1].getSocreOf("T2") + ",");
-        sbuf.append(this.gameResource[0].getSocreOf("T3") + "," + this.gameResource[1].getSocreOf("T3") + ",");
+        sbuf.append(this.logNum + "\t");
+        if (this.logNum == 0) {
+            sbuf.append("start\t");
+        } else {
+            sbuf.append(this.getSeason() + "\t");
+        }
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("1-1") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("2-1") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("2-2") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("2-3") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("3-1") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("3-2") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("3-3") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("4-1") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("4-2") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("4-3") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("5-1") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("5-2") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("5-3") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("6-1") + "\t");
+        sbuf.append(this.gameBoard.getWorkersOnBoard().get("6-2") + "\t");
+        sbuf.append(this.getTrend() + "\t");
+        sbuf.append(this.gameResource[0].getSocreOf("T1") + "\t" + this.gameResource[1].getSocreOf("T1") + "\t");
+        sbuf.append(this.gameResource[0].getSocreOf("T2") + "\t" + this.gameResource[1].getSocreOf("T2") + "\t");
+        sbuf.append(this.gameResource[0].getSocreOf("T3") + "\t" + this.gameResource[1].getSocreOf("T3") + "\t");
         sbuf.append(getResourceInformationForCsv(0));
         sbuf.append(getResourceInformationForCsv(1));
         sbuf.append("\n");
-        
+
         this.lastLogNum = this.logNum;
         return sbuf.toString();
     }
 
     private String getResourceInformationForCsv(int playerID) {
         StringBuilder sbuf = new StringBuilder();
-        sbuf.append(this.gameResource[playerID].hasWorkerOf("P") + ",");
-        sbuf.append(this.gameResource[playerID].hasWorkerOf("A") + ",");
-        sbuf.append(this.gameResource[playerID].hasWorkerOf("S") + ",");
-        sbuf.append(this.gameResource[playerID].getTotalStudentsCount() + ",");
-        sbuf.append(this.gameResource[playerID].getCurrentMoney() + ",");
-        sbuf.append(this.gameResource[playerID].getCurrentResrchPoint() + ",");
-        sbuf.append(this.gameResource[playerID].getTotalScore() + ",");
+        sbuf.append(this.gameResource[playerID].hasWorkerOf("P") + "\t");
+        sbuf.append(this.gameResource[playerID].hasWorkerOf("A") + "\t");
+        sbuf.append(this.gameResource[playerID].hasWorkerOf("S") + "\t");
+        sbuf.append(this.gameResource[playerID].getTotalStudentsCount() + "\t");
+        sbuf.append(this.gameResource[playerID].getCurrentMoney() + "\t");
+        sbuf.append(this.gameResource[playerID].getCurrentResrchPoint() + "\t");
+        sbuf.append(this.gameResource[playerID].getTotalScore() + "\t");
         return sbuf.toString();
     }
 
