@@ -50,7 +50,7 @@ public class Laboratory2017Server {
         File newdir = new File("logs");
         newdir.mkdir();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-                "'./logs/log'_yyyyMMdd_HHmmss'_row.csv'");
+                "'./logs/log'_yyyyMMdd_HHmmss'_row.tsv'");
         String fileName = simpleDateFormat.format(
                 new Date(System.currentTimeMillis()));
         LogWriter logWriter = new LogWriter(fileName);

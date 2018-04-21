@@ -926,6 +926,7 @@ public class Game extends Observable {
         sbuf.append(this.gameResource[0].getSocreOf("T2") + "\t" + this.gameResource[1].getSocreOf("T2") + "\t");
         sbuf.append(this.gameResource[0].getSocreOf("T3") + "\t" + this.gameResource[1].getSocreOf("T3") + "\t");
         sbuf.append(getResourceInformationForCsv(0));
+        sbuf.append("\t");
         sbuf.append(getResourceInformationForCsv(1));
         sbuf.append("\n");
 
@@ -941,7 +942,7 @@ public class Game extends Observable {
         sbuf.append(this.gameResource[playerID].getTotalStudentsCount() + "\t");
         sbuf.append(this.gameResource[playerID].getCurrentMoney() + "\t");
         sbuf.append(this.gameResource[playerID].getCurrentResrchPoint() + "\t");
-        sbuf.append(this.gameResource[playerID].getTotalScore() + "\t");
+        sbuf.append(this.gameResource[playerID].getTotalScore());
         return sbuf.toString();
     }
 
