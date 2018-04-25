@@ -32,5 +32,8 @@ file_name_time = log_tool.get_file_name_time(file_path)
 # ログファイル読み込み
 df = log_tool.read_log(file_path)
 
+# 季節ごとのログを作る
+season_df = log_tool.make_season_log(df, output_path, file_name_time)
+
 # グラフ出力
-log_tool.make_graph(df, output_path, file_name_time)
+log_tool.make_graph(season_df, output_path, file_name_time)
