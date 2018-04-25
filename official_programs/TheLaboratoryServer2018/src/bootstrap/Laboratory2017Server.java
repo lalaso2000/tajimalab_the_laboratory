@@ -20,7 +20,7 @@ import network.ServerThread;
  */
 public class Laboratory2017Server {
     public static final String TITLE = "The Laboratory 2018 Server";
-    public static final String VERSION = "ver1.04  b18941904";
+    public static final String VERSION = "ver1.05  b18942001";
     
     
     /**
