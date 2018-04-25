@@ -132,11 +132,12 @@ public class ClientConnectionThread implements Runnable {
                                 //トレンド移動の手の場合には値が設定されているか確認
                                 if(place.equals("5-3")){
                                     Matcher nmc2 = PLAYMSGPTN_TREND.matcher(message);
-                                    if(!nmc2.matches()){
-                                        this.sendMessage("400 MESSAGE SYNTAX ERROR");
-                                        return;
-                                    } else {
+                                    if(nmc2.matches()){
                                         trend = nmc2.group(6);
+                                    } else {
+                                        this.sendMessage("400 MESSAGE SYNTAX ERROR");
+                                        this.sendMessage("204 DOPLAY");
+                                        return;
                                     }
                                 }
 
