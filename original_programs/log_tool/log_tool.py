@@ -1,6 +1,22 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tcr
+import os
+import re
+
+
+def read_log(file_path):
+    return pd.read_csv(file_path, delimiter='\t', index_col=0)
+
+
+def get_file_name_time(file_name):
+    text = os.path.basename(file_name)
+    ptn = r'[0-9]+_[0-9]+'
+    matchOB = re.search(ptn, text)
+    if matchOB:
+        return matchOB.group()
+    else:
+        return None
 
 
 def make_season_log(row_df, output_dir, file_name_time):
@@ -79,3 +95,14 @@ def make_graph(season_df, output_dir, file_name_time):
     plt.savefig(file_name)
     # 画面に表示
     plt.show()
+
+
+def main():
+    # テスト
+    file_path = 'logs/log_20180421_163733_season.tsv'
+    file_name_time = get_file_name_time(file_path)
+    print(file_name_time)
+
+
+if __name__ == '__main__':
+    main()

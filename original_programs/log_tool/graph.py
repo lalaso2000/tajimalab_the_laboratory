@@ -1,7 +1,6 @@
 import log_tool
 import sys
 import os
-import pandas as pd
 
 # コマンドライン引数取得
 args = sys.argv
@@ -27,10 +26,11 @@ if not os.path.isdir(output_path):
     sys.stderr.write('Please tell the Output dir path.\n')
     exit()
 
-file_name_time = file_path[-23:-8]
+# ファイル名から時刻抽出
+file_name_time = log_tool.get_file_name_time(file_path)
 
 # ログファイル読み込み
-df = pd.read_csv(file_path, delimiter='\t', index_col=0)
+df = log_tool.read_log(file_path)
 
 # グラフ出力
 log_tool.make_graph(df, output_path, file_name_time)
