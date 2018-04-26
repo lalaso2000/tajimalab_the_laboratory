@@ -1,0 +1,15 @@
+	Num	Season	1-1(Seminar)	2-1(Experiment)	2-2(Experiment)	2-3(Experiment)	3-1(Presentation)	3-2(Presentation)	3-3(Presentation)	4-1(Paper)	4-2(Paper)	4-3(Paper)	5-1(Report)	5-2(Report)	5-3(Report)	6-1(Employ)	6-2(Employ)	Trend	player0_T1_Score	player1_T1_Score	player0_T2_Score	player1_T2_Score	player0_T3_Score	player1_T3_Score	player0_Money	player0_ReserchPoint	player0_TotalScore	player1_Money	player1_ReserchPoint	player1_TotalScore
+0	0	start	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T0	0	0	0	0	0	0	5	0	0	5	0	0
+1	4	1a	[P1]	[S0]	[S1]	null	null	null	null	null	null	null	[P0]	null	null	null	null	T0	0	0	0	0	0	0	3	0	0	3	0	0
+2	9	1b	[P1]	[S0]	null	null	[S1]	null	null	null	null	null	null	[P0]	null	null	null	T0	0	0	0	0	0	0	3	2	0	2	4	0
+3	14	2a	null	[S0]	[S1]	null	null	null	null	null	null	null	[P1]	null	null	[P0]	null	T0	0	2	0	0	0	0	5	2	0	4	6	2
+4	20	2b	null	[S1]	[S0]	null	null	[S0]	null	[P1]	null	null	null	[P0]	null	null	null	T0	0	2	0	0	0	0	0	0	0	3	2	2
+5	26	3a	null	[S0]	null	null	[S1]	[S0]	null	null	null	null	[P0]	null	null	null	[P1]	T0	0	2	4	8	0	0	0	0	4	7	3	10
+6	33	3b	[A1, S0, S1]	null	null	null	[S0]	null	null	null	null	null	[P1]	[P0]	null	null	null	T0	0	2	4	8	4	2	1	0	8	3	3	12
+7	40	4a	[P0]	[S0]	[S1]	[S0]	null	null	null	null	null	null	[A1]	[P1]	null	null	null	T0	0	2	4	8	6	2	5	1	10	0	6	12
+8	47	4b	null	[S0]	null	null	[S1]	[S0]	null	[P1]	null	null	[A1]	[P0]	null	null	null	T0	0	2	4	8	6	2	0	6	10	3	0	12
+9	54	5a	[A1]	[S1]	[S0]	null	null	[S0]	null	null	null	null	[P1]	[P0]	null	null	null	T0	4	12	4	8	6	2	0	4	14	5	0	22
+10	61	5b	[A1]	[S0]	null	null	null	[S1]	null	[S0]	null	null	[P0]	[P1]	null	null	null	T0	4	12	8	8	6	2	0	0	18	3	1	22
+11	68	6a	null	[A1]	[S0]	[S1]	[S0]	null	null	null	null	null	[P0]	[P1]	null	null	null	T0	4	12	14	12	6	2	4	1	24	0	3	26
+12	75	6b	[S0, A1]	null	null	null	[S1]	[S0]	null	[P1]	null	null	[P0]	null	null	null	null	T0	4	12	14	12	8	2	4	1	26	0	1	26
+13	76	end	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T0	4	12	14	12	12	12	7	1	30	0	4	36
