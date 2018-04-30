@@ -13,9 +13,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.sql.Time;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,11 +132,12 @@ public class ClientConnectionThread implements Runnable {
                                 //トレンド移動の手の場合には値が設定されているか確認
                                 if(place.equals("5-3")){
                                     Matcher nmc2 = PLAYMSGPTN_TREND.matcher(message);
-                                    if(!nmc2.matches()){
-                                        this.sendMessage("400 MESSAGE SYNTAX ERROR");
-                                        return;
-                                    } else {
+                                    if(nmc2.matches()){
                                         trend = nmc2.group(6);
+                                    } else {
+                                        this.sendMessage("400 MESSAGE SYNTAX ERROR");
+                                        this.sendMessage("204 DOPLAY");
+                                        return;
                                     }
                                 }
 
@@ -155,6 +156,19 @@ public class ClientConnectionThread implements Runnable {
                                         //手が打てたらOKを返す
                                         this.sendMessage("200 OK");
                                         this.HostServer.played(this, PlayerID, workerType, placeType, placeNumber);
+                                        
+                                        //シーズンの終了判定
+                                        if(this.HostServer.getGameBoard().getGameState() == Game.STATE_SEASON_END){
+                                            try {
+                                                //3秒間まつ
+                                                Thread.sleep(3000);
+                                            } catch (InterruptedException ex) {
+                                                Logger.getLogger(ClientConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                            this.HostServer.SeasonChange();
+                                            this.HostServer.getGameBoard().changeNewSeason();
+                                            this.HostServer.sendDoPlayToCurrentPlayer();
+                                        }
                                         //ゲームの終了判定
                                         if(this.HostServer.getGameBoard().getGameState() == Game.STATE_GAME_END){
                                             this.HostServer.gameEnd(this, PlayerID);
@@ -248,5 +262,12 @@ public class ClientConnectionThread implements Runnable {
         this.connectedSocket.close();
     }
 
+    public void sendSeasonChangeMessage() {
+        this.sendMessage("207 NEXT SEASON");
+    }
+
+    public void sendSeasonChangeMessage(int playerID) {
+        this.sendMessage("208 AWARD "+ playerID);
+    }
    
 }
