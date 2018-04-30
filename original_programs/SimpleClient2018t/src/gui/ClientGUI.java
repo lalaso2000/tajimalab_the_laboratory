@@ -302,6 +302,8 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
         String hostname = this.jTextField2.getText();
         int port = Integer.parseInt(this.jTextField4.getText());
         this.connecter = new ServerConnecter(this);
+        this.myAI.setConnecter(this.connecter);
+        this.myAI.setOutputInterface(this);
         try {
             this.connecter.connectToServer(hostname, port);
         } catch (UnknownHostException ex) {
