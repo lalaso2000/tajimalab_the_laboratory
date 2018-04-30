@@ -101,7 +101,7 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
         jToggleButton1.setText("jToggleButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Simple Client 1.02 b180419");
+        setTitle("Simple Client 1.02-t002 b180419t002");
 
         jLabel1.setText("Log");
 
