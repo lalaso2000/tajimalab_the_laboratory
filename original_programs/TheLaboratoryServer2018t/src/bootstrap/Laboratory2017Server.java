@@ -5,17 +5,14 @@
 package bootstrap;
 
 import gameElements.Game;
+import guiParts.GUIFrame;
 import guiParts.SimpleCUI;
 import guiParts.SimpleCUIFrame;
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import log.LogWriter;
 import network.ServerThread;
 
 /**
@@ -23,16 +20,16 @@ import network.ServerThread;
  * @author ktajima
  */
 public class Laboratory2017Server {
-
-    public static final String TITLE = "The Laboratory 2018 Server (tajima-lab)";
-    public static final String VERSION = "ver1.05t b18942001t001";
-
+    public static final String TITLE = "The Laboratory 2018 Server (tajima lab)";
+    public static final String VERSION = "ver1.06  b18042801t001";
+    
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println(TITLE + VERSION);
-
+        System.out.println(TITLE+VERSION);
+        
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
@@ -45,23 +42,30 @@ public class Laboratory2017Server {
             Logger.getLogger(Laboratory2017Server.class.getName()).log(Level.SEVERE, null, ex);
         }
         //pieceDebug();
-
-        Game mainGame = new Game();
+        Game mainGame = new Game(true);
         SimpleCUI cui = new SimpleCUI();
         SimpleCUIFrame frame = new SimpleCUIFrame();
-        frame.setTitle(TITLE + VERSION);
+        frame.setTitle(TITLE+VERSION);
+        
+        GUIFrame guiFrame = new GUIFrame();
+        guiFrame.setTitle(TITLE+VERSION);
+        
         mainGame.addObserver(cui);
         mainGame.addObserver(frame);
-        //BlokusGUI gui = new BlokusGUI(blokusGame);
-        //blokusGame.addObserver(gui);
-        frame.setVisible(true);
+        mainGame.addObserver(guiFrame);
 
-        ServerThread sth = new ServerThread(18420, mainGame);
+        frame.setVisible(true);
+        guiFrame.setVisible(true);
+               
+        ServerThread sth = new ServerThread(18420,mainGame);
         try {
             sth.waitStart();
         } catch (IOException ex) {
         }
         //    gui.setServerThread(sth);
     }
+        
+        
+    
 
 }
