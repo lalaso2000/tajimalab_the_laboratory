@@ -4,15 +4,10 @@
  */
 package gameElements;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import log.LogWriter;
 
 /**
@@ -41,17 +36,17 @@ public class Game extends Observable {
     private int currentStartPlayer = 0;
 
     // ログ番号
+    private boolean isLogMade;
     private LogWriter logWriter;
-    private int logNum = 0;
-    private int lastLogNum = -1;
+    private int logNum = -1;
 
     /**
      * タイマー
      */
     private TimerThread timerThread;
 
-    public Game() {
-        this.init();
+    public Game(boolean logMake) {
+        this.init(logMake);
     }
 
     /**
@@ -102,10 +97,12 @@ public class Game extends Observable {
     /**
      * ボードなどの初期化
      */
-    private void init() {
-
-        this.logWriter = new LogWriter();
-
+    private void init(boolean logMake) {
+        this.isLogMade = logMake;
+        
+        if (this.isLogMade) {
+            this.logWriter = new LogWriter();
+        }
         this.CurrentPlayer = 0;
         this.gameBoard = new Board();
 
@@ -128,8 +125,7 @@ public class Game extends Observable {
 
         this.setChanged();
         this.notifyObservers();
-        String line = this.getInfomationForTsv();
-        this.logWriter.log_write(line);
+        this.logWrite();
 
     }
 
@@ -186,15 +182,12 @@ public class Game extends Observable {
 
         if (place.equals("1-1")) {
             if (putmode) {
-                this.logNum += 1;
                 this.gameBoard.putWorker(player, place, typeOfWorker);
                 this.gameResource[player].putWorker(typeOfWorker);
-                this.notifyObservers();
-                String line = this.getInfomationForTsv();
-                this.logWriter.log_write(line);
+                this.logWrite();
                 this.changePlayer();
                 this.setChanged();
-
+                this.notifyObservers();
             }
             return true;
         }
@@ -202,16 +195,13 @@ public class Game extends Observable {
         if (place.startsWith("2")) {
             if (this.gameResource[player].getCurrentMoney() >= 2) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].addMoney(-2);
                     this.gameResource[player].putWorker(typeOfWorker);
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -221,17 +211,13 @@ public class Game extends Observable {
         if (place.equals("3-1")) {
             if (this.gameResource[player].getCurrentResrchPoint() >= 2) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].addReserchPoint(-2);
                     this.gameResource[player].putWorker(typeOfWorker);
-
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -241,17 +227,14 @@ public class Game extends Observable {
         if (place.equals("3-2")) {
             if (this.gameResource[player].getCurrentResrchPoint() >= 4 && this.gameResource[player].getCurrentMoney() >= 1) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].addMoney(-1);
                     this.gameResource[player].addReserchPoint(-4);
                     this.gameResource[player].putWorker(typeOfWorker);
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -261,17 +244,14 @@ public class Game extends Observable {
         if (place.equals("3-3")) {
             if (this.gameResource[player].getCurrentResrchPoint() >= 8 && this.gameResource[player].getCurrentMoney() >= 1) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].addMoney(-1);
                     this.gameResource[player].addReserchPoint(-8);
                     this.gameResource[player].putWorker(typeOfWorker);
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -281,17 +261,14 @@ public class Game extends Observable {
         if (place.startsWith("4")) {
             if (this.gameResource[player].getCurrentResrchPoint() >= 8 && this.gameResource[player].getCurrentMoney() >= 1) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].addMoney(-1);
                     this.gameResource[player].addReserchPoint(-8);
                     this.gameResource[player].putWorker(typeOfWorker);
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -302,15 +279,12 @@ public class Game extends Observable {
         if (place.equals("5-1")) {
             if (typeOfWorker.equals("P") || typeOfWorker.equals("A")) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -322,16 +296,13 @@ public class Game extends Observable {
             if (this.gameResource[player].getCurrentResrchPoint() >= 1) {
                 if (typeOfWorker.equals("P") || typeOfWorker.equals("A")) {
                     if (putmode) {
-                        this.logNum += 1;
                         this.gameResource[player].addReserchPoint(-1);
                         this.gameBoard.putWorker(player, place, typeOfWorker);
                         this.gameResource[player].putWorker(typeOfWorker);
-                        this.notifyObservers();
-                        String line = this.getInfomationForTsv();
-                        this.logWriter.log_write(line);
+                        this.logWrite();
                         this.changePlayer();
                         this.setChanged();
-
+                        this.notifyObservers();
                     }
                     return true;
                 } else {
@@ -347,16 +318,13 @@ public class Game extends Observable {
             if (this.gameResource[player].getCurrentResrchPoint() >= 3) {
                 if (typeOfWorker.equals("P") || typeOfWorker.equals("A")) {
                     if (putmode) {
-                        this.logNum += 1;
                         this.gameResource[player].addReserchPoint(-3);
                         this.gameBoard.putWorker(player, place, typeOfWorker);
                         this.gameResource[player].putWorker(typeOfWorker);
-                        this.notifyObservers();
-                        String line = this.getInfomationForTsv();
-                        this.logWriter.log_write(line);
+                        this.logWrite();
                         this.changePlayer();
                         this.setChanged();
-
+                        this.notifyObservers();
                     }
                     return true;
                 } else {
@@ -372,16 +340,13 @@ public class Game extends Observable {
             if (this.gameResource[player].getCurrentResrchPoint() >= 3) {
                 if (typeOfWorker.equals("P") || typeOfWorker.equals("A")) {
                     if (putmode) {
-                        this.logNum += 1;
                         this.gameResource[player].addReserchPoint(-3);
                         this.gameBoard.putWorker(player, place, typeOfWorker);
                         this.gameResource[player].putWorker(typeOfWorker);
-                        this.notifyObservers();
-                        String line = this.getInfomationForTsv();
-                        this.logWriter.log_write(line);
+                        this.logWrite();
                         this.changePlayer();
                         this.setChanged();
-
+                        this.notifyObservers();
                     }
                     return true;
                 } else {
@@ -392,15 +357,12 @@ public class Game extends Observable {
         if (place.equals("6-2")) {
             if (typeOfWorker.equals("P") || this.gameResource[player].getTotalScore() >= 10) {
                 if (putmode) {
-                    this.logNum += 1;
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
-                    this.notifyObservers();
-                    String line = this.getInfomationForTsv();
-                    this.logWriter.log_write(line);
+                    this.logWrite();
                     this.changePlayer();
                     this.setChanged();
-
+                    this.notifyObservers();
                 }
                 return true;
             } else {
@@ -445,9 +407,12 @@ public class Game extends Observable {
                 //互いに手が打てないのであれば、季節を進める
                 this.CurrentPlayer = -1;
                 this.gameState = STATE_SEASON_END;
-                this.changeNewSeason();
                 this.setChanged();
                 this.notifyObservers();
+                //表示のために待つならココ
+
+                //次のシーズンの準備
+                //this.changeNewSeason();
                 return;
             }
         }
@@ -486,8 +451,7 @@ public class Game extends Observable {
 
     /**
      * *
-     * RESOURCES [01] P[01] A[01] S[0-9]+ M[1-9]*[0-9]+ R[1-9]*[0-9]+ D[0-9]+
-     * プレイヤーID（SP）コマの種類と残り個数（ SP 区切り）Mお金（SP）R研究力（SP） D負債 を構造もつメッセージを返す
+     * RESOURCES [01] P[01] A[01] S[0-9]+ M[1-9]*[0-9]+ R[1-9]*[0-9]+ D[0-9]+ プレイヤーID（SP）コマの種類と残り個数（ SP 区切り）Mお金（SP）R研究力（SP） D負債 を構造もつメッセージを返す
      *
      * @param playerID 0または1
      * @return
@@ -531,7 +495,7 @@ public class Game extends Observable {
      * *
      * 季節の進行
      */
-    private void changeNewSeason() {
+    public void changeNewSeason() {
         if (this.gameState == STATE_SEASON_END) {
             HashMap<String, ArrayList<String>> workers = this.getBoard().getWorkersOnBoard();
             //ゼミによる研究ポイントの獲得
@@ -752,9 +716,7 @@ public class Game extends Observable {
             }
 
             // ログを吐く
-            this.logNum++;
-            String line = this.getInfomationForTsv();
-            this.logWriter.log_write(line);
+            this.logWrite();
 
             //ボードのコマを全部戻す
             this.gameResource[0].returnAllWorkers();
@@ -764,11 +726,7 @@ public class Game extends Observable {
             if (this.currentSeason == 11) {
                 //最後の季節の終了
                 this.gameState = STATE_GAME_END;
-                //季節を一つ進める
-                this.currentSeason++;
-                // ログを吐く
-                this.logNum++;
-                this.notifyObservers();
+                this.logWrite();
             } else if (this.currentSeason % 2 == 1) {
                 //奇数は表彰のある季節なので表彰する
                 int addmoney = 5;
@@ -809,13 +767,13 @@ public class Game extends Observable {
                         this.gameResource[1].addMoney(addmoney);
                     }
                 }
-
                 //季節を一つ進める
                 this.currentSeason++;
                 //雇っているコストのお金を支払う
                 this.gameResource[0].payMoneytoWokers();
                 this.gameResource[1].payMoneytoWokers();
                 this.gameState = STATE_WAIT_PLAYER_PLAY;
+                this.logWrite();
             } else {
                 //表彰なく進行する場合
                 //季節を一つ進める
@@ -824,8 +782,11 @@ public class Game extends Observable {
                 this.gameResource[0].payMoneytoWokers();
                 this.gameResource[1].payMoneytoWokers();
                 this.gameState = STATE_WAIT_PLAYER_PLAY;
+                this.logWrite();
             }
         }
+        this.setChanged();
+        this.notifyObservers();
     }
 
     public int getStartPlayer() {
@@ -889,7 +850,11 @@ public class Game extends Observable {
         sbuf.append("トレンド2のスコア：Player0=" + this.gameResource[0].getSocreOf("T2") + ",Player1=" + this.gameResource[1].getSocreOf("T2") + "\n");
         sbuf.append("トレンド3のスコア：Player0=" + this.gameResource[0].getSocreOf("T3") + ",Player1=" + this.gameResource[1].getSocreOf("T3") + "\n");
         sbuf.append("----------------------------------------------\n");
-        sbuf.append("現在プレイ待ちのプレイヤー：Player" + this.CurrentPlayer + "(" + this.PlayerName[this.CurrentPlayer] + ")\n");
+        if (this.CurrentPlayer == -1) {
+            sbuf.append("現在季節を進めています\n");
+        } else {
+            sbuf.append("現在プレイ待ちのプレイヤー：Player" + this.CurrentPlayer + "(" + this.PlayerName[this.CurrentPlayer] + ")\n");
+        }
         sbuf.append("スタートプレイヤー：Player" + this.currentStartPlayer + "\n");
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
         return sbuf.toString();
@@ -908,7 +873,7 @@ public class Game extends Observable {
 
         StringBuilder sbuf = new StringBuilder();
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
-        sbuf.append("/_/_/_/_/_/_/  プレイヤーの状態  /_/_/_/_/_/_/\n");
+        sbuf.append("/_/_/_/_/_/_/_/  プレイヤーの状態  /_/_/_/_/_/_/_/\n");
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
         sbuf.append(this.getResourceInformation(0));
         sbuf.append(this.getResourceInformation(1));
@@ -939,10 +904,23 @@ public class Game extends Observable {
         this.notifyObservers(text);
     }
 
-    public String getInfomationForTsv() {
-        if (this.logNum == this.lastLogNum) {
-            return null;
+    public GameResources getResourcesOf(int i) {
+        if (i == 0 || i == 1) {
+            return this.gameResource[i];
         }
+        return null;
+    }
+
+    private void logWrite() {
+        if (this.isLogMade) {
+            this.logNum += 1;
+            String line = this.getInfomationForTsv();
+            this.logWriter.log_write(line);
+        }
+    }
+
+    public String getInfomationForTsv() {
+
         StringBuilder sbuf = new StringBuilder();
         sbuf.append(this.logNum + "\t");
         if (this.logNum == 0) {
@@ -974,7 +952,6 @@ public class Game extends Observable {
         sbuf.append(getResourceInformationForCsv(1));
         sbuf.append("\n");
 
-        this.lastLogNum = this.logNum;
         return sbuf.toString();
     }
 
@@ -988,6 +965,13 @@ public class Game extends Observable {
         sbuf.append(this.gameResource[playerID].getCurrentResrchPoint() + "\t");
         sbuf.append(this.gameResource[playerID].getTotalScore());
         return sbuf.toString();
+    }
+
+    public String getPlayerNameOf(int i) {
+        if (i == 0 || i == 1) {
+            return this.PlayerName[i];
+        }
+        return "";
     }
 
 }
