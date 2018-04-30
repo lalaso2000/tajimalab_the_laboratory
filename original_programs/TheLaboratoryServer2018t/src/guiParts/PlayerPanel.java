@@ -186,7 +186,7 @@ public class PlayerPanel extends javax.swing.JPanel {
         this.jPanel1.setLayout(new GridLayout(1,1));
         this.workerPanel.setCountOfStudent(stdCount);
         this.workerPanel.setCountOfAssistant(astCount);
-        this.workerPanel.setCountOfAssistant(profCount);
+        this.workerPanel.setCountOfProfessor(profCount);
         this.jPanel1.add(this.workerPanel);
     }
 
