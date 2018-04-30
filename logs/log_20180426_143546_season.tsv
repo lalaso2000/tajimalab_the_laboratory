@@ -1,0 +1,15 @@
+	Num	Season	1-1(Seminar)	2-1(Experiment)	2-2(Experiment)	2-3(Experiment)	3-1(Presentation)	3-2(Presentation)	3-3(Presentation)	4-1(Paper)	4-2(Paper)	4-3(Paper)	5-1(Report)	5-2(Report)	5-3(Report)	6-1(Employ)	6-2(Employ)	Trend	player0_T1_Score	player1_T1_Score	player0_T2_Score	player1_T2_Score	player0_T3_Score	player1_T3_Score	player0_Money	player0_ReserchPoint	player0_TotalScore	player1_Money	player1_ReserchPoint	player1_TotalScore
+0	0	start	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T0	0	0	0	0	0	0	5	0	0	5	0	0
+1	4	1a	null	[S0]	[P0]	[S1]	null	null	null	null	null	null	[P1]	null	null	null	null	T0	0	0	0	0	0	0	1	0	0	3	0	0
+2	9	1b	null	null	null	null	[S0]	[S1]	null	null	null	null	[P1]	[P0]	null	null	null	T0	0	0	0	0	0	0	0	4	0	4	1	0
+3	14	2a	null	[S1]	[P1]	[S0]	null	null	null	null	null	null	null	[P0]	null	null	null	T0	2	4	0	0	0	0	2	3	2	7	1	4
+4	19	2b	null	[S0]	[S1]	[P0]	null	null	null	[P1]	null	null	null	null	null	null	null	T0	2	4	0	0	0	0	2	8	2	3	0	4
+5	24	3a	null	[S1]	null	null	null	[S0]	null	null	null	null	null	[P0]	[P1]	null	null	T1	2	4	0	8	0	0	0	11	2	5	1	12
+6	29	3b	null	[S1]	[S0]	null	null	null	null	null	null	null	[P1]	null	[P0]	null	null	T3	2	4	0	8	4	0	2	8	6	7	4	12
+7	34	4a	null	[S0]	[S1]	[P0]	null	null	null	null	null	null	[P1]	null	null	null	null	T3	2	4	0	8	4	0	11	12	6	7	7	12
+8	39	4b	null	[S0]	[S1]	[P0]	null	null	null	[P1]	null	null	null	null	null	null	null	T3	2	4	0	8	4	0	6	20	6	6	3	12
+9	44	5a	null	[S1]	[P1]	[S0]	null	null	null	[P0]	null	null	null	null	null	null	null	T3	2	12	0	8	4	0	2	20	6	6	7	20
+10	49	5b	null	[S1]	null	null	null	[S0]	null	[P1]	null	null	null	[P0]	null	null	null	T3	2	12	8	8	4	0	0	20	14	2	6	20
+11	54	6a	null	[P1]	null	null	null	[S1]	null	[P0]	[S0]	null	null	null	null	null	null	T3	2	12	12	16	4	0	2	4	18	3	5	28
+12	59	6b	[S1, P0]	null	null	null	null	[S0]	null	[P1]	null	null	null	null	null	null	null	T3	2	12	12	16	17	4	0	0	31	1	0	32
+13	60	end	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T3	2	12	12	16	21	12	0	2	35	1	0	40

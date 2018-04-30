@@ -363,9 +363,12 @@ public class Game extends Observable{
                 //互いに手が打てないのであれば、季節を進める
                 this.CurrentPlayer = -1;
                 this.gameState = STATE_SEASON_END;
-                this.changeNewSeason();
                 this.setChanged();
                 this.notifyObservers();
+                //表示のために待つならココ
+                
+                //次のシーズンの準備
+                //this.changeNewSeason();
                 return;
             }
         }
@@ -445,7 +448,7 @@ public class Game extends Observable{
     /***
      * 季節の進行
      */
-    private void changeNewSeason() {
+    public void changeNewSeason() {
         if(this.gameState == STATE_SEASON_END){
             HashMap<String,ArrayList<String>> workers = this.getBoard().getWorkersOnBoard();
             //ゼミによる研究ポイントの獲得
@@ -723,6 +726,8 @@ public class Game extends Observable{
                 this.gameState = STATE_WAIT_PLAYER_PLAY;
             }
         }
+        this.setChanged();
+        this.notifyObservers();
     }
 
     public int getStartPlayer() {
@@ -785,7 +790,11 @@ public class Game extends Observable{
         sbuf.append("トレンド2のスコア：Player0="+this.gameResource[0].getSocreOf("T2")+",Player1="+this.gameResource[1].getSocreOf("T2")+"\n");
         sbuf.append("トレンド3のスコア：Player0="+this.gameResource[0].getSocreOf("T3")+",Player1="+this.gameResource[1].getSocreOf("T3")+"\n");
         sbuf.append("----------------------------------------------\n");
-        sbuf.append("現在プレイ待ちのプレイヤー：Player"+this.CurrentPlayer+"("+ this.PlayerName[this.CurrentPlayer] +")\n");
+        if(this.CurrentPlayer == -1){
+            sbuf.append("現在季節を進めています\n");
+        } else {
+            sbuf.append("現在プレイ待ちのプレイヤー：Player"+this.CurrentPlayer+"("+ this.PlayerName[this.CurrentPlayer] +")\n");
+        }
         sbuf.append("スタートプレイヤー：Player"+this.currentStartPlayer+"\n");
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
         return sbuf.toString();
@@ -833,6 +842,21 @@ public class Game extends Observable{
         this.setChanged();
         this.notifyObservers(text);
     }
+
+    public GameResources getResourcesOf(int i) {
+        if(i==0 || i ==1) {
+            return this.gameResource[i];
+        }
+        return null;
+    }
+    
+    public String getPlayerNameOf(int i) {
+        if(i==0 || i ==1) {
+            return this.PlayerName[i];
+        }
+        return "";
+    }
+    
 
 
     

@@ -4,10 +4,16 @@
  */
 package gameElements;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import log.LogWriter;
 
 /**
  * ゲームの進行状況を管理するクラス 手を打てるプレイヤーや得点を管理する
@@ -35,6 +41,7 @@ public class Game extends Observable {
     private int currentStartPlayer = 0;
 
     // ログ番号
+    private LogWriter logWriter;
     private int logNum = 0;
     private int lastLogNum = -1;
 
@@ -96,6 +103,9 @@ public class Game extends Observable {
      * ボードなどの初期化
      */
     private void init() {
+
+        this.logWriter = new LogWriter();
+
         this.CurrentPlayer = 0;
         this.gameBoard = new Board();
 
@@ -118,6 +128,9 @@ public class Game extends Observable {
 
         this.setChanged();
         this.notifyObservers();
+        String line = this.getInfomationForTsv();
+        this.logWriter.log_write(line);
+
     }
 
     /**
@@ -177,6 +190,8 @@ public class Game extends Observable {
                 this.gameBoard.putWorker(player, place, typeOfWorker);
                 this.gameResource[player].putWorker(typeOfWorker);
                 this.notifyObservers();
+                String line = this.getInfomationForTsv();
+                this.logWriter.log_write(line);
                 this.changePlayer();
                 this.setChanged();
 
@@ -192,6 +207,8 @@ public class Game extends Observable {
                     this.gameResource[player].addMoney(-2);
                     this.gameResource[player].putWorker(typeOfWorker);
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -210,6 +227,8 @@ public class Game extends Observable {
                     this.gameResource[player].putWorker(typeOfWorker);
 
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -228,6 +247,8 @@ public class Game extends Observable {
                     this.gameResource[player].addReserchPoint(-4);
                     this.gameResource[player].putWorker(typeOfWorker);
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -246,6 +267,8 @@ public class Game extends Observable {
                     this.gameResource[player].addReserchPoint(-8);
                     this.gameResource[player].putWorker(typeOfWorker);
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -264,6 +287,8 @@ public class Game extends Observable {
                     this.gameResource[player].addReserchPoint(-8);
                     this.gameResource[player].putWorker(typeOfWorker);
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -281,6 +306,8 @@ public class Game extends Observable {
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -300,6 +327,8 @@ public class Game extends Observable {
                         this.gameBoard.putWorker(player, place, typeOfWorker);
                         this.gameResource[player].putWorker(typeOfWorker);
                         this.notifyObservers();
+                        String line = this.getInfomationForTsv();
+                        this.logWriter.log_write(line);
                         this.changePlayer();
                         this.setChanged();
 
@@ -323,6 +352,8 @@ public class Game extends Observable {
                         this.gameBoard.putWorker(player, place, typeOfWorker);
                         this.gameResource[player].putWorker(typeOfWorker);
                         this.notifyObservers();
+                        String line = this.getInfomationForTsv();
+                        this.logWriter.log_write(line);
                         this.changePlayer();
                         this.setChanged();
 
@@ -346,6 +377,8 @@ public class Game extends Observable {
                         this.gameBoard.putWorker(player, place, typeOfWorker);
                         this.gameResource[player].putWorker(typeOfWorker);
                         this.notifyObservers();
+                        String line = this.getInfomationForTsv();
+                        this.logWriter.log_write(line);
                         this.changePlayer();
                         this.setChanged();
 
@@ -363,6 +396,8 @@ public class Game extends Observable {
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
                     this.notifyObservers();
+                    String line = this.getInfomationForTsv();
+                    this.logWriter.log_write(line);
                     this.changePlayer();
                     this.setChanged();
 
@@ -410,7 +445,6 @@ public class Game extends Observable {
                 //互いに手が打てないのであれば、季節を進める
                 this.CurrentPlayer = -1;
                 this.gameState = STATE_SEASON_END;
-                this.logNum++;
                 this.changeNewSeason();
                 this.setChanged();
                 this.notifyObservers();
@@ -452,7 +486,8 @@ public class Game extends Observable {
 
     /**
      * *
-     * RESOURCES [01] P[01] A[01] S[0-9]+ M[1-9]*[0-9]+ R[1-9]*[0-9]+ D[0-9]+ プレイヤーID（SP）コマの種類と残り個数（ SP 区切り）Mお金（SP）R研究力（SP） D負債 を構造もつメッセージを返す
+     * RESOURCES [01] P[01] A[01] S[0-9]+ M[1-9]*[0-9]+ R[1-9]*[0-9]+ D[0-9]+
+     * プレイヤーID（SP）コマの種類と残り個数（ SP 区切り）Mお金（SP）R研究力（SP） D負債 を構造もつメッセージを返す
      *
      * @param playerID 0または1
      * @return
@@ -716,6 +751,11 @@ public class Game extends Observable {
                 }
             }
 
+            // ログを吐く
+            this.logNum++;
+            String line = this.getInfomationForTsv();
+            this.logWriter.log_write(line);
+
             //ボードのコマを全部戻す
             this.gameResource[0].returnAllWorkers();
             this.gameResource[1].returnAllWorkers();
@@ -726,6 +766,9 @@ public class Game extends Observable {
                 this.gameState = STATE_GAME_END;
                 //季節を一つ進める
                 this.currentSeason++;
+                // ログを吐く
+                this.logNum++;
+                this.notifyObservers();
             } else if (this.currentSeason % 2 == 1) {
                 //奇数は表彰のある季節なので表彰する
                 int addmoney = 5;
@@ -766,6 +809,7 @@ public class Game extends Observable {
                         this.gameResource[1].addMoney(addmoney);
                     }
                 }
+
                 //季節を一つ進める
                 this.currentSeason++;
                 //雇っているコストのお金を支払う

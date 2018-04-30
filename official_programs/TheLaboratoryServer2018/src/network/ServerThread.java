@@ -123,6 +123,26 @@ public class ServerThread implements Runnable {
         }
     }
 
+    //季節の切り替えを伝えるメッセージ
+    public void SeasonChange() {
+        if (this.gameBoard.getGameState() == Game.STATE_SEASON_END) {
+            for (ClientConnectionThread client : this.clientThread) {
+                client.sendSeasonChangeMessage();
+            }
+        }
+    }
+    
+    public void sendDoPlayToCurrentPlayer(){
+        if (this.gameBoard.getGameState() == Game.STATE_WAIT_PLAYER_PLAY) {
+            for (ClientConnectionThread client : this.clientThread) {
+                if(client.getPlayerID() == this.gameBoard.getCurrentPlayer()){
+                    client.doplay();
+                }
+            }
+        }
+    }
+    
+    
     //誰かが手を打った時にほかの相手にメッセージを転送するケース
     public void played(ClientConnectionThread aThis, int PlayerID, String workertype, int placeType, int placeNumber) {
         String SendMessage = "206 PLAYED " + PlayerID + " " + workertype + " " + placeType + "-" + placeNumber;
