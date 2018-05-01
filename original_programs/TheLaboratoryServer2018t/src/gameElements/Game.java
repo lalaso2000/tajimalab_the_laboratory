@@ -355,7 +355,7 @@ public class Game extends Observable {
             }
         }
         if (place.equals("6-2")) {
-            if (typeOfWorker.equals("P") || this.gameResource[player].getTotalScore() >= 10) {
+            if (typeOfWorker.equals("P") && this.gameResource[player].getTotalScore() >= 10) {
                 if (putmode) {
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
