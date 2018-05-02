@@ -28,7 +28,7 @@ public class Game extends Observable{
     private int gameState;
     private GameResources[] gameResource;
     private int currentSeason;
-    public static String[] SEASON_NAMES = {"1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","5a","5b"};
+    public static String[] SEASON_NAMES = {"1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","5a","5b","6a","6b","end"};
     private int trendID;
     public static String[] TREAND_ID_LIST = {"T1","T2","T3"};
     private int currentStartPlayer = 0;
