@@ -5,6 +5,7 @@
 package bootstrap;
 
 import gameElements.Game;
+import guiParts.GUIFrame;
 import guiParts.SimpleCUI;
 import guiParts.SimpleCUIFrame;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import network.ServerThread;
  */
 public class Laboratory2017Server {
     public static final String TITLE = "The Laboratory 2018 Server";
-    public static final String VERSION = "ver1.05  b18942001";
+    public static final String VERSION = "ver1.06  b18042801";
     
     
     /**
@@ -45,12 +46,16 @@ public class Laboratory2017Server {
         SimpleCUI cui = new SimpleCUI();
         SimpleCUIFrame frame = new SimpleCUIFrame();
         frame.setTitle(TITLE+VERSION);
+        
+        GUIFrame guiFrame = new GUIFrame();
+        guiFrame.setTitle(TITLE+VERSION);
+        
         mainGame.addObserver(cui);
         mainGame.addObserver(frame);
-        //BlokusGUI gui = new BlokusGUI(blokusGame);
-        //blokusGame.addObserver(gui);
+        mainGame.addObserver(guiFrame);
+
         frame.setVisible(true);
-        
+        guiFrame.setVisible(true);
                
         ServerThread sth = new ServerThread(18420,mainGame);
         try {

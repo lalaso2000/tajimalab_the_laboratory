@@ -13,17 +13,17 @@ import java.util.Observer;
  *
  * @author kosen
  */
-public class SimpleCUI implements Observer {
+public class SimpleCUI implements Observer{
 
     @Override
     public void update(Observable source, Object arg) {
-        if (source instanceof Game) {
-            System.out.println(((Game) source).getBoardInformation());
-            System.out.println(((Game) source).getResourceInformation());
-            if (arg instanceof String) {
+        if(source instanceof Game){
+            System.out.println(((Game)source).getBoardInformation());
+            System.out.println(((Game)source).getResourceInformation());
+            if(arg instanceof String){
                 System.out.println(arg);
             }
         }
     }
-
+    
 }
