@@ -21,7 +21,6 @@ public abstract class LaboAI implements MessageRecevable{
     public LaboAI(Game game){
         this.gameBoard = game;
     }
-    public abstract void getNewMessage(String message);
 
     public abstract void setConnecter(ServerConnecter connecter);
 
