@@ -690,7 +690,7 @@ public class Game extends Observable {
                 if (worker.endsWith("0")) {
                     this.gameResource[0].addMoney(6);
                 } else if (worker.endsWith("1")) {
-                    this.gameResource[1].addMoney(5);
+                    this.gameResource[1].addMoney(6);
                 }
             }
             //トレンドを動かす処理はPLAY時に指定する
