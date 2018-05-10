@@ -146,7 +146,7 @@ public class ServerThread implements Runnable {
     //誰かが手を打った時にほかの相手にメッセージを転送するケース
     public void played(ClientConnectionThread aThis, int PlayerID, String workertype, int placeType, int placeNumber) {
         String SendMessage = "206 PLAYED " + PlayerID + " " + workertype + " " + placeType + "-" + placeNumber;
-        if (this.gameBoard.getGameState() == Game.STATE_WAIT_PLAYER_PLAY) {
+        if (this.gameBoard.getGameState() == Game.STATE_WAIT_PLAYER_PLAY || this.gameBoard.getGameState() == Game.STATE_SEASON_END) {
             for (ClientConnectionThread client : this.clientThread) {
                 if (!client.equals(aThis)) {
                     client.sendMessage(SendMessage);
