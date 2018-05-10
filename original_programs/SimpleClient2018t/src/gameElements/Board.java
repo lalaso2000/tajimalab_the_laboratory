@@ -41,6 +41,13 @@ public class Board {
         this.SeminorWorkers = new ArrayList<String>();
     }
     
+    /***
+     *  季節の変わり目などにボード上におかれたワーカーをすべて除去する
+     */
+    public void returnAllWorkers() {
+        this.init();
+    }
+    
     /** ピース設置可能かの判定
      * 第1引数:player プレイヤー番号0または1
      * 第2引数:pice 設置場所
@@ -143,5 +150,6 @@ public class Board {
             }
         }
     }
+
     
 }

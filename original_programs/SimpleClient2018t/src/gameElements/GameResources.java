@@ -22,7 +22,7 @@ public class GameResources {
     
     
     public GameResources(){
-        this.money = 0;
+        this.money = 5;
         this.reserchPoint = 0;
         this.score = new int[3];
         this.score[0] = 0;
@@ -95,7 +95,7 @@ public class GameResources {
     }
 
     public int getTotalScore() {
-        return this.score[0]+this.score[1]+this.score[2];
+        return this.score[0]+this.score[1]+this.score[2]-3*this.debtCount;
     }
 
     public boolean isStartPlayer() {
@@ -136,6 +136,21 @@ public class GameResources {
 
     public int getTotalStudentsCount() {
         return this.workerList[2] + this.usedWorkers[2];
+    }
+
+    public int getNumberofUseableWorkers(String typeOfWorker) {
+        if(typeOfWorker.equals("P")){
+            return this.workerList[0];
+        } else if (typeOfWorker.equals("A")){
+            return this.workerList[1];
+        } else if (typeOfWorker.equals("S")){
+            return this.workerList[2];
+        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int getDebt() {
+        return this.debtCount;
     }
     
 }

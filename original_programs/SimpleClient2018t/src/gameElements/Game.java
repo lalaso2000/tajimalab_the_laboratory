@@ -28,7 +28,7 @@ public class Game extends Observable{
     private int gameState;
     private GameResources[] gameResource;
     private int currentSeason;
-    public static String[] SEASON_NAMES = {"1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","5a","5b","6a","6b","end"};
+    public static String[] SEASON_NAMES = {"1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","6a","6b"};
     private int trendID;
     public static String[] TREAND_ID_LIST = {"T1","T2","T3"};
     private int currentStartPlayer = 0;
@@ -53,7 +53,7 @@ public class Game extends Observable{
     public int[] getScore(){
         int[] score = new int[2];
         score[0] = this.gameResource[0].getTotalScore();
-        score[1] = this.gameResource[0].getTotalScore();
+        score[1] = this.gameResource[1].getTotalScore();
         return score;
     }
     
@@ -113,7 +113,7 @@ public class Game extends Observable{
      * @param place
      * @return 
      */
-    public boolean canPutWorker(int PlayerID, String workerType, String place) {
+    public boolean canPutWorker(int PlayerID, String place, String workerType) {
         return this.play(PlayerID, place, workerType ,false);
     }
 
@@ -151,6 +151,16 @@ public class Game extends Observable{
             return false;
         }
         
+        if(place.equals("1-1")){
+            if(putmode){
+                this.gameBoard.putWorker(player, place, typeOfWorker);
+                this.gameResource[player].putWorker(typeOfWorker);
+                this.changePlayer();
+                this.setChanged();
+                this.notifyObservers();
+            }
+            return true;
+        }
         //リソースが十分かどうかを確認
         if(place.startsWith("2")){
             if(this.gameResource[player].getCurrentMoney() >= 2){
@@ -230,8 +240,8 @@ public class Game extends Observable{
                 return false;
             }
         }
-        //タイプが問題ないかを確認
-        if(place.startsWith("5")){
+
+        if(place.equals("5-1")){
             if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
                 if(putmode){
                     this.gameBoard.putWorker(player, place, typeOfWorker);
@@ -245,18 +255,64 @@ public class Game extends Observable{
                 return false;
             }
         }
-        if(place.equals("6-1")){
-            if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
-                if(putmode){
-                    this.gameBoard.putWorker(player, place, typeOfWorker);
-                    this.gameResource[player].putWorker(typeOfWorker);
-                    this.changePlayer();
-                    this.setChanged();
-                    this.notifyObservers();
+
+        if(place.equals("5-2")){
+            if(this.gameResource[player].getCurrentResrchPoint() >= 1){
+                if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
+                    if(putmode){
+                        this.gameResource[player].addReserchPoint(-1);
+                        this.gameBoard.putWorker(player, place, typeOfWorker);
+                        this.gameResource[player].putWorker(typeOfWorker);
+                        this.changePlayer();
+                        this.setChanged();
+                        this.notifyObservers();
+                    }
+                    return true;
+                } else {
+                    return false;
                 }
-                return true;
             } else {
                 return false;
+            }
+                
+        }
+
+        if(place.equals("5-3")){
+            if(this.gameResource[player].getCurrentResrchPoint() >= 3){
+                if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
+                    if(putmode){
+                        this.gameResource[player].addReserchPoint(-3);
+                        this.gameBoard.putWorker(player, place, typeOfWorker);
+                        this.gameResource[player].putWorker(typeOfWorker);
+                        this.changePlayer();
+                        this.setChanged();
+                        this.notifyObservers();
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+                
+        }
+
+        if(place.equals("6-1")){
+            if(this.gameResource[player].getCurrentResrchPoint() >= 3){
+                if(typeOfWorker.equals("P") || typeOfWorker.equals("A")){
+                    if(putmode){
+                        this.gameResource[player].addReserchPoint(-3);
+                        this.gameBoard.putWorker(player, place, typeOfWorker);
+                        this.gameResource[player].putWorker(typeOfWorker);
+                        this.changePlayer();
+                        this.setChanged();
+                        this.notifyObservers();
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         if(place.equals("6-2")){
@@ -286,12 +342,12 @@ public class Game extends Observable{
             
     /** 通常の手番切換え */
     public void changePlayer(){
-        this.timerThread.StopTimeCount(this.CurrentPlayer);
+        //this.timerThread.StopTimeCount(this.CurrentPlayer);
 
         if(this.gameResource[(this.CurrentPlayer+1)%2].hasWorker()){
             //相手に手がうつせる場合
             this.CurrentPlayer = (this.CurrentPlayer+1)%2;
-            this.timerThread.StartTimeCount(this.CurrentPlayer);
+            //this..StartTimeCount(this.CurrentPlayer);
             this.setChanged();
             this.notifyObservers();
             return;
@@ -299,7 +355,7 @@ public class Game extends Observable{
             //相手がもう手が打てない場合
             if(this.gameResource[this.CurrentPlayer].hasWorker()){
                 //自分がまだ打てるんであれば、そのまま自分の手番で継続
-                this.timerThread.StartTimeCount(this.CurrentPlayer);
+                //this.timerThread.StartTimeCount(this.CurrentPlayer);
                 this.setChanged();
                 this.notifyObservers();
                 return;
@@ -307,9 +363,12 @@ public class Game extends Observable{
                 //互いに手が打てないのであれば、季節を進める
                 this.CurrentPlayer = -1;
                 this.gameState = STATE_SEASON_END;
-                this.changeNewSeason();
                 this.setChanged();
                 this.notifyObservers();
+                //表示のために待つならココ
+                
+                //次のシーズンの準備
+                //this.changeNewSeason();
                 return;
             }
         }
@@ -352,7 +411,16 @@ public class Game extends Observable{
      * @return 
      */
     public String getResourcesMessageOf(int playerID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        StringBuilder sbuf = new StringBuilder();
+        sbuf.append("RESOURCES").append(" ");
+        sbuf.append(playerID).append(" ");
+        sbuf.append("P").append(this.gameResource[playerID].getNumberofUseableWorkers("P")).append(" ");
+        sbuf.append("A").append(this.gameResource[playerID].getNumberofUseableWorkers("A")).append(" ");
+        sbuf.append("S").append(this.gameResource[playerID].getNumberofUseableWorkers("S")).append(" ");
+        sbuf.append("M").append(this.gameResource[playerID].getCurrentMoney()).append(" ");
+        sbuf.append("R").append(this.gameResource[playerID].getCurrentResrchPoint()).append(" ");
+        sbuf.append("D").append(this.gameResource[playerID].getDebt());
+        return sbuf.toString();
     }
 
     public ArrayList<String> getWorkerNameOf(String place) {
@@ -380,34 +448,36 @@ public class Game extends Observable{
     /***
      * 季節の進行
      */
-    private void changeNewSeason() {
+    public void changeNewSeason() {
         if(this.gameState == STATE_SEASON_END){
             HashMap<String,ArrayList<String>> workers = this.getBoard().getWorkersOnBoard();
             //ゼミによる研究ポイントの獲得
             ArrayList<String> seminorwokers = workers.get("1-1");
-            int PACount = 0;
-            int SCount[] = {0,0};
-            for(String w:seminorwokers){
-                if(w.equals("P0")){
-                    PACount++;
-                    this.gameResource[0].addReserchPoint(2);
-                } else if(w.equals("P1")){
-                    PACount++;
-                    this.gameResource[1].addReserchPoint(2);
-                } else if(w.equals("A0")){
-                    PACount++;
-                    this.gameResource[0].addReserchPoint(3);
-                } else if(w.equals("A1")){
-                    PACount++;
-                    this.gameResource[1].addReserchPoint(3);
-                } else if(w.equals("S0")){
-                    SCount[0]++;
-                } else if(w.equals("S1")){
-                    SCount[1]++;
+            if(seminorwokers != null){
+                int PACount = 0;
+                int SCount[] = {0,0};
+                for(String w:seminorwokers){
+                    if(w.equals("P0")){
+                        PACount++;
+                        this.gameResource[0].addReserchPoint(2);
+                    } else if(w.equals("P1")){
+                        PACount++;
+                        this.gameResource[1].addReserchPoint(2);
+                    } else if(w.equals("A0")){
+                        PACount++;
+                        this.gameResource[0].addReserchPoint(3);
+                    } else if(w.equals("A1")){
+                        PACount++;
+                        this.gameResource[1].addReserchPoint(3);
+                    } else if(w.equals("S0")){
+                        SCount[0]++;
+                    } else if(w.equals("S1")){
+                        SCount[1]++;
+                    }
                 }
+                this.gameResource[0].addReserchPoint((int)((SCount[0]+SCount[1])/2)*PACount);
+                this.gameResource[1].addReserchPoint((int)((SCount[0]+SCount[1])/2)*PACount);
             }
-            this.gameResource[0].addReserchPoint((int)(SCount[0]/2)*PACount);
-            this.gameResource[1].addReserchPoint((int)(SCount[1]/2)*PACount);
             
             //実験による研究ポイントの獲得
             String[] keys = {"2-1","2-2","2-3"};
@@ -545,10 +615,12 @@ public class Game extends Observable{
                 String worker = workers.get(key).get(0);
                 if(worker.endsWith("0")){
                     this.currentStartPlayer = 0;
+                    this.gameResource[0].addMoney(3);
                     this.gameResource[0].setStartPlayer(true);
                     this.gameResource[1].setStartPlayer(false);
                 } else if(worker.endsWith("1")){
                     this.currentStartPlayer = 1;
+                    this.gameResource[1].addMoney(3);
                     this.gameResource[0].setStartPlayer(false);
                     this.gameResource[1].setStartPlayer(true);
                 }
@@ -574,7 +646,7 @@ public class Game extends Observable{
                     this.gameResource[1].addMoney(5);
                 }
             }
-            //TODO トレンドを動かす処理はPLAY時に指定する必要ありなので要調整
+            //トレンドを動かす処理はPLAY時に指定する
 
             //コマの獲得
             key = "6-1";
@@ -599,6 +671,7 @@ public class Game extends Observable{
             //ボードのコマを全部戻す
             this.gameResource[0].returnAllWorkers();
             this.gameResource[1].returnAllWorkers();
+            this.getBoard().returnAllWorkers();
             
             if(this.currentSeason == 11) {
                 //最後の季節の終了
@@ -607,7 +680,7 @@ public class Game extends Observable{
                 //奇数は表彰のある季節なので表彰する
                 int addmoney = 5;
                 if(this.currentSeason == 1 || this.currentSeason == 7){
-                    if(this.trendID == 0) { addmoney += 3; }
+                    if(this.getTrend().equals("T1")) { addmoney += 3; }
                     if(this.gameResource[0].getSocreOf("T1") == this.gameResource[1].getSocreOf("T1")){
                         this.gameResource[0].addMoney(addmoney);
                         this.gameResource[1].addMoney(addmoney);
@@ -617,7 +690,7 @@ public class Game extends Observable{
                         this.gameResource[1].addMoney(addmoney);
                     }
                 } else if(this.currentSeason == 3 || this.currentSeason == 9){
-                    if(this.trendID == 1) { addmoney += 3; }
+                    if(this.getTrend().equals("T2")) { addmoney += 3; }
                     if(this.gameResource[0].getSocreOf("T2") == this.gameResource[1].getSocreOf("T2")){
                         this.gameResource[0].addMoney(addmoney);
                         this.gameResource[1].addMoney(addmoney);
@@ -627,7 +700,7 @@ public class Game extends Observable{
                         this.gameResource[1].addMoney(addmoney);
                     }
                 } else if(this.currentSeason == 5){
-                    if(this.trendID == 2) { addmoney += 3; }
+                    if(this.getTrend().equals("T3")) { addmoney += 3; }
                     if(this.gameResource[0].getSocreOf("T3") == this.gameResource[1].getSocreOf("T3")){
                         this.gameResource[0].addMoney(addmoney);
                         this.gameResource[1].addMoney(addmoney);
@@ -637,18 +710,24 @@ public class Game extends Observable{
                         this.gameResource[1].addMoney(addmoney);
                     }
                 }
+                //季節を一つ進める
+                this.currentSeason++;
                 //雇っているコストのお金を支払う
                 this.gameResource[0].payMoneytoWokers();
                 this.gameResource[1].payMoneytoWokers();
                 this.gameState = STATE_WAIT_PLAYER_PLAY;
             } else {
                 //表彰なく進行する場合
+                //季節を一つ進める
+                this.currentSeason++;
                 //雇っているコストのお金を支払う
                 this.gameResource[0].payMoneytoWokers();
                 this.gameResource[1].payMoneytoWokers();
                 this.gameState = STATE_WAIT_PLAYER_PLAY;
             }
         }
+        this.setChanged();
+        this.notifyObservers();
     }
 
     public int getStartPlayer() {
@@ -711,7 +790,11 @@ public class Game extends Observable{
         sbuf.append("トレンド2のスコア：Player0="+this.gameResource[0].getSocreOf("T2")+",Player1="+this.gameResource[1].getSocreOf("T2")+"\n");
         sbuf.append("トレンド3のスコア：Player0="+this.gameResource[0].getSocreOf("T3")+",Player1="+this.gameResource[1].getSocreOf("T3")+"\n");
         sbuf.append("----------------------------------------------\n");
-        sbuf.append("現在プレイ待ちのプレイヤー：Player"+this.CurrentPlayer+"("+ this.PlayerName[this.CurrentPlayer] +")\n");
+        if(this.CurrentPlayer == -1){
+            sbuf.append("現在季節を進めています\n");
+        } else {
+            sbuf.append("現在プレイ待ちのプレイヤー：Player"+this.CurrentPlayer+"("+ this.PlayerName[this.CurrentPlayer] +")\n");
+        }
         sbuf.append("スタートプレイヤー：Player"+this.currentStartPlayer+"\n");
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
         return sbuf.toString();
@@ -729,7 +812,7 @@ public class Game extends Observable{
 
         StringBuilder sbuf = new StringBuilder();
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
-        sbuf.append("/_/_/_/_/_/_/_/  ボードの状態  /_/_/_/_/_/_/_/\n");
+        sbuf.append("/_/_/_/_/_/_/_/  プレイヤーの状態  /_/_/_/_/_/_/_/\n");
         sbuf.append("/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_//_/_/_/_/_/_/_/\n");
         sbuf.append(this.getResourceInformation(0));
         sbuf.append(this.getResourceInformation(1));
@@ -751,6 +834,7 @@ public class Game extends Observable{
         sbuf.append("お金:"+this.gameResource[playerID].getCurrentMoney()+"\n");
         sbuf.append("研究ポイント:"+this.gameResource[playerID].getCurrentResrchPoint()+"\n");
         sbuf.append("3 総合得点:"+this.gameResource[playerID].getTotalScore()+"\n");
+        sbuf.append("----------------------------------------------\n");
         return sbuf.toString();
     }
     
@@ -758,6 +842,21 @@ public class Game extends Observable{
         this.setChanged();
         this.notifyObservers(text);
     }
+
+    public GameResources getResourcesOf(int i) {
+        if(i==0 || i ==1) {
+            return this.gameResource[i];
+        }
+        return null;
+    }
+    
+    public String getPlayerNameOf(int i) {
+        if(i==0 || i ==1) {
+            return this.PlayerName[i];
+        }
+        return "";
+    }
+    
 
 
     
