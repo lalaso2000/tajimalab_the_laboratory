@@ -403,6 +403,16 @@ public class Game extends Observable{
         this.notifyObservers();
     }
     
+    /**
+     * AIが考える用
+     */
+    public void startGame(){
+        this.PlayerName[0] = "0";
+        this.PlayerName[1] = "1";
+        this.gameState = STATE_WAIT_PLAYER_PLAY;
+    }
+    
+    
     /***
      * RESOURCES [01] P[01] A[01] S[0-9]+ M[1-9]*[0-9]+ R[1-9]*[0-9]+ D[0-9]+
      * プレイヤーID（SP）コマの種類と残り個数（ SP 区切り）Mお金（SP）R研究力（SP） D負債

@@ -26,13 +26,15 @@ public class TajimaAI extends LaboAI {
     private String myName = "TajimaAI";
     // 自プレイヤーのプレイヤー番号
     private int myNumber;
+    // 相手プレイヤーのプレイヤー番号
+    private int enemyNumber;
 
     // サーバーとのコネクター
     private ServerConnecter connecter;
     // GUI
     private ClientGUI gui;
 
-    // デバック用カウンタ
+    // 手数を数える
     private int count = 0;
 
     public TajimaAI(Game game) {
@@ -66,48 +68,124 @@ public class TajimaAI extends LaboAI {
     /**
      * メッセージを受け取った時のメソッド
      *
-     * @param text
+     * @param msg
      */
     @Override
-    public void reciveMessage(String text) {
-        String messageNum = text.substring(0, 3);
+    public void reciveMessage(String msg) {
+        String messageNum = msg.substring(0, 3);
 
         switch (messageNum) {
             case "100":
                 // サーバーが応答したら自分の名前を送る
-                this.sendMessage("101 NAME " + this.myName);
+                this.sendName();
                 break;
             case "102":
                 // 自分の番号をチェック
-                this.myNumber = Integer.parseInt(text.substring(13));
+                this.checkNumber(msg);
+                // 仮想ゲームを始める
+                this.gameBoard.startGame();
                 break;
             case "204":
                 // 自分の番が回ってきた時に考え始める
                 this.thinkStart();
                 // コマをおく
-                this.putWorker();
+                this.think();
                 // 考え終わる
                 this.stopThinking();
                 break;
             case "206":
+                // 相手が打ったときはその手を自分の仮想ボードでも打つ
+                this.enemyPlay(msg);
+                break;
             case "207":
-                // 季節の変わり目と相手が打った時にボード状態を確認
-                this.sendMessage("210 CONFPRM");
+                // 季節が変わったらしい時は自分の仮想ゲームでも更新する
+                this.gameBoard.changeNewSeason();
+                break;
+            case "214":
+                // トレンドを更新する
+                this.setTrend(msg);
                 break;
         }
     }
 
     /**
-     * コマをおくメソッド ここに評価関数とか突っ込む
+     * 名前を送るメソッド
      */
-    private void putWorker() {
-        // 永遠ゼミに置き続ける
-        if (this.count % 2 == 0) {
-            this.sendMessage("205 PLAY " + this.myNumber + " P 1-1");
+    private void sendName() {
+        // 名前を送る
+        this.sendMessage("101 NAME " + this.myName);
+    }
+
+    /**
+     * 自分のプレイヤー番号を確認する
+     *
+     * @param msg サーバーからのメッセージ
+     */
+    private void checkNumber(String msg) {
+        // 番号を確認する
+        this.myNumber = Integer.parseInt(msg.substring(13));
+        if (this.myNumber == 0) {
+            this.enemyNumber = 1;
         } else {
-            this.sendMessage("205 PLAY " + this.myNumber + "S 1-1");
+            this.enemyNumber = 0;
         }
-        this.count++;
+    }
+
+    
+    
+    /**
+     * コマを置くメソッド(トレンド無し版)
+     *
+     * @param worker [PAS]
+     * @param action 1-1|[2-4]-[123]|[56]-[12]
+     */
+    private void putWorker(String worker, String action) {
+        if (this.gameBoard.play(this.myNumber, action, worker, false)) {
+            this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + action);
+            this.gameBoard.play(this.myNumber, action, worker);
+            this.count++;
+        }
+    }
+
+    /**
+     * コマを置くメソッド(トレンドあり)
+     *
+     * @param worker [PA]
+     * @param action 5-3
+     * @param trend T[1-3]
+     */
+    private void putWorker(String worker, String action, String trend) {
+        if (this.gameBoard.play(this.myNumber, action, worker, false)) {
+            this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + action + " " + trend);
+            this.gameBoard.play(this.myNumber, action, worker);
+            this.gameBoard.setTreand(trend);
+            this.count++;
+        }
+    }
+
+    /**
+     * 相手がコマをおいたとき
+     *
+     * @param msg サーバーからのメッセージ
+     */
+    private void enemyPlay(String msg) {
+        String worker = msg.substring(13, 14);
+        String action = msg.substring(15, 18);
+        this.gameBoard.play(this.enemyNumber, action, worker);
+        if (action.equals("5-3")) {
+            // 5-3打たれた時はトレンドを確認
+            this.sendMessage("210 CONFPRM");
+        }
+    }
+
+    /**
+     * トレンドをセットする
+     *
+     * @param msg
+     */
+    private void setTrend(String msg) {
+        String trendStr = msg.substring(10);
+        this.gameBoard.setTreand(trendStr);
     }
 
     /**
@@ -141,6 +219,18 @@ public class TajimaAI extends LaboAI {
 
     public String getMyName() {
         return myName;
+    }
+
+    /**
+     * ここで考える
+     */
+    private void think() {
+        // 永遠ゼミに置き続ける
+        if (count % 2 == 0) {
+            this.putWorker("P", "1-1");
+        } else {
+            this.putWorker("S", "1-1");
+        }
     }
 
 }
