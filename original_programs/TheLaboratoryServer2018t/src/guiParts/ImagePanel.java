@@ -22,14 +22,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import os.PlatformUtils;
 
 /**
  *
  * @author ktajima
  */
 public class ImagePanel extends JPanel {
-    public static String Path = "images/";
+    public static String Path = "images"+File.separator;
     public static File boardImage = new File(Path + "gameboard.png");
     public static File StartPlayerMakerImage = new File(Path + "startplayer.png");
     public static String[] SEASON_NAMES = {"1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","6a","6b"};
@@ -71,12 +70,6 @@ public class ImagePanel extends JPanel {
     int currentSeason;
     
     public ImagePanel(){
-        // os判定
-        // なんでwindowsだけパスの区切りがバックスラッシュなんですか(# ﾟДﾟ)
-        if(PlatformUtils.isWindows()){
-            ImagePanel.Path = "images\\";
-        }
-        
         this.workerList = new HashMap<String,String>();
         player0points = new int[3];
         player1points = new int[3];

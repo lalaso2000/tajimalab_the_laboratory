@@ -14,13 +14,13 @@ public class GameResources {
     private int reserchPoint;
     private int[] score;
     private int debtCount;
-    
+
     private int[] workerList;
     private int[] usedWorkers;
-    
+
     private boolean startPlayerFlag;
-    
-    
+
+
     public GameResources(){
         this.money = 5;
         this.reserchPoint = 0;
@@ -55,6 +55,19 @@ public class GameResources {
     public void addMoney(int i) {
         this.money += i;
     }
+
+    //fixed 18.05.11
+    public boolean alreadyHiredAssistant(){
+        if(this.workerList[1] > 0){
+            return true;
+        }
+        if(this.usedWorkers[1] > 0){
+            return true;
+        }
+        return false;
+    }
+    //fixed 18.05.11
+
 
     public void putWorker(String typeOfWorker) {
         if(this.hasWorkerOf(typeOfWorker)){
@@ -152,5 +165,5 @@ public class GameResources {
     public int getDebt() {
         return this.debtCount;
     }
-    
+
 }

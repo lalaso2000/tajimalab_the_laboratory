@@ -23,7 +23,7 @@ import javax.swing.JPanel;
  * @author ktajima
  */
 public class WorkerListPanel extends JPanel {
-    String Path = "images\\";
+    String Path = "images"+File.separator;
   
     double baseWidth = 180;
     double baseHeight = 190;
@@ -123,8 +123,8 @@ public class WorkerListPanel extends JPanel {
             }
             for(int i=0;i<list.size();i++){
                 String workername = list.get(i);
-                int x = 0 + (addX*(i%3));
-                int y = 0 + (addY*(i/3));
+                int x = 0 + (addX*(i%2));
+                int y = 0 + (addY*(i/2));
 
                 if(workername.equals("P")){
                     g2.drawImage(resizedIconP, x, y, this);

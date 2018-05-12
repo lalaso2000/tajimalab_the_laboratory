@@ -6,9 +6,12 @@
         <group>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/bootstrap/Laboratory2017Server.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/guiParts/SimpleCUIFrame.java</file>
+            <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/guiParts/GUIFrame.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/gameElements/Board.java</file>
+            <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/guiParts/PlayerPanel.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/gameElements/Game.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/network/ClientConnectionThread.java</file>
+            <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/guiParts/WorkerListPanel.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/gameElements/GameResources.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/guiParts/SimpleCUI.java</file>
             <file>file:/C:/Users/kosen/Dropbox/NetBeansProjects/TheLaboratoryServer2018/src/network/ServerThread.java</file>

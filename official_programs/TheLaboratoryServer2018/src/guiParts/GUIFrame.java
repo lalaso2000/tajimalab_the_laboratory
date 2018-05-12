@@ -92,6 +92,10 @@ public class GUIFrame extends javax.swing.JFrame implements Observer{
         //研究ポイントの表示
         this.playerPanel[0].setReserchPoint((board.getResourcesOf(0).getCurrentResrchPoint()));
         this.playerPanel[1].setReserchPoint((board.getResourcesOf(1).getCurrentResrchPoint()));
+        //総得点の表示
+        this.playerPanel[0].setTotalScore((board.getResourcesOf(0).getTotalScore()));
+        this.playerPanel[1].setTotalScore((board.getResourcesOf(1).getTotalScore()));
+        
         
         //残っているワーカーの表示
         this.playerPanel[0].setUnusedWorkers(

@@ -21,15 +21,15 @@ import network.ServerThread;
  */
 public class Laboratory2017Server {
     public static final String TITLE = "The Laboratory 2018 Server (tajima lab)";
-    public static final String VERSION = "ver1.06  b18042801t002";
-    
-    
+    public static final String VERSION = "ver1.08  b18051100t001";
+
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         System.out.println(TITLE+VERSION);
-        
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
@@ -46,17 +46,17 @@ public class Laboratory2017Server {
         SimpleCUI cui = new SimpleCUI();
         SimpleCUIFrame frame = new SimpleCUIFrame();
         frame.setTitle(TITLE+VERSION);
-        
+
         GUIFrame guiFrame = new GUIFrame();
         guiFrame.setTitle(TITLE+VERSION);
-        
+
         mainGame.addObserver(cui);
         mainGame.addObserver(frame);
         mainGame.addObserver(guiFrame);
 
         frame.setVisible(true);
         guiFrame.setVisible(true);
-               
+
         ServerThread sth = new ServerThread(18420,mainGame);
         try {
             sth.waitStart();
@@ -64,8 +64,8 @@ public class Laboratory2017Server {
         }
         //    gui.setServerThread(sth);
     }
-        
-        
-    
+
+
+
 
 }

@@ -316,7 +316,12 @@ public class Game extends Observable{
             }
         }
         if(place.equals("6-2")){
-            if(typeOfWorker.equals("P") || this.gameResource[player].getTotalScore() >= 10){
+            //fixed 18.05.11
+            if(this.gameResource[player].alreadyHiredAssistant()){ 
+                return false;
+            }
+            //
+            if(typeOfWorker.equals("P") && this.gameResource[player].getTotalScore() >= 10){
                 if(putmode){
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
@@ -362,9 +367,9 @@ public class Game extends Observable{
             } else {
                 //互いに手が打てないのであれば、季節を進める
                 this.CurrentPlayer = -1;
-                this.gameState = STATE_SEASON_END;
                 this.setChanged();
                 this.notifyObservers();
+                this.gameState = STATE_SEASON_END;
                 //表示のために待つならココ
                 
                 //次のシーズンの準備
@@ -643,7 +648,7 @@ public class Game extends Observable{
                 if(worker.endsWith("0")){
                     this.gameResource[0].addMoney(6);
                 } else if(worker.endsWith("1")){
-                    this.gameResource[1].addMoney(5);
+                    this.gameResource[1].addMoney(6); //fixed 18.05.11
                 }
             }
             //トレンドを動かす処理はPLAY時に指定する

@@ -28,7 +28,7 @@ import javax.swing.JPanel;
  * @author ktajima
  */
 public class ImagePanel extends JPanel {
-    public static String Path = "images\\";
+    public static String Path = "images"+File.separator;
     public static File boardImage = new File(Path + "gameboard.png");
     public static File StartPlayerMakerImage = new File(Path + "startplayer.png");
     public static String[] SEASON_NAMES = {"1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","6a","6b"};

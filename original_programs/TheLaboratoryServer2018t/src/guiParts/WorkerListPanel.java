@@ -17,14 +17,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import os.PlatformUtils;
 
 /**
  *
  * @author ktajima
  */
 public class WorkerListPanel extends JPanel {
-    String Path = "images/";
+    String Path = "images"+File.separator;
   
     double baseWidth = 180;
     double baseHeight = 190;
@@ -44,12 +43,6 @@ public class WorkerListPanel extends JPanel {
     int playerNumber = 0;
     
     public WorkerListPanel(int player){
-        // os判定
-        // ふっざ(ry
-        if(PlatformUtils.isWindows()){
-            this.Path = "images\\";
-        }
-        
         try {
             this.initImage();
             this.playerNumber = player;

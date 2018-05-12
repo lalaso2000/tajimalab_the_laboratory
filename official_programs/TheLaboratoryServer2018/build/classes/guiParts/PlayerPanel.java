@@ -27,7 +27,7 @@ import javax.swing.ImageIcon;
  */
 public class PlayerPanel extends javax.swing.JPanel {
     public static Color[] BackGroundColor = {new Color(204,204,255),new Color(255,204,204)};
-    public static File StartPlayerMakerImage = new File("images\\startplayer.png");
+    public static File StartPlayerMakerImage = new File("images"+File.separator+"startplayer.png");
 
     private ImageIcon startPlayerIcon;
     private WorkerListPanel workerPanel;
@@ -75,15 +75,15 @@ public class PlayerPanel extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(200, 500));
 
         jLabel1.setText("jLabel1");
 
-        jTextField1.setFont(new java.awt.Font("MS UI Gothic", 0, 30)); // NOI18N
+        jTextField1.setFont(new java.awt.Font("MS UI Gothic", 0, 30));
         jTextField1.setText("jTextField1");
 
-        jLabel2.setFont(new java.awt.Font("MS UI Gothic", 0, 18)); // NOI18N
         jLabel2.setText("jLabel2");
 
         jLabel3.setText("workers");
@@ -94,20 +94,23 @@ public class PlayerPanel extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 176, Short.MAX_VALUE)
+            .addGap(0, 188, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 217, Short.MAX_VALUE)
+            .addGap(0, 174, Short.MAX_VALUE)
         );
 
-        jLabel4.setFont(new java.awt.Font("MS UI Gothic", 0, 48));
+        jLabel4.setFont(new java.awt.Font("MS UI Gothic", 0, 48)); // NOI18N
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/coin.png"))); // NOI18N
         jLabel4.setText("0");
 
         jLabel5.setFont(new java.awt.Font("MS UI Gothic", 0, 48));
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/beaker.png"))); // NOI18N
         jLabel5.setText("0");
+
+        jLabel6.setFont(new java.awt.Font("MS UI Gothic", 0, 36)); // NOI18N
+        jLabel6.setText("得点：0");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -116,19 +119,22 @@ public class PlayerPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
-                        .addGap(20, 20, 20))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
                             .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
+                        .addGap(20, 20, 20))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                        .addGap(20, 20, 20))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -144,6 +150,8 @@ public class PlayerPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
@@ -156,6 +164,7 @@ public class PlayerPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
@@ -176,7 +185,7 @@ public class PlayerPanel extends javax.swing.JPanel {
         this.jPanel1.setLayout(new GridLayout(1,1));
         this.workerPanel.setCountOfStudent(stdCount);
         this.workerPanel.setCountOfAssistant(astCount);
-        this.workerPanel.setCountOfAssistant(profCount);
+        this.workerPanel.setCountOfProfessor(profCount);
         this.jPanel1.add(this.workerPanel);
     }
 
@@ -194,5 +203,9 @@ public class PlayerPanel extends javax.swing.JPanel {
         } else {
             this.jLabel2.setText("相手の手を待っています");
         }
+    }
+
+    void setTotalScore(int i) {
+        this.jLabel6.setText("得点:"+i);
     }
 }

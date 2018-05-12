@@ -99,7 +99,7 @@ public class Game extends Observable {
      */
     private void init(boolean logMake) {
         this.isLogMade = logMake;
-        
+
         if (this.isLogMade) {
             this.logWriter = new LogWriter();
         }
@@ -355,7 +355,12 @@ public class Game extends Observable {
             }
         }
         if (place.equals("6-2")) {
-            if (typeOfWorker.equals("P") && this.gameResource[player].getTotalScore() >= 10) {
+            //fixed 18.05.11
+            if(this.gameResource[player].alreadyHiredAssistant()){
+                return false;
+            }
+            //
+            if(typeOfWorker.equals("P") && this.gameResource[player].getTotalScore() >= 10){
                 if (putmode) {
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);
