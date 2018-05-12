@@ -9,6 +9,7 @@ import gameElements.Game;
 import gui.ClientGUI;
 import gui.MessageRecevable;
 import java.awt.Color;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
@@ -36,6 +37,11 @@ public class TajimaAI extends LaboAI {
 
     // 手数を数える
     private int count = 0;
+    
+    // 状態を更新しても良いか
+    private boolean canChangeSeason = true;
+    // 季節更新？
+    private boolean changeSeasonFlag = false;
 
     public TajimaAI(Game game) {
         super(game);
@@ -99,7 +105,8 @@ public class TajimaAI extends LaboAI {
                 break;
             case "207":
                 // 季節が変わったらしい時は自分の仮想ゲームでも更新する
-                this.gameBoard.changeNewSeason();
+                this.changeSeasonFlag = true;
+                this.changeSeason();
                 break;
             case "214":
                 // トレンドを更新する
@@ -174,9 +181,18 @@ public class TajimaAI extends LaboAI {
         this.gameBoard.play(this.enemyNumber, action, worker);
         if (action.equals("5-3")) {
             // 5-3打たれた時はトレンドを確認
-            this.sendMessage("210 CONFPRM");
+            this.checkTrend();
         }
     }
+    
+    /**
+     * トレンド移動確認
+     */
+    private void checkTrend() {
+        this.canChangeSeason = false;
+        this.sendMessage("210 CONFPRM");
+    }
+    
 
     /**
      * トレンドをセットする
@@ -186,7 +202,24 @@ public class TajimaAI extends LaboAI {
     private void setTrend(String msg) {
         String trendStr = msg.substring(10);
         this.gameBoard.setTreand(trendStr);
+        this.canChangeSeason = true;
+        this.changeSeason();
     }
+    
+    /**
+     * 季節を更新する
+     */
+    private void changeSeason(){
+        if(this.canChangeSeason && this.changeSeasonFlag){
+            this.gameBoard.changeNewSeason();
+            String log = this.gameBoard.getBoardInformation();
+            this.addMessage(log);
+            log = this.gameBoard.getResourceInformation();
+            this.addMessage(log);
+            this.changeSeasonFlag = false;
+        }
+    }
+    
 
     /**
      * 通信先にメッセージを送信する。サーバにつながっていない場合は送らない
