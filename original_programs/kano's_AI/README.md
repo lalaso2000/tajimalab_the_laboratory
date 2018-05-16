@@ -18,3 +18,6 @@ Otherwise, not-expected error will be occured.
 ## History
 #### ver 1.0.0 Alice
 Alice was born.
+
+#### ver 1.0.3
+Alice became able to prefetch.
