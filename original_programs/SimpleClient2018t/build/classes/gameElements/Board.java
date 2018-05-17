@@ -7,6 +7,8 @@ package gameElements;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 盤面を管理するクラス
@@ -21,7 +23,7 @@ import java.util.HashMap;
  * ワーカー配置のメソッドを持つ
  * @author ktajima
  */
-public class Board {
+public class Board implements Cloneable{
     public static final String[] PLACE_NAMES = {"1-1","2-1","2-2","2-3","3-1","3-2","3-3","4-1","4-2","4-3","5-1","5-2","5-3","6-1","6-2"};
     public static final int PLAYER_COUNT = 2;
 
@@ -39,6 +41,13 @@ public class Board {
             this.boardState.put(key, "");
         }
         this.SeminorWorkers = new ArrayList<String>();
+    }
+    
+    /***
+     *  季節の変わり目などにボード上におかれたワーカーをすべて除去する
+     */
+    public void returnAllWorkers() {
+        this.init();
     }
     
     /** ピース設置可能かの判定
@@ -142,6 +151,21 @@ public class Board {
                 System.out.println(this.boardState.get(key));
             }
         }
+    }
+
+    @Override
+    public Board clone() {
+        Board cloned = null;
+        
+        try{
+            cloned = (Board)super.clone();
+            cloned.boardState = (HashMap<String, String>) this.boardState.clone();
+            cloned.SeminorWorkers = (ArrayList<String>) this.SeminorWorkers.clone();
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(Board.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return cloned;
     }
     
 }
