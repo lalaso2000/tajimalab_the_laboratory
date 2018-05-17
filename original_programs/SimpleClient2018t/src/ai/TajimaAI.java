@@ -138,18 +138,33 @@ public class TajimaAI extends LaboAI {
         }
     }
 
+    /**
+     * コマを置くメソッド
+     * @param action 
+     */
+    private void putWorker(Action action){
+        String worker = action.worker;
+        String place = action.place;
+        String trend = action.trend;
+        if(trend != null){
+            this.putWorker(worker, place, trend);
+        }
+        else{
+            this.putWorker(worker, place);
+        }
+    }
     
     
     /**
      * コマを置くメソッド(トレンド無し版)
      *
      * @param worker [PAS]
-     * @param action 1-1|[2-4]-[123]|[56]-[12]
+     * @param place 1-1|[2-4]-[123]|[56]-[12]
      */
-    private void putWorker(String worker, String action) {
-        if (this.gameBoard.play(this.myNumber, action, worker, false)) {
-            this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + action);
-            this.gameBoard.play(this.myNumber, action, worker);
+    private void putWorker(String worker, String place) {
+        if (this.gameBoard.play(this.myNumber, place, worker, false)) {
+            this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + place);
+            this.gameBoard.play(this.myNumber, place, worker);
             this.count++;
         }
     }
@@ -158,13 +173,13 @@ public class TajimaAI extends LaboAI {
      * コマを置くメソッド(トレンドあり)
      *
      * @param worker [PA]
-     * @param action 5-3
+     * @param place 5-3
      * @param trend T[1-3]
      */
-    private void putWorker(String worker, String action, String trend) {
-        if (this.gameBoard.play(this.myNumber, action, worker, false)) {
-            this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + action + " " + trend);
-            this.gameBoard.play(this.myNumber, action, worker);
+    private void putWorker(String worker, String place, String trend) {
+        if (this.gameBoard.play(this.myNumber, place, worker, false)) {
+            this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + place + " " + trend);
+            this.gameBoard.play(this.myNumber, place, worker);
             this.gameBoard.setTreand(trend);
             this.count++;
         }
@@ -177,9 +192,9 @@ public class TajimaAI extends LaboAI {
      */
     private void enemyPlay(String msg) {
         String worker = msg.substring(13, 14);
-        String action = msg.substring(15, 18);
-        this.gameBoard.play(this.enemyNumber, action, worker);
-        if (action.equals("5-3")) {
+        String place = msg.substring(15, 18);
+        this.gameBoard.play(this.enemyNumber, place, worker);
+        if (place.equals("5-3")) {
             // 5-3打たれた時はトレンドを確認
             this.checkTrend();
         }
@@ -259,11 +274,13 @@ public class TajimaAI extends LaboAI {
      */
     private void think() {
         // 永遠ゼミに置き続ける
+        Action a;
         if (count % 2 == 0) {
-            this.putWorker("P", "1-1");
+            a = new Action("P", "1-1");
         } else {
-            this.putWorker("S", "1-1");
+            a = new Action("S", "1-1");
         }
+        this.putWorker(a);
     }
 
 }
