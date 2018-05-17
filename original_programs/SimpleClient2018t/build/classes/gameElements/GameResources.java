@@ -5,24 +5,27 @@
  */
 package gameElements;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author kosen
  */
-public class GameResources {
+public class GameResources implements Cloneable {
+
     private int money;
     private int reserchPoint;
     private int[] score;
     private int debtCount;
-    
+
     private int[] workerList;
     private int[] usedWorkers;
-    
+
     private boolean startPlayerFlag;
-    
-    
-    public GameResources(){
-        this.money = 0;
+
+    public GameResources() {
+        this.money = 5;
         this.reserchPoint = 0;
         this.score = new int[3];
         this.score[0] = 0;
@@ -38,11 +41,11 @@ public class GameResources {
     }
 
     public boolean hasWorkerOf(String typeOfWorker) {
-        if(typeOfWorker.equals("P")){
+        if (typeOfWorker.equals("P")) {
             return (this.workerList[0] > 0);
-        } else if (typeOfWorker.equals("A")){
+        } else if (typeOfWorker.equals("A")) {
             return (this.workerList[1] > 0);
-        } else if (typeOfWorker.equals("S")){
+        } else if (typeOfWorker.equals("S")) {
             return (this.workerList[2] > 0);
         }
         return false;
@@ -57,14 +60,14 @@ public class GameResources {
     }
 
     public void putWorker(String typeOfWorker) {
-        if(this.hasWorkerOf(typeOfWorker)){
-            if(typeOfWorker.equals("P")){
+        if (this.hasWorkerOf(typeOfWorker)) {
+            if (typeOfWorker.equals("P")) {
                 this.workerList[0]--;
                 this.usedWorkers[0]++;
-            } else if (typeOfWorker.equals("A")){
+            } else if (typeOfWorker.equals("A")) {
                 this.workerList[1]--;
                 this.usedWorkers[1]++;
-            } else if (typeOfWorker.equals("S")){
+            } else if (typeOfWorker.equals("S")) {
                 this.workerList[2]--;
                 this.usedWorkers[2]++;
             }
@@ -80,29 +83,29 @@ public class GameResources {
     }
 
     public boolean hasWorker() {
-        return ((this.workerList[0]+this.workerList[1]+this.workerList[2]) > 0);
+        return ((this.workerList[0] + this.workerList[1] + this.workerList[2]) > 0);
     }
 
     public int getSocreOf(String trend) {
-        if(trend.equals("T1")){
+        if (trend.equals("T1")) {
             return this.score[0];
-        } else if(trend.equals("T2")){
+        } else if (trend.equals("T2")) {
             return this.score[1];
-        } else if(trend.equals("T3")){
+        } else if (trend.equals("T3")) {
             return this.score[2];
         }
         return -1;
     }
 
     public int getTotalScore() {
-        return this.score[0]+this.score[1]+this.score[2];
+        return this.score[0] + this.score[1] + this.score[2] - 3 * this.debtCount;
     }
 
     public boolean isStartPlayer() {
         return this.startPlayerFlag;
     }
 
-    public void addScorePoint(int scoreTreand,int point) {
+    public void addScorePoint(int scoreTreand, int point) {
         this.score[scoreTreand] += point;
     }
 
@@ -115,7 +118,7 @@ public class GameResources {
     }
 
     public void returnAllWorkers() {
-        for(int i=0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
             this.workerList[i] = this.usedWorkers[i];
             this.usedWorkers[i] = 0;
         }
@@ -123,9 +126,9 @@ public class GameResources {
 
     public void payMoneytoWokers() {
         this.money -= this.workerList[2];
-        this.money -= 3*this.workerList[1];
-        if(this.money < 0 ) {
-            this.debtCount += (-1)*this.money;
+        this.money -= 3 * this.workerList[1];
+        if (this.money < 0) {
+            this.debtCount += (-1) * this.money;
             this.money = 0;
         }
     }
@@ -137,5 +140,34 @@ public class GameResources {
     public int getTotalStudentsCount() {
         return this.workerList[2] + this.usedWorkers[2];
     }
-    
+
+    public int getNumberofUseableWorkers(String typeOfWorker) {
+        if (typeOfWorker.equals("P")) {
+            return this.workerList[0];
+        } else if (typeOfWorker.equals("A")) {
+            return this.workerList[1];
+        } else if (typeOfWorker.equals("S")) {
+            return this.workerList[2];
+        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int getDebt() {
+        return this.debtCount;
+    }
+
+    @Override
+    public GameResources clone() {
+        GameResources cloned = null;
+        try {
+            cloned = (GameResources) super.clone();
+            cloned.score = this.score.clone();
+            cloned.usedWorkers = this.usedWorkers.clone();
+            cloned.workerList = this.usedWorkers.clone();
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(GameResources.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return cloned;
+    }
+
 }

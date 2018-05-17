@@ -38,16 +38,19 @@ public class TajimaAI extends LaboAI {
 
     // 手数を数える
     private int count = 0;
-
+    
     // 状態を更新しても良いか
     private boolean canChangeSeason = true;
     // 季節更新？
     private boolean changeSeasonFlag = false;
+    
+    
+    private Game test;
+    
 
     /**
      * コンストラクタ
-     *
-     * @param game
+     * @param game 
      */
     public TajimaAI(Game game) {
         super(game);
@@ -147,20 +150,21 @@ public class TajimaAI extends LaboAI {
 
     /**
      * コマを置くメソッド
-     *
-     * @param action
+     * @param action 
      */
-    private void putWorker(Action action) {
+    private void putWorker(Action action){
         String worker = action.worker;
         String place = action.place;
         String trend = action.trend;
-        if (trend != null) {
+        if(trend != null){
             this.putWorker(worker, place, trend);
-        } else {
+        }
+        else{
             this.putWorker(worker, place);
         }
     }
-
+    
+    
     /**
      * コマを置くメソッド(トレンド無し版)
      *
@@ -172,7 +176,8 @@ public class TajimaAI extends LaboAI {
             this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + place);
             this.gameBoard.play(this.myNumber, place, worker);
             this.count++;
-        } else {
+        }
+        else {
             System.err.println("Put Error!!");
         }
     }
@@ -190,7 +195,8 @@ public class TajimaAI extends LaboAI {
             this.gameBoard.play(this.myNumber, place, worker);
             this.gameBoard.setTreand(trend);
             this.count++;
-        } else {
+        }
+        else {
             System.err.println("Put Error!!");
         }
     }
@@ -209,7 +215,7 @@ public class TajimaAI extends LaboAI {
             this.checkTrend();
         }
     }
-
+    
     /**
      * トレンド移動確認
      */
@@ -217,6 +223,7 @@ public class TajimaAI extends LaboAI {
         this.canChangeSeason = false;
         this.sendMessage("210 CONFPRM");
     }
+    
 
     /**
      * トレンドをセットする
@@ -229,12 +236,12 @@ public class TajimaAI extends LaboAI {
         this.canChangeSeason = true;
         this.changeSeason();
     }
-
+    
     /**
      * 季節を更新する
      */
-    private void changeSeason() {
-        if (this.canChangeSeason && this.changeSeasonFlag) {
+    private void changeSeason(){
+        if(this.canChangeSeason && this.changeSeasonFlag){
             this.gameBoard.changeNewSeason();
             String log = this.gameBoard.getBoardInformation();
             this.addMessage(log);
@@ -243,6 +250,9 @@ public class TajimaAI extends LaboAI {
             this.changeSeasonFlag = false;
         }
     }
+    
+    
+    
 
     /**
      * 通信先にメッセージを送信する。サーバにつながっていない場合は送らない
@@ -282,16 +292,18 @@ public class TajimaAI extends LaboAI {
      */
     private void think() {
         // 永遠ゼミに置き続ける
-        //this.test = this.gameBoard.clone();
+        this.test = this.gameBoard.clone();
         Action a;
         if (count % 2 == 0) {
             a = new Action("P", "1-1");
-            //System.out.println(this.test.play(myNumber, "2-1", "P"));
+            this.test.play(myNumber, "2-1", "P");
         } else {
             a = new Action("S", "1-1");
-            //this.test.play(myNumber, "2-1", "S");
+            this.test.play(myNumber, "2-1", "S");
         }
         this.putWorker(a);
     }
+    
+
 
 }
