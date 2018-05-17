@@ -14,6 +14,8 @@ import java.util.logging.Logger;
  */
 public class GameResources implements Cloneable {
 
+    public static final String[] WORKER_NAMES = {"P", "A", "S"};
+
     private int money;
     private int reserchPoint;
     private int[] score;

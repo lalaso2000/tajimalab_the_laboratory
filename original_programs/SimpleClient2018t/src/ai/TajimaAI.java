@@ -7,6 +7,7 @@ package ai;
 
 import gameElements.Board;
 import gameElements.Game;
+import gameElements.GameResources;
 import gui.ClientGUI;
 import gui.MessageRecevable;
 import java.awt.Color;
@@ -31,6 +32,9 @@ public class TajimaAI extends LaboAI {
     // 相手プレイヤーのプレイヤー番号
     private int enemyNumber;
 
+    // 思考部分
+    private Thinker thinker;
+    
     // サーバーとのコネクター
     private ServerConnecter connecter;
     // GUI
@@ -51,7 +55,7 @@ public class TajimaAI extends LaboAI {
      */
     public TajimaAI(Game game) {
         super(game);
-
+        this.thinker = new Thinker(Thinker.MONEY_AND_RESERCH_PRIORITY);
     }
 
     /**
@@ -241,6 +245,11 @@ public class TajimaAI extends LaboAI {
             log = this.gameBoard.getResourceInformation();
             this.addMessage(log);
             this.changeSeasonFlag = false;
+            
+            // デバック用
+            if(this.gameBoard.getSeason().equals("4a")){
+                this.thinker.setMode(Thinker.SCORE_PRIORITY);
+            }
         }
     }
 
@@ -281,17 +290,37 @@ public class TajimaAI extends LaboAI {
      * ここで考える
      */
     private void think() {
-        // 永遠ゼミに置き続ける
+        // とりあえず全探索＆最適手を探す
         //this.test = this.gameBoard.clone();
-        Action a;
-        if (count % 2 == 0) {
-            a = new Action("P", "1-1");
-            //System.out.println(this.test.play(myNumber, "2-1", "P"));
-        } else {
-            a = new Action("S", "1-1");
-            //this.test.play(myNumber, "2-1", "S");
+        Action bestAction = new Action("P", "1-1");
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = null;
+        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+            // 全部の場所ループ
+            String p = Board.PLACE_NAMES[j];
+            for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                // 全部のワーカーループ
+                String w = GameResources.WORKER_NAMES[i];
+                Action a = new Action(w, p);
+                eva = this.thinker.evaluateBoard(gameBoard, myNumber, a);
+                // 評価良いの見つけたら
+                if(eva != null && eva > bestEva){
+                    // 更新
+                    bestEva = eva;
+                    bestAction = a;
+                }
+            }
         }
-        this.putWorker(a);
+        
+//      // 永遠ゼミに置き続ける
+//        if (count % 2 == 0) {
+//            a = new Action("P", "1-1");
+//            //System.out.println(this.test.play(myNumber, "2-1", "P"));
+//        } else {
+//            a = new Action("S", "1-1");
+//            //this.test.play(myNumber, "2-1", "S");
+//        }
+        this.putWorker(bestAction);
     }
 
 }
