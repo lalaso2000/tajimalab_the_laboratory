@@ -247,7 +247,7 @@ public class TajimaAI extends LaboAI {
             this.changeSeasonFlag = false;
             
             // デバック用
-            if(this.gameBoard.getSeason().equals("4a")){
+            if(this.gameBoard.getSeason().equals("5a")){
                 this.thinker.setMode(Thinker.SCORE_PRIORITY);
             }
         }
