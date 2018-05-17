@@ -2,4 +2,7 @@
 /original_programs/TheLaboratoryServer2018t/build/
 /original_programs/TheLaboratoryServer2018t/logs/
 .DS_Store
-/original_programs/kano's_AI/*.log
+/original_programs/.DS_Store
+/original_programs/kano's_AI/*
+!/original_programs/kano's_AI/*.pyc
+!/original_programs/kano's_AI/*.md
