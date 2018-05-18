@@ -83,50 +83,6 @@ public class TajimaAI extends LaboAI {
     }
 
     /**
-     * メッセージを受け取った時のメソッド
-     *
-     * @param msg
-     */
-    @Override
-    public void reciveMessage(String msg) {
-        String messageNum = msg.substring(0, 3);
-
-        switch (messageNum) {
-            case "100":
-                // サーバーが応答したら自分の名前を送る
-                this.sendName();
-                break;
-            case "102":
-                // 自分の番号をチェック
-                this.checkNumber(msg);
-                // 仮想ゲームを始める
-                this.gameBoard.startGame();
-                break;
-            case "204":
-                // 自分の番が回ってきた時に考え始める
-                this.thinkStart();
-                // コマをおく
-                this.think();
-                // 考え終わる
-                this.stopThinking();
-                break;
-            case "206":
-                // 相手が打ったときはその手を自分の仮想ボードでも打つ
-                this.enemyPlay(msg);
-                break;
-            case "207":
-                // 季節が変わったらしい時は自分の仮想ゲームでも更新する
-                this.changeSeasonFlag = true;
-                this.changeSeason();
-                break;
-            case "214":
-                // トレンドを更新する
-                this.setTrend(msg);
-                break;
-        }
-    }
-
-    /**
      * 名前を送るメソッド
      */
     private void sendName() {
@@ -248,6 +204,7 @@ public class TajimaAI extends LaboAI {
             
             // デバック用
             if(this.gameBoard.getSeason().equals("5a")){
+                // 5aまで来たらモードチェンジ
                 this.thinker.setMode(Thinker.SCORE_PRIORITY);
             }
         }
@@ -286,6 +243,51 @@ public class TajimaAI extends LaboAI {
         return myName;
     }
 
+    /**
+     * メッセージを受け取った時のメソッド
+     *
+     * @param msg
+     */
+    @Override
+    public void reciveMessage(String msg) {
+        String messageNum = msg.substring(0, 3);
+
+        switch (messageNum) {
+            case "100":
+                // サーバーが応答したら自分の名前を送る
+                this.sendName();
+                break;
+            case "102":
+                // 自分の番号をチェック
+                this.checkNumber(msg);
+                // 仮想ゲームを始める
+                this.gameBoard.startGame();
+                break;
+            case "204":
+                // 自分の番が回ってきた時に考え始める
+                this.thinkStart();
+                // コマをおく
+                this.think();
+                // 考え終わる
+                this.stopThinking();
+                break;
+            case "206":
+                // 相手が打ったときはその手を自分の仮想ボードでも打つ
+                this.enemyPlay(msg);
+                break;
+            case "207":
+                // 季節が変わったらしい時は自分の仮想ゲームでも更新する
+                this.changeSeasonFlag = true;
+                this.changeSeason();
+                break;
+            case "214":
+                // トレンドを更新する
+                this.setTrend(msg);
+                break;
+        }
+    }
+    
+    
     /**
      * ここで考える
      */
