@@ -39,5 +39,7 @@ public class SimpleClient {
         ClientGUI gui = new ClientGUI(myAI);
         
         gui.setVisible(true);
+
+	System.out.println("kamiyan");
     }
 }
