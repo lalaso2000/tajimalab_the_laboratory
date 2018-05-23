@@ -6,3 +6,4 @@
 /original_programs/kano's_AI/*
 !/original_programs/kano's_AI/*.pyc
 !/original_programs/kano's_AI/*.md
+*.xml
