@@ -4,9 +4,7 @@
  */
 package simpleclient;
 
-import ai.LaboAI;
 import ai.SampleAI;
-import ai.TajimaAI;
 import gameElements.Game;
 import gui.ClientGUI;
 import java.util.logging.Level;

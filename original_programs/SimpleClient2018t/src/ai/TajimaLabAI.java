@@ -324,258 +324,236 @@ public abstract class TajimaLabAI extends LaboAI {
     }
 
     /**
-     * アクションした後の仮想リソースを返す （トレンドを除く）
+     * 計算用の仮想リソースを返す
      *
      * @param game アクション前のゲーム盤面
-     * @param playerNum アクションする人の番号
-     * @param action アクション内容
      * @return リソースの配列
      */
-    protected GameResources[] getResources(Game game, int playerNum, Action action) {
+    protected GameResources[] getResourcesForEvaluation(Game game) {
         // リソース
         GameResources[] resources = new GameResources[2];
-        // ゲーム盤面を複製
-        Game cloneGame = game.clone();
 
-        // トレンド
-        String season = game.getSeason();
-        int trendInt = this.convertSeasonToTrend(season);
-
-        // 打ってみる
-        cloneGame.play(playerNum, action.place, action.worker);
-        if (action.place.equals("5-3")) {
-            cloneGame.setTreand(action.trend);
+        resources[0] = game.getResourcesOf(0).clone();
+        resources[1] = game.getResourcesOf(1).clone();
+        
+        // 行動で増える分を加味
+        HashMap<String, ArrayList<String>> workers = game.getBoard().getWorkersOnBoard();
+        //ゼミによる研究ポイントの獲得
+        ArrayList<String> seminorwokers = workers.get("1-1");
+        if (seminorwokers != null) {
+            int PACount = 0;
+            int SCount[] = {0, 0};
+            for (String w : seminorwokers) {
+                switch (w) {
+                    case "P0":
+                        PACount++;
+                        resources[0].addReserchPoint(2);
+                        break;
+                    case "P1":
+                        PACount++;
+                        resources[1].addReserchPoint(2);
+                        break;
+                    case "A0":
+                        PACount++;
+                        resources[0].addReserchPoint(3);
+                        break;
+                    case "A1":
+                        PACount++;
+                        resources[1].addReserchPoint(3);
+                        break;
+                    case "S0":
+                        SCount[0]++;
+                        break;
+                    case "S1":
+                        SCount[1]++;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            resources[0].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
+            resources[1].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
         }
 
-        // 季節変わったらその後のリソースで評価
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            cloneGame.changeNewSeason();
-            // 各種リソースを取得
-            resources[0] = cloneGame.getResourcesOf(0).clone();
-            resources[1] = cloneGame.getResourcesOf(1).clone();
-        } // 季節が変わらない場合
-        else {
-            resources[0] = game.getResourcesOf(0).clone();
-            resources[1] = game.getResourcesOf(1).clone();
-            // 行動で増える分を加味
-            HashMap<String, ArrayList<String>> workers = cloneGame.getBoard().getWorkersOnBoard();
-            //ゼミによる研究ポイントの獲得
-            ArrayList<String> seminorwokers = workers.get("1-1");
-            if (seminorwokers != null) {
-                int PACount = 0;
-                int SCount[] = {0, 0};
-                for (String w : seminorwokers) {
-                    switch (w) {
-                        case "P0":
-                            PACount++;
-                            resources[0].addReserchPoint(2);
-                            break;
-                        case "P1":
-                            PACount++;
-                            resources[1].addReserchPoint(2);
-                            break;
-                        case "A0":
-                            PACount++;
-                            resources[0].addReserchPoint(3);
-                            break;
-                        case "A1":
-                            PACount++;
-                            resources[1].addReserchPoint(3);
-                            break;
-                        case "S0":
-                            SCount[0]++;
-                            break;
-                        case "S1":
-                            SCount[1]++;
-                            break;
-                        default:
-                            break;
-                    }
+        //実験による研究ポイントの獲得
+        String[] keys = {"2-1", "2-2", "2-3"};
+        int[] points = {3, 4, 5};
+        for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            if (workers.containsKey(key)) {
+                String worker = workers.get(key).get(0);
+                if (worker.endsWith("0")) {
+                    resources[0].addReserchPoint(points[i]);
+                } else if (worker.endsWith("1")) {
+                    resources[1].addReserchPoint(points[i]);
                 }
-                resources[0].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
-                resources[1].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
             }
+        }
 
-            //実験による研究ポイントの獲得
-            String[] keys = {"2-1", "2-2", "2-3"};
-            int[] points = {3, 4, 5};
-            for (int i = 0; i < keys.length; i++) {
-                String key = keys[i];
-                if (workers.containsKey(key)) {
-                    String worker = workers.get(key).get(0);
-                    if (worker.endsWith("0")) {
-                        resources[0].addReserchPoint(points[i]);
-                    } else if (worker.endsWith("1")) {
-                        resources[1].addReserchPoint(points[i]);
-                    }
-                }
-            }
+        //発表による業績の獲得
+        int ScoreTreand = this.convertSeasonToTrend(game.getSeason());
 
-            //発表による業績の獲得
-            int ScoreTreand = this.convertSeasonToTrend(cloneGame.getSeason());
-            
-            String key;
-            key = "3-1";
-            if (workers.containsKey(key)) {
-                String w = workers.get(key).get(0);
-                if (w.equals("P0")) {
-                    resources[0].addScorePoint(ScoreTreand, 1);
-                } else if (w.equals("P1")) {
-                    resources[1].addScorePoint(ScoreTreand, 1);
-                } else if (w.equals("A0")) {
-                    resources[0].addScorePoint(ScoreTreand, 1);
-                } else if (w.equals("A1")) {
-                    resources[1].addScorePoint(ScoreTreand, 1);
-                } else if (w.equals("S0")) {
-                    resources[0].addScorePoint(ScoreTreand, 2);
-                } else if (w.equals("S1")) {
-                    resources[1].addScorePoint(ScoreTreand, 2);
-                }
+        String key;
+        key = "3-1";
+        if (workers.containsKey(key)) {
+            String w = workers.get(key).get(0);
+            if (w.equals("P0")) {
+                resources[0].addScorePoint(ScoreTreand, 1);
+            } else if (w.equals("P1")) {
+                resources[1].addScorePoint(ScoreTreand, 1);
+            } else if (w.equals("A0")) {
+                resources[0].addScorePoint(ScoreTreand, 1);
+            } else if (w.equals("A1")) {
+                resources[1].addScorePoint(ScoreTreand, 1);
+            } else if (w.equals("S0")) {
+                resources[0].addScorePoint(ScoreTreand, 2);
+            } else if (w.equals("S1")) {
+                resources[1].addScorePoint(ScoreTreand, 2);
             }
-            key = "3-2";
-            if (workers.containsKey(key)) {
-                String w = workers.get(key).get(0);
-                if (w.equals("P0")) {
-                    resources[0].addScorePoint(ScoreTreand, 3);
-                } else if (w.equals("P1")) {
-                    resources[1].addScorePoint(ScoreTreand, 3);
-                } else if (w.equals("A0")) {
-                    resources[0].addScorePoint(ScoreTreand, 4);
-                } else if (w.equals("A1")) {
-                    resources[1].addScorePoint(ScoreTreand, 4);
-                } else if (w.equals("S0")) {
-                    resources[0].addScorePoint(ScoreTreand, 4);
-                } else if (w.equals("S1")) {
-                    resources[1].addScorePoint(ScoreTreand, 4);
-                }
+        }
+        key = "3-2";
+        if (workers.containsKey(key)) {
+            String w = workers.get(key).get(0);
+            if (w.equals("P0")) {
+                resources[0].addScorePoint(ScoreTreand, 3);
+            } else if (w.equals("P1")) {
+                resources[1].addScorePoint(ScoreTreand, 3);
+            } else if (w.equals("A0")) {
+                resources[0].addScorePoint(ScoreTreand, 4);
+            } else if (w.equals("A1")) {
+                resources[1].addScorePoint(ScoreTreand, 4);
+            } else if (w.equals("S0")) {
+                resources[0].addScorePoint(ScoreTreand, 4);
+            } else if (w.equals("S1")) {
+                resources[1].addScorePoint(ScoreTreand, 4);
             }
-            key = "3-3";
-            if (workers.containsKey(key)) {
-                String w = workers.get(key).get(0);
-                if (w.equals("P0")) {
-                    resources[0].addScorePoint(ScoreTreand, 7);
-                } else if (w.equals("P1")) {
-                    resources[1].addScorePoint(ScoreTreand, 7);
-                } else if (w.equals("A0")) {
-                    resources[0].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("A1")) {
-                    resources[1].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("S0")) {
-                    resources[0].addScorePoint(ScoreTreand, 5);
-                } else if (w.equals("S1")) {
-                    resources[1].addScorePoint(ScoreTreand, 5);
-                }
+        }
+        key = "3-3";
+        if (workers.containsKey(key)) {
+            String w = workers.get(key).get(0);
+            if (w.equals("P0")) {
+                resources[0].addScorePoint(ScoreTreand, 7);
+            } else if (w.equals("P1")) {
+                resources[1].addScorePoint(ScoreTreand, 7);
+            } else if (w.equals("A0")) {
+                resources[0].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("A1")) {
+                resources[1].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("S0")) {
+                resources[0].addScorePoint(ScoreTreand, 5);
+            } else if (w.equals("S1")) {
+                resources[1].addScorePoint(ScoreTreand, 5);
             }
-            
-            //論文による業績の獲得
-            key = "4-1";
-            if (workers.containsKey(key)) {
-                String w = workers.get(key).get(0);
-                if (w.equals("P0")) {
-                    resources[0].addScorePoint(ScoreTreand, 8);
-                } else if (w.equals("P1")) {
-                    resources[1].addScorePoint(ScoreTreand, 8);
-                } else if (w.equals("A0")) {
-                    resources[0].addScorePoint(ScoreTreand, 7);
-                } else if (w.equals("A1")) {
-                    resources[1].addScorePoint(ScoreTreand, 7);
-                } else if (w.equals("S0")) {
-                    resources[0].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("S1")) {
-                    resources[1].addScorePoint(ScoreTreand, 6);
-                }
-            }
-            key = "4-2";
-            if (workers.containsKey(key)) {
-                String w = workers.get(key).get(0);
-                if (w.equals("P0")) {
-                    resources[0].addScorePoint(ScoreTreand, 7);
-                } else if (w.equals("P1")) {
-                    resources[1].addScorePoint(ScoreTreand, 7);
-                } else if (w.equals("A0")) {
-                    resources[0].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("A1")) {
-                    resources[1].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("S0")) {
-                    resources[0].addScorePoint(ScoreTreand, 5);
-                } else if (w.equals("S1")) {
-                    resources[1].addScorePoint(ScoreTreand, 5);
-                }
-            }
-            key = "4-3";
-            if (workers.containsKey(key)) {
-                String w = workers.get(key).get(0);
-                if (w.equals("P0")) {
-                    resources[0].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("P1")) {
-                    resources[1].addScorePoint(ScoreTreand, 6);
-                } else if (w.equals("A0")) {
-                    resources[0].addScorePoint(ScoreTreand, 5);
-                } else if (w.equals("A1")) {
-                    resources[1].addScorePoint(ScoreTreand, 5);
-                } else if (w.equals("S0")) {
-                    resources[0].addScorePoint(ScoreTreand, 4);
-                } else if (w.equals("S1")) {
-                    resources[1].addScorePoint(ScoreTreand, 4);
-                }
-            }
+        }
 
-            //スタートプレイヤーの決定
-            key = "5-1";
-            if (workers.containsKey(key)) {
-                String worker = workers.get(key).get(0);
-                if (worker.endsWith("0")) {
-                    
-                    resources[0].addMoney(3);
-                    resources[0].setStartPlayer(true);
-                    resources[1].setStartPlayer(false);
-                } else if (worker.endsWith("1")) {
-                    
-                    resources[1].addMoney(3);
-                    resources[0].setStartPlayer(false);
-                    resources[1].setStartPlayer(true);
-                }
+        //論文による業績の獲得
+        key = "4-1";
+        if (workers.containsKey(key)) {
+            String w = workers.get(key).get(0);
+            if (w.equals("P0")) {
+                resources[0].addScorePoint(ScoreTreand, 8);
+            } else if (w.equals("P1")) {
+                resources[1].addScorePoint(ScoreTreand, 8);
+            } else if (w.equals("A0")) {
+                resources[0].addScorePoint(ScoreTreand, 7);
+            } else if (w.equals("A1")) {
+                resources[1].addScorePoint(ScoreTreand, 7);
+            } else if (w.equals("S0")) {
+                resources[0].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("S1")) {
+                resources[1].addScorePoint(ScoreTreand, 6);
             }
-            
-            //お金の獲得
-            key = "5-2";
-            if (workers.containsKey(key)) {
-                String worker = workers.get(key).get(0);
-                if (worker.endsWith("0")) {
-                    resources[0].addMoney(5);
-                } else if (worker.endsWith("1")) {
-                    resources[1].addMoney(5);
-                }
+        }
+        key = "4-2";
+        if (workers.containsKey(key)) {
+            String w = workers.get(key).get(0);
+            if (w.equals("P0")) {
+                resources[0].addScorePoint(ScoreTreand, 7);
+            } else if (w.equals("P1")) {
+                resources[1].addScorePoint(ScoreTreand, 7);
+            } else if (w.equals("A0")) {
+                resources[0].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("A1")) {
+                resources[1].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("S0")) {
+                resources[0].addScorePoint(ScoreTreand, 5);
+            } else if (w.equals("S1")) {
+                resources[1].addScorePoint(ScoreTreand, 5);
             }
-            key = "5-3";
-            // トレンド未実装
-            if (workers.containsKey(key)) {
-                String worker = workers.get(key).get(0);
-                if (worker.endsWith("0")) {
-                    resources[0].addMoney(6);
-                } else if (worker.endsWith("1")) {
-                    resources[1].addMoney(6);
-                }
+        }
+        key = "4-3";
+        if (workers.containsKey(key)) {
+            String w = workers.get(key).get(0);
+            if (w.equals("P0")) {
+                resources[0].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("P1")) {
+                resources[1].addScorePoint(ScoreTreand, 6);
+            } else if (w.equals("A0")) {
+                resources[0].addScorePoint(ScoreTreand, 5);
+            } else if (w.equals("A1")) {
+                resources[1].addScorePoint(ScoreTreand, 5);
+            } else if (w.equals("S0")) {
+                resources[0].addScorePoint(ScoreTreand, 4);
+            } else if (w.equals("S1")) {
+                resources[1].addScorePoint(ScoreTreand, 4);
             }
-            
-            //コマの獲得
-            key = "6-1";
-            if (workers.containsKey(key)) {
-                String worker = workers.get(key).get(0);
-                if (worker.endsWith("0")) {
-                    resources[0].addNewStudent();
-                } else if (worker.endsWith("1")) {
-                    resources[1].addNewStudent();
-                }
+        }
+
+        //スタートプレイヤーの決定
+        key = "5-1";
+        if (workers.containsKey(key)) {
+            String worker = workers.get(key).get(0);
+            if (worker.endsWith("0")) {
+
+                resources[0].addMoney(3);
+                resources[0].setStartPlayer(true);
+                resources[1].setStartPlayer(false);
+            } else if (worker.endsWith("1")) {
+
+                resources[1].addMoney(3);
+                resources[0].setStartPlayer(false);
+                resources[1].setStartPlayer(true);
             }
-            key = "6-2";
-            if (workers.containsKey(key)) {
-                String worker = workers.get(key).get(0);
-                if (worker.endsWith("0")) {
-                    resources[0].addNewAssistant();
-                } else if (worker.endsWith("1")) {
-                    resources[1].addNewAssistant();
-                }
+        }
+
+        //お金の獲得
+        key = "5-2";
+        if (workers.containsKey(key)) {
+            String worker = workers.get(key).get(0);
+            if (worker.endsWith("0")) {
+                resources[0].addMoney(5);
+            } else if (worker.endsWith("1")) {
+                resources[1].addMoney(5);
+            }
+        }
+        key = "5-3";
+        // トレンド未実装
+        if (workers.containsKey(key)) {
+            String worker = workers.get(key).get(0);
+            if (worker.endsWith("0")) {
+                resources[0].addMoney(6);
+            } else if (worker.endsWith("1")) {
+                resources[1].addMoney(6);
+            }
+        }
+
+        //コマの獲得
+        key = "6-1";
+        if (workers.containsKey(key)) {
+            String worker = workers.get(key).get(0);
+            if (worker.endsWith("0")) {
+                resources[0].addNewStudent();
+            } else if (worker.endsWith("1")) {
+                resources[1].addNewStudent();
+            }
+        }
+        key = "6-2";
+        if (workers.containsKey(key)) {
+            String worker = workers.get(key).get(0);
+            if (worker.endsWith("0")) {
+                resources[0].addNewAssistant();
+            } else if (worker.endsWith("1")) {
+                resources[1].addNewAssistant();
             }
         }
         return resources;

@@ -5,7 +5,6 @@
 package gui;
 
 import ai.LaboAI;
-import ai.TajimaAI;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;

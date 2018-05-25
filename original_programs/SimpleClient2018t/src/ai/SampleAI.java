@@ -81,8 +81,8 @@ public class SampleAI extends TajimaLabAI {
                 break;
             case MONEY_AND_RESERCH_PRIORITY:
                 this.moneyValue = 1.5;
-                this.reserchPointValue = 3.0;
-                this.scoreValue = 2.0;
+                this.reserchPointValue = 2.8;
+                this.scoreValue = 3.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
                 this.employStudentValue = 0.0;
@@ -281,14 +281,26 @@ public class SampleAI extends TajimaLabAI {
         if (gameBoard.canPutWorker(playerNum, action.place, action.worker) == false) {
             return null;
         }
-
-        // アクションしてみた時のリソースを取得
-        GameResources[] resources = this.getResources(game, playerNum, action);
-
-        // アクションする前の季節を取得
+        
+        // アクションする前の季節を取得（表彰を計算するため）
         String seasonStr = game.getSeason();
         // その季節はトレンド番号だと何番目か
         int seasonTrendID = this.convertSeasonToTrend(seasonStr);
+
+        // ゲームを複製
+        Game cloneGame = game.clone();
+        // アクションしてみる
+        cloneGame.play(playerNum, action.place, action.worker);
+        if (action.place.equals("5-3")) {
+            cloneGame.setTreand(action.trend);
+        }
+        // 季節が変わるなら更新
+        if(cloneGame.getGameState() == Game.STATE_SEASON_END){
+            cloneGame.changeNewSeason();
+        }
+        
+        // 計算用リソースを取得
+        GameResources[] resources = this.getResourcesForEvaluation(cloneGame);
 
         // トレンドはいつか
         String trendStr = game.getTrend();
@@ -319,7 +331,7 @@ public class SampleAI extends TajimaLabAI {
             evaluation += this.employStudentValue;
         }
         // 学生の数
-        evaluation += resources[playerNum].getTotalStudentsCount();
+        evaluation += resources[playerNum].getTotalStudentsCount() * this.employStudentValue;
         // 助手を雇っているか
         if (resources[playerNum].hasWorkerOf("A")) {
             evaluation += this.employAssistantValue;
@@ -327,6 +339,10 @@ public class SampleAI extends TajimaLabAI {
         // 今がトレンドか
         if (seasonTrendID == trendInt) {
             evaluation += this.trendValue;
+        }
+        // 負の点数は許されない
+        if(resources[playerNum].getTotalScore() < 0) {
+            evaluation = -1000000.0;
         }
 
         return evaluation;
