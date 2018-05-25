@@ -478,6 +478,19 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
         }
 
     }
+    
+    /**
+     * ログ出力用　色付き
+     */
+    public void addMessage(String text, SimpleAttributeSet attribute){
+        try {
+            //ドキュメントにその属性情報つきの文字列を挿入
+            document.insertString(document.getLength(), "[log]" + text + "\n", attribute);
+            this.jTextPane1.setCaretPosition(document.getLength());
+        } catch (BadLocationException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

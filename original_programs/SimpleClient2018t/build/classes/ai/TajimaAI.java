@@ -7,6 +7,7 @@ package ai;
 
 import gameElements.Board;
 import gameElements.Game;
+import gameElements.GameResources;
 import gui.ClientGUI;
 import gui.MessageRecevable;
 import java.awt.Color;
@@ -31,6 +32,9 @@ public class TajimaAI extends LaboAI {
     // 相手プレイヤーのプレイヤー番号
     private int enemyNumber;
 
+    // 思考部分
+    private Thinker thinker;
+    
     // サーバーとのコネクター
     private ServerConnecter connecter;
     // GUI
@@ -38,23 +42,20 @@ public class TajimaAI extends LaboAI {
 
     // 手数を数える
     private int count = 0;
-    
+
     // 状態を更新しても良いか
     private boolean canChangeSeason = true;
     // 季節更新？
     private boolean changeSeasonFlag = false;
-    
-    
-    private Game test;
-    
 
     /**
      * コンストラクタ
-     * @param game 
+     *
+     * @param game
      */
     public TajimaAI(Game game) {
         super(game);
-
+        this.thinker = new Thinker(Thinker.MONEY_AND_RESERCH_PRIORITY);
     }
 
     /**
@@ -150,21 +151,20 @@ public class TajimaAI extends LaboAI {
 
     /**
      * コマを置くメソッド
-     * @param action 
+     *
+     * @param action
      */
-    private void putWorker(Action action){
+    private void putWorker(Action action) {
         String worker = action.worker;
         String place = action.place;
         String trend = action.trend;
-        if(trend != null){
+        if (trend != null) {
             this.putWorker(worker, place, trend);
-        }
-        else{
+        } else {
             this.putWorker(worker, place);
         }
     }
-    
-    
+
     /**
      * コマを置くメソッド(トレンド無し版)
      *
@@ -176,8 +176,7 @@ public class TajimaAI extends LaboAI {
             this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + place);
             this.gameBoard.play(this.myNumber, place, worker);
             this.count++;
-        }
-        else {
+        } else {
             System.err.println("Put Error!!");
         }
     }
@@ -195,8 +194,7 @@ public class TajimaAI extends LaboAI {
             this.gameBoard.play(this.myNumber, place, worker);
             this.gameBoard.setTreand(trend);
             this.count++;
-        }
-        else {
+        } else {
             System.err.println("Put Error!!");
         }
     }
@@ -215,7 +213,7 @@ public class TajimaAI extends LaboAI {
             this.checkTrend();
         }
     }
-    
+
     /**
      * トレンド移動確認
      */
@@ -223,7 +221,6 @@ public class TajimaAI extends LaboAI {
         this.canChangeSeason = false;
         this.sendMessage("210 CONFPRM");
     }
-    
 
     /**
      * トレンドをセットする
@@ -236,23 +233,25 @@ public class TajimaAI extends LaboAI {
         this.canChangeSeason = true;
         this.changeSeason();
     }
-    
+
     /**
      * 季節を更新する
      */
-    private void changeSeason(){
-        if(this.canChangeSeason && this.changeSeasonFlag){
+    private void changeSeason() {
+        if (this.canChangeSeason && this.changeSeasonFlag) {
             this.gameBoard.changeNewSeason();
             String log = this.gameBoard.getBoardInformation();
             this.addMessage(log);
             log = this.gameBoard.getResourceInformation();
             this.addMessage(log);
             this.changeSeasonFlag = false;
+            
+            // デバック用
+            if(this.gameBoard.getSeason().equals("5a")){
+                this.thinker.setMode(Thinker.SCORE_PRIORITY);
+            }
         }
     }
-    
-    
-    
 
     /**
      * 通信先にメッセージを送信する。サーバにつながっていない場合は送らない
@@ -291,19 +290,37 @@ public class TajimaAI extends LaboAI {
      * ここで考える
      */
     private void think() {
-        // 永遠ゼミに置き続ける
-        this.test = this.gameBoard.clone();
-        Action a;
-        if (count % 2 == 0) {
-            a = new Action("P", "1-1");
-            this.test.play(myNumber, "2-1", "P");
-        } else {
-            a = new Action("S", "1-1");
-            this.test.play(myNumber, "2-1", "S");
+        // とりあえず全探索＆最適手を探す
+        //this.test = this.gameBoard.clone();
+        Action bestAction = new Action("P", "1-1");
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = null;
+        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+            // 全部の場所ループ
+            String p = Board.PLACE_NAMES[j];
+            for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                // 全部のワーカーループ
+                String w = GameResources.WORKER_NAMES[i];
+                Action a = new Action(w, p);
+                eva = this.thinker.evaluateBoard(gameBoard, myNumber, a);
+                // 評価良いの見つけたら
+                if(eva != null && eva > bestEva){
+                    // 更新
+                    bestEva = eva;
+                    bestAction = a;
+                }
+            }
         }
-        this.putWorker(a);
+        
+//      // 永遠ゼミに置き続ける
+//        if (count % 2 == 0) {
+//            a = new Action("P", "1-1");
+//            //System.out.println(this.test.play(myNumber, "2-1", "P"));
+//        } else {
+//            a = new Action("S", "1-1");
+//            //this.test.play(myNumber, "2-1", "S");
+//        }
+        this.putWorker(bestAction);
     }
-    
-
 
 }
