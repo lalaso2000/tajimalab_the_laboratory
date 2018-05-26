@@ -38,7 +38,7 @@ public class LalasoAI extends TajimaLabAI {
     public LalasoAI(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "SampleAI";
+        this.myName = "Lily";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(MONEY_AND_RESERCH_PRIORITY);
 
