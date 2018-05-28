@@ -17,7 +17,7 @@ import network.ServerConnecter;
 public abstract class LaboAI implements MessageRecevable{
     protected Game gameBoard;
     protected boolean isThinking;
-  
+      
     public LaboAI(Game game){
         this.gameBoard = game;
     }

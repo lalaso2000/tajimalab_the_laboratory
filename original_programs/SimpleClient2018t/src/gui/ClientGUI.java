@@ -5,7 +5,6 @@
 package gui;
 
 import ai.LaboAI;
-import ai.TajimaAI;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -477,6 +476,19 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    
+    /**
+     * ログ出力用　色付き
+     */
+    public void addMessage(String text, SimpleAttributeSet attribute){
+        try {
+            //ドキュメントにその属性情報つきの文字列を挿入
+            document.insertString(document.getLength(), "[log]" + text + "\n", attribute);
+            this.jTextPane1.setCaretPosition(document.getLength());
+        } catch (BadLocationException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 

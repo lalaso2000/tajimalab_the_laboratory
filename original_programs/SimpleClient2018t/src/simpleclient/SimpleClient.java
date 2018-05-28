@@ -4,8 +4,7 @@
  */
 package simpleclient;
 
-import ai.LaboAI;
-import ai.TajimaAI;
+import ai.SampleAI;
 import gameElements.Game;
 import gui.ClientGUI;
 import java.util.logging.Level;
@@ -35,7 +34,8 @@ public class SimpleClient {
             Logger.getLogger(SimpleClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         Game myGame = new Game();
-        TajimaAI myAI = new TajimaAI(myGame);
+        // TajimaAI myAI = new TajimaAI(myGame);
+        SampleAI myAI = new SampleAI(myGame);
         ClientGUI gui = new ClientGUI(myAI);
         
         gui.setVisible(true);
