@@ -30,6 +30,10 @@ public class LalasoAI extends TajimaLabAI {
     public static final int SCORE_PRIORITY = 3;    // スコア稼ぎモード
     public static final int MONEY_AND_RESERCH_PRIORITY = 4;    // お金と研究ポイント稼ぎモード
 
+    public static final int PREFETCH_MAX_LEVEL = 5;     // 先読みの最高階数
+    
+    private Action[] bestActions;
+
     /**
      * コンストラクタ
      *
@@ -41,6 +45,7 @@ public class LalasoAI extends TajimaLabAI {
         this.myName = "Lily";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(MONEY_AND_RESERCH_PRIORITY);
+        
 
     }
 
@@ -216,6 +221,37 @@ public class LalasoAI extends TajimaLabAI {
 
     /*  以上、各種評価値のgetterとsetter  */
     /**
+     * 仮想でゲームを進める（先読み用）
+     *
+     * @param game 盤面
+     * @param playerNum 打つ人
+     * @param action アクション
+     * @return 打った盤面（複製）
+     */
+    private Game virtualPlay(Game game, int playerNum, Action action) {
+        // 配置可能かチェック(出来ないならnullを返却)
+        if (gameBoard.canPutWorker(playerNum, action.place, action.worker) == false) {
+            return null;
+        }
+
+        // ゲームを複製
+        Game cloneGame = game.clone();
+        // アクションしてみる
+        cloneGame.play(playerNum, action.place, action.worker);
+        if (action.place.equals("5-3")) {
+            cloneGame.setTreand(action.trend);
+        }
+        // 季節が変わるなら更新
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            cloneGame.changeNewSeason();
+        }
+
+        return cloneGame;
+    }
+
+    
+
+    /**
      * 考えるフェーズ 手を打つところまで実装
      */
     @Override
@@ -224,17 +260,14 @@ public class LalasoAI extends TajimaLabAI {
         Action bestAction = new Action("P", "1-1");
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = null;
-        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+        for (String p : Board.PLACE_NAMES) {
             // 全部の場所ループ
-            String p = Board.PLACE_NAMES[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    String t = Game.TREAND_ID_LIST[k];
-                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         eva = this.evaluateBoard(gameBoard, myNumber, a);
                         // 評価良いの見つけたら
@@ -246,9 +279,8 @@ public class LalasoAI extends TajimaLabAI {
                     }
                 }
             } else {
-                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
                     eva = this.evaluateBoard(gameBoard, myNumber, a);
                     // 評価良いの見つけたら
@@ -281,7 +313,7 @@ public class LalasoAI extends TajimaLabAI {
         if (gameBoard.canPutWorker(playerNum, action.place, action.worker) == false) {
             return null;
         }
-        
+
         // アクションする前の季節を取得（表彰を計算するため）
         String seasonStr = game.getSeason();
         // その季節はトレンド番号だと何番目か
@@ -295,10 +327,10 @@ public class LalasoAI extends TajimaLabAI {
             cloneGame.setTreand(action.trend);
         }
         // 季節が変わるなら更新
-        if(cloneGame.getGameState() == Game.STATE_SEASON_END){
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
             cloneGame.changeNewSeason();
         }
-        
+
         // 計算用リソースを取得
         GameResources[] resources = this.getResourcesForEvaluation(cloneGame);
 
@@ -341,7 +373,7 @@ public class LalasoAI extends TajimaLabAI {
             evaluation += this.trendValue;
         }
         // 負の点数は許されない
-        if(resources[playerNum].getTotalScore() < 0) {
+        if (resources[playerNum].getTotalScore() < 0) {
             evaluation = -1000000.0;
         }
 
