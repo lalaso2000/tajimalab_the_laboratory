@@ -30,8 +30,8 @@ public class LalasoAI extends TajimaLabAI {
     public static final int SCORE_PRIORITY = 3;    // スコア稼ぎモード
     public static final int MONEY_AND_RESERCH_PRIORITY = 4;    // お金と研究ポイント稼ぎモード
 
-    public static final int PREFETCH_MAX_LEVEL = 5;     // 先読みの最高階数
-    
+    public static final int PREFETCH_MAX_LEVEL = 3;     // 先読みの最高階数
+
     private Action[] bestActions;
 
     /**
@@ -45,7 +45,6 @@ public class LalasoAI extends TajimaLabAI {
         this.myName = "Lily";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(MONEY_AND_RESERCH_PRIORITY);
-        
 
     }
 
@@ -221,55 +220,171 @@ public class LalasoAI extends TajimaLabAI {
 
     /*  以上、各種評価値のgetterとsetter  */
     /**
-     * 仮想でゲームを進める（先読み用）
+     * 相手の番号を求める
      *
-     * @param game 盤面
-     * @param playerNum 打つ人
-     * @param action アクション
-     * @return 打った盤面（複製）
+     * @param playerNum 自分の番号
+     * @return 相手の番号
      */
-    private Game virtualPlay(Game game, int playerNum, Action action) {
-        // 配置可能かチェック(出来ないならnullを返却)
-        if (gameBoard.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
-        }
-
-        // ゲームを複製
-        Game cloneGame = game.clone();
-        // アクションしてみる
-        cloneGame.play(playerNum, action.place, action.worker);
-        if (action.place.equals("5-3")) {
-            cloneGame.setTreand(action.trend);
-        }
-        // 季節が変わるなら更新
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            cloneGame.changeNewSeason();
-        }
-
-        return cloneGame;
+    private int calcEnemyNum(int playerNum) {
+        return (playerNum == 0) ? 1 : 0;
     }
 
-    
+    private Double prefetchMax(int level, Game game, Action action, Double alpha, Double beta) {
+        // 最下層まで読んだら評価値を返す
+        if (level == PREFETCH_MAX_LEVEL) {
+            Double eva = evaluateBoard(game, this.myNumber, action);
+            this.addMessage("(" + level + ") " + action + " -> " + eva);
+            return eva;
+        }
+
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = 0.0;
+        // 全手探索
+        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+            // 全部の場所ループ
+            String p = Board.PLACE_NAMES[j];
+            // 5-3の時
+            if (p.equals("5-3")) {
+                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                    // 全部のトレンドループ
+                    String t = Game.TREAND_ID_LIST[k];
+                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                        // 全部のワーカーループ
+                        String w = GameResources.WORKER_NAMES[i];
+                        Action a = new Action(w, p, t);
+                        eva = this.prefetchMin(level + 1, game, a, alpha, beta);
+                        // bata値を上回ったら探索中止
+                        if (eva != null && eva >= beta) {
+                            bestEva = eva;
+                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                            return bestEva;
+                        }
+                        // 評価良いの見つけたら
+                        if (eva != null && eva >= bestEva) {
+                            // 更新
+                            bestEva = eva;
+                            alpha = Double.max(alpha, bestEva);
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    // 全部のワーカーループ
+                    String w = GameResources.WORKER_NAMES[i];
+                    Action a = new Action(w, p);
+                    eva = this.prefetchMin(level + 1, game, a, alpha, beta);
+                    // bata値を上回ったら探索中止
+                    if (eva != null && eva >= beta) {
+                        bestEva = eva;
+                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                        return bestEva;
+                    }
+                    // 評価良いの見つけたら
+                    if (eva != null && eva >= bestEva) {
+                        // 更新
+                        bestEva = eva;
+                        alpha = Double.max(alpha, bestEva);
+                    }
+                }
+            }
+        }
+        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+        return bestEva;
+    }
+
+    private Double prefetchMin(int level, Game game, Action action, Double alpha, Double beta) {
+        // 最下層まで読んだら評価値を返す
+        if (level == PREFETCH_MAX_LEVEL) {
+            Double eva = evaluateBoard(game, this.myNumber, action);
+            this.addMessage("(" + level + ") " + action + " -> " + eva);
+            return eva;
+        }
+
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.POSITIVE_INFINITY;
+        Double eva = 0.0;
+        // 全手探索
+        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+            // 全部の場所ループ
+            String p = Board.PLACE_NAMES[j];
+            // 5-3の時
+            if (p.equals("5-3")) {
+                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                    // 全部のトレンドループ
+                    String t = Game.TREAND_ID_LIST[k];
+                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                        // 全部のワーカーループ
+                        String w = GameResources.WORKER_NAMES[i];
+                        Action a = new Action(w, p, t);
+                        eva = this.prefetchMax(level + 1, game, a, alpha, beta);
+                        // alpha値を下回ったら探索中止
+                        if (eva != null && eva <= alpha) {
+                            bestEva = eva;
+                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                            return bestEva;
+                        }
+                        // 評価良いの見つけたら
+                        if (eva != null && eva <= bestEva) {
+                            // 更新
+                            bestEva = eva;
+                            beta = Double.min(beta, bestEva);
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    // 全部のワーカーループ
+                    String w = GameResources.WORKER_NAMES[i];
+                    Action a = new Action(w, p);
+                    eva = this.prefetchMax(level + 1, game, a, alpha, beta);
+                    // alpha値を下回ったら探索中止
+                    if (eva != null && eva <= alpha) {
+                        bestEva = eva;
+                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                        return bestEva;
+                    }
+                    // 評価良いの見つけたら
+                    if (eva != null && eva <= bestEva) {
+                        // 更新
+                        bestEva = eva;
+                        beta = Double.min(beta, bestEva);
+                    }
+                }
+            }
+        }
+        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+        return bestEva;
+    }
 
     /**
      * 考えるフェーズ 手を打つところまで実装
      */
     @Override
     protected void think() {
-        // とりあえず全探索＆最適手を探す
-        Action bestAction = new Action("P", "1-1");
+        this.addMessage("==========================");
+        this.addMessage("========== thinking ==========");
+        this.addMessage("==========================");
+
+        Action bestAction = null;
+
+        // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
-        Double eva = null;
-        for (String p : Board.PLACE_NAMES) {
+        Double eva = 0.0;
+        // 全手探索
+        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
             // 全部の場所ループ
+            String p = Board.PLACE_NAMES[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (String t : Game.TREAND_ID_LIST) {
+                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
                     // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
+                    String t = Game.TREAND_ID_LIST[k];
+                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
                         // 全部のワーカーループ
+                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        eva = this.evaluateBoard(gameBoard, myNumber, a);
+                        eva = this.prefetchMin(1, this.gameBoard, a, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
                         // 評価良いの見つけたら
                         if (eva != null && eva > bestEva) {
                             // 更新
@@ -279,10 +394,11 @@ public class LalasoAI extends TajimaLabAI {
                     }
                 }
             } else {
-                for (String w : GameResources.WORKER_NAMES) {
+                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
                     // 全部のワーカーループ
+                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    eva = this.evaluateBoard(gameBoard, myNumber, a);
+                    eva = this.prefetchMin(1, this.gameBoard, a, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
                     // 評価良いの見つけたら
                     if (eva != null && eva > bestEva) {
                         // 更新
@@ -292,6 +408,12 @@ public class LalasoAI extends TajimaLabAI {
                 }
             }
         }
+        this.addMessage("===========================");
+        this.addMessage("========== think end ==========");
+        this.addMessage("===========================");
+
+        this.addMessage("* Best Action is " + bestAction);
+
         // 最適解を打つ
         this.putWorker(bestAction);
     }
@@ -346,26 +468,43 @@ public class LalasoAI extends TajimaLabAI {
          */
 
         /**
-         * こっから評価計算（各自でいじる）
+         * 評価値の計算
          */
+        // 敵の番号
+        int enemyNum = calcEnemyNum(playerNum);
+        Double evaluation = 0.0;
+        evaluation += calcEvaluate(resources[playerNum], seasonTrendID, trendInt);
+        evaluation -= calcEvaluate(resources[enemyNum], seasonTrendID, trendInt);
+        return evaluation;
+    }
+
+    /**
+     * リソースから評価値を計算
+     *
+     * @param resource リソース
+     * @param seasonTrendID 現在の季節
+     * @param trendInt トレンドの場所
+     * @return
+     */
+    private Double calcEvaluate(GameResources resource, int seasonTrendID, int trendInt) {
         // リソースに応じて評価値を計算
         Double evaluation = 0.0;
         // 自分のお金×お金の評価値
-        evaluation += resources[playerNum].getCurrentMoney() * this.moneyValue;
+        evaluation += resource.getCurrentMoney() * this.moneyValue;
         // 自分の研究ポイント×研究ポイントの評価値
-        evaluation += resources[playerNum].getCurrentResrchPoint() * this.reserchPointValue;
+        evaluation += resource.getCurrentResrchPoint() * this.reserchPointValue;
         // 表彰前のスコア×スコアの評価値
-        evaluation += resources[playerNum].getScoreOf(seasonTrendID) * this.scoreValue;
+        evaluation += resource.getScoreOf(seasonTrendID) * this.scoreValue;
         // 現状までのトータルスコア
         // evaluation += resources[playerNum].getTotalScore();
         // スタートプレイヤーかどうか
-        if (resources[playerNum].isStartPlayer()) {
+        if (resource.isStartPlayer()) {
             evaluation += this.employStudentValue;
         }
         // 学生の数
-        evaluation += resources[playerNum].getTotalStudentsCount() * this.employStudentValue;
+        evaluation += resource.getTotalStudentsCount() * this.employStudentValue;
         // 助手を雇っているか
-        if (resources[playerNum].hasWorkerOf("A")) {
+        if (resource.hasWorkerOf("A")) {
             evaluation += this.employAssistantValue;
         }
         // 今がトレンドか
@@ -373,10 +512,9 @@ public class LalasoAI extends TajimaLabAI {
             evaluation += this.trendValue;
         }
         // 負の点数は許されない
-        if (resources[playerNum].getTotalScore() < 0) {
+        if (resource.getTotalScore() < 0) {
             evaluation = -1000000.0;
         }
-
         return evaluation;
     }
 
@@ -385,11 +523,7 @@ public class LalasoAI extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
-        // 季節が変わった時に呼び出される
-        // 例えば5aの季節になったらモードを切り替える…とか
-        if (this.gameBoard.getSeason().equals("5a")) {
-            this.setMode(SCORE_PRIORITY);
-        }
+
     }
 
 }
