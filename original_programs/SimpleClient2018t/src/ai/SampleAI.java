@@ -272,7 +272,7 @@ public class SampleAI extends TajimaLabAI {
      * @param action アクション内容
      * @return 評価値
      */
-    @Override
+//    @Override
     protected Double evaluateBoard(Game game, int playerNum, Action action) {
         /**
          * この辺テンプレ

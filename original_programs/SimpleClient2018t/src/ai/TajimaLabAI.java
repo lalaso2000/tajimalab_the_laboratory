@@ -564,15 +564,15 @@ public abstract class TajimaLabAI extends LaboAI {
      */
     protected abstract void think();
 
-    /**
-     * 評価関数 継承＆オーバーライドで実装しないと使えません 現在のボード状態、プレイする人の番号、アクションを入れると、そのアクション後のボードの評価が返る player0が有利な時はプラス、player1が有利な時はマイナスになるようにするといい感じ？
-     *
-     * @param game
-     * @param playerNum
-     * @param action
-     * @return 盤面の評価
-     */
-    protected abstract Double evaluateBoard(Game game, int playerNum, Action action);
+//    /**
+//     * 評価関数 継承＆オーバーライドで実装しないと使えません 現在のボード状態、プレイする人の番号、アクションを入れると、そのアクション後のボードの評価が返る player0が有利な時はプラス、player1が有利な時はマイナスになるようにするといい感じ？
+//     *
+//     * @param game
+//     * @param playerNum
+//     * @param action
+//     * @return 盤面の評価
+//     */
+//    protected abstract Double evaluateBoard(Game game, int playerNum, Action action);
 
     /**
      * 季節が変わった時に呼び出される関数 継承先でオーバーライドしてください

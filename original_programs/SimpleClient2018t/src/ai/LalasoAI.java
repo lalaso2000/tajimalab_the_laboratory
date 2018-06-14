@@ -229,12 +229,52 @@ public class LalasoAI extends TajimaLabAI {
         return (playerNum == 0) ? 1 : 0;
     }
 
+    /**
+     * 仮想で打つ
+     *
+     * @param game 盤面
+     * @param playerNum 打つ人
+     * @param action アクション
+     * @return 打ったあとのゲーム（季節更新済み）
+     */
+    private Game clonePlay(Game game, int playerNum, Action action) {
+        Game cloneGame = game.clone();
+
+        /**
+         * この辺テンプレ
+         */
+        // 配置可能かチェック(出来ないならnullを返却)
+        if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
+            return null;
+        }
+
+        // アクションしてみる
+        cloneGame.play(playerNum, action.place, action.worker);
+        if (action.place.equals("5-3")) {
+            cloneGame.setTreand(action.trend);
+        }
+        // 季節が変わるなら更新
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            cloneGame.changeNewSeason();
+        }
+
+        return cloneGame;
+    }
+
     private Double prefetchMax(int level, Game game, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            this.addMessage("(" + level + ") " + action + " -> " + eva);
+            if (eva != null) {
+                this.addMessage("(" + level + ") " + action + " -> " + eva);
+            }
             return eva;
+        }
+
+        // 仮想でゲームを進める（打てないならnull返して終了）
+        Game cloneGame = clonePlay(game, this.myNumber, action);
+        if (cloneGame == null) {
+            return null;
         }
 
         // 全手やってみて一番いい手を探す
@@ -253,7 +293,7 @@ public class LalasoAI extends TajimaLabAI {
                         // 全部のワーカーループ
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        eva = this.prefetchMin(level + 1, game, a, alpha, beta);
+                        eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
                         // bata値を上回ったら探索中止
                         if (eva != null && eva >= beta) {
                             bestEva = eva;
@@ -273,7 +313,7 @@ public class LalasoAI extends TajimaLabAI {
                     // 全部のワーカーループ
                     String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    eva = this.prefetchMin(level + 1, game, a, alpha, beta);
+                    eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
                     // bata値を上回ったら探索中止
                     if (eva != null && eva >= beta) {
                         bestEva = eva;
@@ -296,9 +336,17 @@ public class LalasoAI extends TajimaLabAI {
     private Double prefetchMin(int level, Game game, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
-            Double eva = evaluateBoard(game, this.myNumber, action);
-            this.addMessage("(" + level + ") " + action + " -> " + eva);
+            Double eva = evaluateBoard(game, this.enemyNumber, action);
+            if (eva != null) {
+                this.addMessage("(" + level + ") " + action + " -> " + eva);
+            }
             return eva;
+        }
+
+        // 仮想でゲームを進める（打てないならnull返して終了）
+        Game cloneGame = clonePlay(game, this.enemyNumber, action);
+        if (cloneGame == null) {
+            return null;
         }
 
         // 全手やってみて一番いい手を探す
@@ -317,11 +365,11 @@ public class LalasoAI extends TajimaLabAI {
                         // 全部のワーカーループ
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        eva = this.prefetchMax(level + 1, game, a, alpha, beta);
+                        eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
                         // alpha値を下回ったら探索中止
                         if (eva != null && eva <= alpha) {
                             bestEva = eva;
-                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -337,11 +385,11 @@ public class LalasoAI extends TajimaLabAI {
                     // 全部のワーカーループ
                     String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    eva = this.prefetchMax(level + 1, game, a, alpha, beta);
+                    eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
                     // alpha値を下回ったら探索中止
                     if (eva != null && eva <= alpha) {
                         bestEva = eva;
-                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -384,11 +432,16 @@ public class LalasoAI extends TajimaLabAI {
                         // 全部のワーカーループ
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        eva = this.prefetchMin(1, this.gameBoard, a, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
+                        Game cloneGame = clonePlay(gameBoard, this.myNumber, a);
+                        if (cloneGame == null) {
+                            continue;
+                        }
+                        eva = this.prefetchMin(1, cloneGame, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
                         // 評価良いの見つけたら
                         if (eva != null && eva > bestEva) {
                             // 更新
                             bestEva = eva;
+                            this.addMessage("(" + 0 + ") " + a + " -> " + bestEva);
                             bestAction = a;
                         }
                     }
@@ -398,11 +451,16 @@ public class LalasoAI extends TajimaLabAI {
                     // 全部のワーカーループ
                     String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    eva = this.prefetchMin(1, this.gameBoard, a, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
+                    Game cloneGame = clonePlay(gameBoard, this.myNumber, a);
+                    if (cloneGame == null) {
+                        continue;
+                    }
+                    eva = this.prefetchMin(1, cloneGame, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
                     // 評価良いの見つけたら
                     if (eva != null && eva > bestEva) {
                         // 更新
                         bestEva = eva;
+                        this.addMessage("(" + 0 + ") " + a + " -> " + bestEva);
                         bestAction = a;
                     }
                 }
@@ -426,13 +484,13 @@ public class LalasoAI extends TajimaLabAI {
      * @param action アクション内容
      * @return 評価値
      */
-    @Override
+//    @Override
     protected Double evaluateBoard(Game game, int playerNum, Action action) {
         /**
          * この辺テンプレ
          */
         // 配置可能かチェック(出来ないならnullを返却)
-        if (gameBoard.canPutWorker(playerNum, action.place, action.worker) == false) {
+        if (game.canPutWorker(playerNum, action.place, action.worker) == false) {
             return null;
         }
 
@@ -470,11 +528,9 @@ public class LalasoAI extends TajimaLabAI {
         /**
          * 評価値の計算
          */
-        // 敵の番号
-        int enemyNum = calcEnemyNum(playerNum);
         Double evaluation = 0.0;
-        evaluation += calcEvaluate(resources[playerNum], seasonTrendID, trendInt);
-        evaluation -= calcEvaluate(resources[enemyNum], seasonTrendID, trendInt);
+        evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
+        evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
         return evaluation;
     }
 
