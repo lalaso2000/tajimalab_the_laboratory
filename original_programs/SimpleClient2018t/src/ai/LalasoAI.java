@@ -84,9 +84,9 @@ public class LalasoAI extends TajimaLabAI {
                 this.employAssistantValue = 0.0;
                 break;
             case MONEY_AND_RESERCH_PRIORITY:
-                this.moneyValue = 1.5;
+                this.moneyValue = 1.0;
                 this.reserchPointValue = 2.8;
-                this.scoreValue = 3.0;
+                this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
                 this.employStudentValue = 0.0;
@@ -261,9 +261,47 @@ public class LalasoAI extends TajimaLabAI {
         return cloneGame;
     }
 
+    /**
+     * 次のプレイヤーを求める（手が打てない場合はnull）
+     *
+     * @param game
+     * @param playerNum
+     * @param action
+     * @return 次のプレイヤー番号
+     */
+    private Integer getNextPlayer(Game game, int playerNum, Action action) {
+        Game cloneGame = game.clone();
+
+        // 配置可能かチェック(出来ないならnullを返却)
+        if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
+            return null;
+        }
+
+        // アクションしてみる
+        cloneGame.play(playerNum, action.place, action.worker);
+        if (action.place.equals("5-3")) {
+            cloneGame.setTreand(action.trend);
+        }
+        // 季節が変わるなら更新
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            cloneGame.changeNewSeason();
+        }
+
+        return cloneGame.getCurrentPlayer();
+    }
+
     private Double prefetchMax(int level, Game game, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
+            Double eva = evaluateBoard(game, this.enemyNumber, action);
+            if (eva != null) {
+                this.addMessage("(" + level + ") " + action + " -> " + eva);
+            }
+            return eva;
+        }
+        
+        // ゲーム終了してたら
+        if (game.getGameState() == Game.STATE_GAME_END){
             Double eva = evaluateBoard(game, this.myNumber, action);
             if (eva != null) {
                 this.addMessage("(" + level + ") " + action + " -> " + eva);
@@ -272,11 +310,14 @@ public class LalasoAI extends TajimaLabAI {
         }
 
         // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, this.myNumber, action);
+        Game cloneGame = clonePlay(game, this.enemyNumber, action);
         if (cloneGame == null) {
             return null;
         }
 
+        // 次のプレイヤーを調べる
+        int nextPlayer = cloneGame.getCurrentPlayer();
+        
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
@@ -293,7 +334,11 @@ public class LalasoAI extends TajimaLabAI {
                         // 全部のワーカーループ
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
+                        if (nextPlayer == this.myNumber) {
+                            eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
+                        } else {
+                            eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
+                        }
                         // bata値を上回ったら探索中止
                         if (eva != null && eva >= beta) {
                             bestEva = eva;
@@ -313,7 +358,11 @@ public class LalasoAI extends TajimaLabAI {
                     // 全部のワーカーループ
                     String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
+                    if (nextPlayer == this.myNumber) {
+                        eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
+                    } else {
+                        eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
+                    }
                     // bata値を上回ったら探索中止
                     if (eva != null && eva >= beta) {
                         bestEva = eva;
@@ -336,7 +385,16 @@ public class LalasoAI extends TajimaLabAI {
     private Double prefetchMin(int level, Game game, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
-            Double eva = evaluateBoard(game, this.enemyNumber, action);
+            Double eva = evaluateBoard(game, this.myNumber, action);
+            if (eva != null) {
+                this.addMessage("(" + level + ") " + action + " -> " + eva);
+            }
+            return eva;
+        }
+        
+        // ゲーム終了してたら
+        if (game.getGameState() == Game.STATE_GAME_END){
+            Double eva = evaluateBoard(game, this.myNumber, action);
             if (eva != null) {
                 this.addMessage("(" + level + ") " + action + " -> " + eva);
             }
@@ -344,11 +402,14 @@ public class LalasoAI extends TajimaLabAI {
         }
 
         // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, this.enemyNumber, action);
+        Game cloneGame = clonePlay(game, this.myNumber, action);
         if (cloneGame == null) {
             return null;
         }
 
+        // 次のプレイヤー
+        int nextPlayer = cloneGame.getCurrentPlayer();
+        
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
@@ -365,7 +426,11 @@ public class LalasoAI extends TajimaLabAI {
                         // 全部のワーカーループ
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
+                        if (nextPlayer == this.myNumber) {
+                            eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
+                        } else {
+                            eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
+                        }
                         // alpha値を下回ったら探索中止
                         if (eva != null && eva <= alpha) {
                             bestEva = eva;
@@ -385,7 +450,11 @@ public class LalasoAI extends TajimaLabAI {
                     // 全部のワーカーループ
                     String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
+                    if (nextPlayer == this.myNumber) {
+                        eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
+                    } else {
+                        eva = this.prefetchMax(level + 1, cloneGame, a, alpha, beta);
+                    }
                     // alpha値を下回ったら探索中止
                     if (eva != null && eva <= alpha) {
                         bestEva = eva;
@@ -432,11 +501,8 @@ public class LalasoAI extends TajimaLabAI {
                         // 全部のワーカーループ
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
-                        Game cloneGame = clonePlay(gameBoard, this.myNumber, a);
-                        if (cloneGame == null) {
-                            continue;
-                        }
-                        eva = this.prefetchMin(1, cloneGame, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        
                         // 評価良いの見つけたら
                         if (eva != null && eva > bestEva) {
                             // 更新
@@ -451,11 +517,7 @@ public class LalasoAI extends TajimaLabAI {
                     // 全部のワーカーループ
                     String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
-                    Game cloneGame = clonePlay(gameBoard, this.myNumber, a);
-                    if (cloneGame == null) {
-                        continue;
-                    }
-                    eva = this.prefetchMin(1, cloneGame, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
                     // 評価良いの見つけたら
                     if (eva != null && eva > bestEva) {
                         // 更新
