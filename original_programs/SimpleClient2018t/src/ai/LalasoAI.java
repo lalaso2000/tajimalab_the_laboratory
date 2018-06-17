@@ -45,6 +45,7 @@ public class LalasoAI extends TajimaLabAI {
         this.myName = "Lily";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(MONEY_AND_RESERCH_PRIORITY);
+        
 
     }
 
@@ -455,12 +456,10 @@ public class LalasoAI extends TajimaLabAI {
             String p = Board.PLACE_NAMES[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    String t = Game.TREAND_ID_LIST[k];
-                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
@@ -474,9 +473,8 @@ public class LalasoAI extends TajimaLabAI {
                     }
                 }
             } else {
-                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
                     eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
                     // 評価良いの見つけたら
