@@ -30,7 +30,7 @@ public class LalasoAI extends TajimaLabAI {
     public static final int SCORE_PRIORITY = 3;    // スコア稼ぎモード
     public static final int MONEY_AND_RESERCH_PRIORITY = 4;    // お金と研究ポイント稼ぎモード
 
-    public static final int PREFETCH_MAX_LEVEL = 3;     // 先読みの最高階数
+    public static final int PREFETCH_MAX_LEVEL = 4;     // 先読みの最高階数
 
     private Action[] bestActions;
 
@@ -86,7 +86,7 @@ public class LalasoAI extends TajimaLabAI {
                 break;
             case MONEY_AND_RESERCH_PRIORITY:
                 this.moneyValue = 1.0;
-                this.reserchPointValue = 2.8;
+                this.reserchPointValue = 2.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
@@ -552,6 +552,22 @@ public class LalasoAI extends TajimaLabAI {
         Double evaluation = 0.0;
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
+        
+        // スコアの差を計算
+        int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
+        
+        // スコア差でも評価してみる
+        if(scoreDiff > 0){
+            evaluation += -(0.25 * scoreDiff)*(0.25 * scoreDiff) + 10.0;
+        }
+        else if(scoreDiff == 0){
+            evaluation += 5;
+        }
+        else{
+            evaluation += -(0.5 * scoreDiff)*(0.5 * scoreDiff) + 0.0;
+        }
+        
+        
         return evaluation;
     }
 
@@ -570,39 +586,32 @@ public class LalasoAI extends TajimaLabAI {
         evaluation += resource.getCurrentMoney() * this.moneyValue;
         // 自分の研究ポイント×研究ポイントの評価値
         evaluation += resource.getCurrentResrchPoint() * this.reserchPointValue;
-        // 表彰前のスコア×スコアの評価値
-        evaluation += resource.getScoreOf(seasonTrendID) * this.scoreValue;
         // 現状までのトータルスコア
-        // evaluation += resources[playerNum].getTotalScore();
-        // スタートプレイヤーかどうか
-        if (resource.isStartPlayer()) {
-            evaluation += this.employStudentValue;
-        }
-        // 学生の数
-        evaluation += resource.getTotalStudentsCount() * this.employStudentValue;
-        // 助手を雇っているか
-        if (resource.hasWorkerOf("A")) {
-            evaluation += this.employAssistantValue;
-        }
+        evaluation += resource.getTotalScore() * this.scoreValue;
         // 今がトレンドか
         if (seasonTrendID == trendInt) {
             evaluation += this.trendValue;
         }
         // 負の点数は許されない
         if (resource.getTotalScore() < 0) {
-            evaluation = -1000000.0;
+            return -100.0;
+        }
+        // 負債は許されない
+        if (resource.getDebt() > 0){
+            return -100.0;
         }
         return evaluation;
     }
+    
 
     /**
      * 季節が変わった時に呼び出される
      */
     @Override
     protected void seasonChanged() {
-        if (this.gameBoard.getSeason().equals("6b")) {
-            System.out.println("last season.");
-        }
+//        if (this.gameBoard.getSeason().equals("6b")) {
+//            System.out.println("last season.");
+//        }
     }
 
 }
