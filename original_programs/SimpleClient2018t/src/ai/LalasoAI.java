@@ -220,16 +220,6 @@ public class LalasoAI extends TajimaLabAI {
 
     /*  以上、各種評価値のgetterとsetter  */
     /**
-     * 相手の番号を求める
-     *
-     * @param playerNum 自分の番号
-     * @return 相手の番号
-     */
-    private int calcEnemyNum(int playerNum) {
-        return (playerNum == 0) ? 1 : 0;
-    }
-
-    /**
      * 仮想で打つ
      *
      * @param game 盤面
@@ -261,35 +251,6 @@ public class LalasoAI extends TajimaLabAI {
         return cloneGame;
     }
 
-    /**
-     * 次のプレイヤーを求める（手が打てない場合はnull）
-     *
-     * @param game
-     * @param playerNum
-     * @param action
-     * @return 次のプレイヤー番号
-     */
-    private Integer getNextPlayer(Game game, int playerNum, Action action) {
-        Game cloneGame = game.clone();
-
-        // 配置可能かチェック(出来ないならnullを返却)
-        if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
-        }
-
-        // アクションしてみる
-        cloneGame.play(playerNum, action.place, action.worker);
-        if (action.place.equals("5-3")) {
-            cloneGame.setTreand(action.trend);
-        }
-        // 季節が変わるなら更新
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            cloneGame.changeNewSeason();
-        }
-
-        return cloneGame.getCurrentPlayer();
-    }
-
     private Double prefetchMax(int level, Game game, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
@@ -299,15 +260,15 @@ public class LalasoAI extends TajimaLabAI {
             }
             return eva;
         }
-        
+
         // 仮想でゲームを進める（打てないならnull返して終了）
         Game cloneGame = clonePlay(game, this.enemyNumber, action);
         if (cloneGame == null) {
             return null;
         }
-        
+
         // もし打った手でゲーム終了なら評価を返す
-        if (cloneGame.getGameState() == Game.STATE_GAME_END){
+        if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
             if (eva != null) {
                 this.addMessage("(" + level + ") " + action + " -> " + eva);
@@ -317,7 +278,7 @@ public class LalasoAI extends TajimaLabAI {
 
         // 次のプレイヤーを調べる
         int nextPlayer = cloneGame.getCurrentPlayer();
-        
+
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
@@ -397,9 +358,9 @@ public class LalasoAI extends TajimaLabAI {
         if (cloneGame == null) {
             return null;
         }
-        
+
         // もし打った手でゲーム終了なら評価を返す
-        if (cloneGame.getGameState() == Game.STATE_GAME_END){
+        if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
             if (eva != null) {
                 this.addMessage("(" + level + ") " + action + " -> " + eva);
@@ -407,10 +368,9 @@ public class LalasoAI extends TajimaLabAI {
             return eva;
         }
 
-
         // 次のプレイヤー
         int nextPlayer = cloneGame.getCurrentPlayer();
-        
+
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
@@ -503,7 +463,7 @@ public class LalasoAI extends TajimaLabAI {
                         String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        
+
                         // 評価良いの見つけたら
                         if (eva != null && eva > bestEva) {
                             // 更新
@@ -642,7 +602,7 @@ public class LalasoAI extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
-        if(this.gameBoard.getSeason().equals("6b")){
+        if (this.gameBoard.getSeason().equals("6b")) {
             System.out.println("last season.");
         }
     }
