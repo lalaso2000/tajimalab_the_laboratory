@@ -300,19 +300,19 @@ public class LalasoAI extends TajimaLabAI {
             return eva;
         }
         
-        // ゲーム終了してたら
-        if (game.getGameState() == Game.STATE_GAME_END){
+        // 仮想でゲームを進める（打てないならnull返して終了）
+        Game cloneGame = clonePlay(game, this.enemyNumber, action);
+        if (cloneGame == null) {
+            return null;
+        }
+        
+        // もし打った手でゲーム終了なら評価を返す
+        if (cloneGame.getGameState() == Game.STATE_GAME_END){
             Double eva = evaluateBoard(game, this.myNumber, action);
             if (eva != null) {
                 this.addMessage("(" + level + ") " + action + " -> " + eva);
             }
             return eva;
-        }
-
-        // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, this.enemyNumber, action);
-        if (cloneGame == null) {
-            return null;
         }
 
         // 次のプレイヤーを調べる
@@ -391,9 +391,15 @@ public class LalasoAI extends TajimaLabAI {
             }
             return eva;
         }
+
+        // 仮想でゲームを進める（打てないならnull返して終了）
+        Game cloneGame = clonePlay(game, this.myNumber, action);
+        if (cloneGame == null) {
+            return null;
+        }
         
-        // ゲーム終了してたら
-        if (game.getGameState() == Game.STATE_GAME_END){
+        // もし打った手でゲーム終了なら評価を返す
+        if (cloneGame.getGameState() == Game.STATE_GAME_END){
             Double eva = evaluateBoard(game, this.myNumber, action);
             if (eva != null) {
                 this.addMessage("(" + level + ") " + action + " -> " + eva);
@@ -401,11 +407,6 @@ public class LalasoAI extends TajimaLabAI {
             return eva;
         }
 
-        // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, this.myNumber, action);
-        if (cloneGame == null) {
-            return null;
-        }
 
         // 次のプレイヤー
         int nextPlayer = cloneGame.getCurrentPlayer();
@@ -641,7 +642,9 @@ public class LalasoAI extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
-
+        if(this.gameBoard.getSeason().equals("6b")){
+            System.out.println("last season.");
+        }
     }
 
 }
