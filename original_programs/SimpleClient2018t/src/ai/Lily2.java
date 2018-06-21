@@ -5,7 +5,6 @@ package ai;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import gameElements.Game;
 import gameElements.GameResources;
 
@@ -31,7 +30,7 @@ public class Lily2 extends TajimaLabAI {
     public static final int MONEY_AND_RESERCH_PRIORITY = 4;    // お金と研究ポイント稼ぎモード
 
     public static final int PREFETCH_MAX_LEVEL = 4;     // 先読みの最高階数
-    
+
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
 
@@ -87,8 +86,8 @@ public class Lily2 extends TajimaLabAI {
                 this.employAssistantValue = 0.0;
                 break;
             case MONEY_AND_RESERCH_PRIORITY:
-                this.moneyValue = 1.0;
-                this.reserchPointValue = 2.0;
+                this.moneyValue = 1.5;
+                this.reserchPointValue = 3.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
@@ -109,7 +108,6 @@ public class Lily2 extends TajimaLabAI {
     }
 
     /*  以下、各種評価値のgetterとsetter  */
-
     /**
      * @return the moneyValue
      */
@@ -254,20 +252,20 @@ public class Lily2 extends TajimaLabAI {
 
         return cloneGame;
     }
-    
+
     /**
      * 季節が春秋かどうかをチェックする関数
+     *
      * @param game 盤面
      * @return 春秋ならtrue、それ以外はfalse
      */
-    private String[] setPlaceArrays(Game game){
+    private String[] setPlaceArrays(Game game) {
         String season = game.getSeason();
         String[] places;
-        if(season.contains("a")){
+        if (season.contains("a")) {
             places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
             System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-        }
-        else {
+        } else {
             places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
             System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
             System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
@@ -279,9 +277,9 @@ public class Lily2 extends TajimaLabAI {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, this.enemyNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -294,9 +292,9 @@ public class Lily2 extends TajimaLabAI {
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -306,10 +304,10 @@ public class Lily2 extends TajimaLabAI {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
-        
+
         // 春秋はスコアを取る場所を除外
         String[] places = this.setPlaceArrays(cloneGame);
-        
+
         // 全手探索
         for (String p : places) {
             // 全部の場所ループ
@@ -328,7 +326,7 @@ public class Lily2 extends TajimaLabAI {
                         // bata値を上回ったら探索中止
                         if (eva != null && eva >= beta) {
                             bestEva = eva;
-                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -351,7 +349,7 @@ public class Lily2 extends TajimaLabAI {
                     // bata値を上回ったら探索中止
                     if (eva != null && eva >= beta) {
                         bestEva = eva;
-                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -363,7 +361,7 @@ public class Lily2 extends TajimaLabAI {
                 }
             }
         }
-        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
@@ -371,9 +369,9 @@ public class Lily2 extends TajimaLabAI {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -386,9 +384,9 @@ public class Lily2 extends TajimaLabAI {
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -400,7 +398,7 @@ public class Lily2 extends TajimaLabAI {
         Double eva = 0.0;
         // 春秋はスコアを取る場所を除外
         String[] places = this.setPlaceArrays(cloneGame);
-        
+
         // 全手探索
         for (String p : places) {
             // 全部の場所ループ
@@ -419,7 +417,7 @@ public class Lily2 extends TajimaLabAI {
                         // alpha値を下回ったら探索中止
                         if (eva != null && eva <= alpha) {
                             bestEva = eva;
-                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
+//                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -442,7 +440,7 @@ public class Lily2 extends TajimaLabAI {
                     // alpha値を下回ったら探索中止
                     if (eva != null && eva <= alpha) {
                         bestEva = eva;
-                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
+//                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -454,7 +452,7 @@ public class Lily2 extends TajimaLabAI {
                 }
             }
         }
-        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
@@ -472,10 +470,10 @@ public class Lily2 extends TajimaLabAI {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
-        
+
         // 春秋はスコアを取らない
         String[] places = this.setPlaceArrays(gameBoard);
-        
+
         // 全手探索
         for (String p : places) {
             // 全部の場所ループ
@@ -492,7 +490,7 @@ public class Lily2 extends TajimaLabAI {
                         if (eva != null && eva > bestEva) {
                             // 更新
                             bestEva = eva;
-                            this.addMessage("(" + 0 + ") " + a + " -> " + bestEva);
+                            this.addMessage(a + " -> " + bestEva);
                             bestAction = a;
                         }
                     }
@@ -506,7 +504,7 @@ public class Lily2 extends TajimaLabAI {
                     if (eva != null && eva > bestEva) {
                         // 更新
                         bestEva = eva;
-                        this.addMessage("(" + 0 + ") " + a + " -> " + bestEva);
+                        this.addMessage(a + " -> " + bestEva);
                         bestAction = a;
                     }
                 }
@@ -575,6 +573,14 @@ public class Lily2 extends TajimaLabAI {
          * 評価値の計算
          */
         Double evaluation = 0.0;
+        // 正直学生1-1は避けたい
+        if (action.place.equals("1-1") && action.worker.equals("S")) {
+            if (playerNum == this.myNumber) {
+                evaluation -= 50;
+            } else {
+                evaluation += 50;
+            }
+        }
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
@@ -582,12 +588,21 @@ public class Lily2 extends TajimaLabAI {
         int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
 
         // スコア差でも評価してみる
-        if (scoreDiff > 0) {
-            evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
+//        if (scoreDiff > 0) {
+//            evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
+//        } else if (scoreDiff == 0) {
+//            evaluation += 5;
+//        } else {
+//            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
+//        }
+        if (scoreDiff > 5) {
+            evaluation += 5.0;
+        } else if (scoreDiff > 0) {
+            evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
         } else if (scoreDiff == 0) {
             evaluation += 5;
         } else {
-            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) + 0.0;
+            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
         }
 
         return evaluation;

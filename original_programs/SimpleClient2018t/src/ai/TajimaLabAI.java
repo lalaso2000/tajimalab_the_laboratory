@@ -264,10 +264,10 @@ public abstract class TajimaLabAI extends LaboAI {
     protected void changeSeason() {
         if (this.canChangeSeason && this.changeSeasonFlag) {
             this.gameBoard.changeNewSeason();
-            String log = this.gameBoard.getBoardInformation();
-            this.addMessage(log);
-            log = this.gameBoard.getResourceInformation();
-            this.addMessage(log);
+//            String log = this.gameBoard.getBoardInformation();
+//            this.addMessage(log);
+//            log = this.gameBoard.getResourceInformation();
+//            this.addMessage(log);
             this.changeSeasonFlag = false;
             this.seasonChanged();
         }
