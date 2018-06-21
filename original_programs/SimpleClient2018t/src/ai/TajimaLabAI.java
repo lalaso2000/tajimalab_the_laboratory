@@ -50,6 +50,10 @@ public abstract class TajimaLabAI extends LaboAI {
         super(game);
     }
 
+    public String getMyName() {
+        return myName;
+    }
+
     /**
      * サーバーに接続するメソッド
      *
@@ -335,7 +339,7 @@ public abstract class TajimaLabAI extends LaboAI {
 
         resources[0] = game.getResourcesOf(0).clone();
         resources[1] = game.getResourcesOf(1).clone();
-        
+
         // 行動で増える分を加味
         HashMap<String, ArrayList<String>> workers = game.getBoard().getWorkersOnBoard();
         //ゼミによる研究ポイントの獲得
@@ -573,7 +577,6 @@ public abstract class TajimaLabAI extends LaboAI {
 //     * @return 盤面の評価
 //     */
 //    protected abstract Double evaluateBoard(Game game, int playerNum, Action action);
-
     /**
      * 季節が変わった時に呼び出される関数 継承先でオーバーライドしてください
      */

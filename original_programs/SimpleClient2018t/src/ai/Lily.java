@@ -45,7 +45,6 @@ public class Lily extends TajimaLabAI {
         this.myName = "Lily";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(MONEY_AND_RESERCH_PRIORITY);
-        
 
     }
 
@@ -107,6 +106,7 @@ public class Lily extends TajimaLabAI {
     }
 
     /*  以下、各種評価値のgetterとsetter  */
+
     /**
      * @return the moneyValue
      */
@@ -552,22 +552,19 @@ public class Lily extends TajimaLabAI {
         Double evaluation = 0.0;
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
-        
+
         // スコアの差を計算
         int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
-        
+
         // スコア差でも評価してみる
-        if(scoreDiff > 0){
-            evaluation += -(0.25 * scoreDiff)*(0.25 * scoreDiff) + 10.0;
-        }
-        else if(scoreDiff == 0){
+        if (scoreDiff > 0) {
+            evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
+        } else if (scoreDiff == 0) {
             evaluation += 5;
+        } else {
+            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) + 0.0;
         }
-        else{
-            evaluation += -(0.5 * scoreDiff)*(0.5 * scoreDiff) + 0.0;
-        }
-        
-        
+
         return evaluation;
     }
 
@@ -597,12 +594,11 @@ public class Lily extends TajimaLabAI {
             return -100.0;
         }
         // 負債は許されない
-        if (resource.getDebt() > 0){
+        if (resource.getDebt() > 0) {
             return -100.0;
         }
         return evaluation;
     }
-    
 
     /**
      * 季節が変わった時に呼び出される
