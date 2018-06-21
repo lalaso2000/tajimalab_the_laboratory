@@ -491,7 +491,7 @@ public class LalasoAI extends TajimaLabAI {
         this.addMessage("========== think end ==========");
         this.addMessage("===========================");
 
-        this.addMessage("* Best Action is " + bestAction);
+        this.addMessage("* Best Action is " + bestAction + " -> " + bestEva);
 
         // 最適解を打つ
         this.putWorker(bestAction);
