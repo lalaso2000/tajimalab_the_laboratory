@@ -25,4 +25,14 @@ public class Action {
         this.place = place;
         this.trend = trend;
     }
+    
+    @Override
+    public String toString(){
+        if(trend != null){
+            return worker + " : " + place + "(" + trend + ")";
+        }
+        else{
+            return worker + " : " + place;
+        }
+    }
 }

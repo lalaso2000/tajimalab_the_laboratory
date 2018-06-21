@@ -4,6 +4,7 @@
  */
 package simpleclient;
 
+import ai.Lily;
 import ai.SampleAI;
 import gameElements.Game;
 import gui.ClientGUI;
@@ -35,7 +36,7 @@ public class SimpleClient {
         }
         Game myGame = new Game();
         // TajimaAI myAI = new TajimaAI(myGame);
-        SampleAI myAI = new SampleAI(myGame);
+        Lily myAI = new Lily(myGame);
         ClientGUI gui = new ClientGUI(myAI);
         
         gui.setVisible(true);

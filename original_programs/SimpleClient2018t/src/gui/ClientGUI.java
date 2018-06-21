@@ -5,6 +5,7 @@
 package gui;
 
 import ai.LaboAI;
+import ai.TajimaLabAI;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -28,7 +29,7 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
     //表示部分のドキュメントを管理するクラス
     private DefaultStyledDocument document;
     //BlockusAI
-    private LaboAI myAI;
+    private TajimaLabAI myAI;
 
     private String defaultIP;
     private String defaultPort = "18420";
@@ -36,7 +37,7 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
     /**
      * コンストラクタ　文字の表示部分のみを初期化する
      */
-    public ClientGUI(LaboAI ai) {
+    public ClientGUI(TajimaLabAI ai) {
         initComponents();
         try {
             defaultIP = InetAddress.getLocalHost().getHostAddress();//"192.168.108.100";
@@ -323,7 +324,7 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
             this.myAI.setOutputInterface(this);
             this.jTextField1.setEnabled(false);
             this.jButton1.setEnabled(false);
-            this.jTextField3.setText("AI Mode...");
+            this.jTextField3.setText(this.myAI.getMyName());
             this.jTextField3.setEnabled(false);
             this.jButton3.setEnabled(false);
             this.jComboBox1.setEnabled(false);
