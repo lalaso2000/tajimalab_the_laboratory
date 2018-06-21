@@ -13,7 +13,7 @@ import gameElements.GameResources;
  *
  * @author niwatakumi
  */
-public class LalasoAI extends TajimaLabAI {
+public class Lily extends TajimaLabAI {
 
     private double moneyValue;              // お金の評価値
     private double reserchPointValue;       // 研究ポイントの評価値
@@ -39,7 +39,7 @@ public class LalasoAI extends TajimaLabAI {
      *
      * @param game
      */
-    public LalasoAI(Game game) {
+    public Lily(Game game) {
         super(game);
         // 名前変えておく
         this.myName = "Lily";
