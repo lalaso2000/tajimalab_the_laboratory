@@ -284,17 +284,14 @@ public class Lily extends TajimaLabAI {
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
         // 全手探索
-        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+        for (String p : Board.PLACE_NAMES) {
             // 全部の場所ループ
-            String p = Board.PLACE_NAMES[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    String t = Game.TREAND_ID_LIST[k];
-                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         if (nextPlayer == this.myNumber) {
                             eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -316,9 +313,8 @@ public class Lily extends TajimaLabAI {
                     }
                 }
             } else {
-                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
                     if (nextPlayer == this.myNumber) {
                         eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -376,17 +372,14 @@ public class Lily extends TajimaLabAI {
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
         // 全手探索
-        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+        for (String p : Board.PLACE_NAMES) {
             // 全部の場所ループ
-            String p = Board.PLACE_NAMES[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    String t = Game.TREAND_ID_LIST[k];
-                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         if (nextPlayer == this.myNumber) {
                             eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -408,9 +401,8 @@ public class Lily extends TajimaLabAI {
                     }
                 }
             } else {
-                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
                     if (nextPlayer == this.myNumber) {
                         eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -451,9 +443,8 @@ public class Lily extends TajimaLabAI {
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
         // 全手探索
-        for (int j = 0; j < Board.PLACE_NAMES.length; j++) {
+        for (String p : Board.PLACE_NAMES) {
             // 全部の場所ループ
-            String p = Board.PLACE_NAMES[j];
             // 5-3の時
             if (p.equals("5-3")) {
                 for (String t : Game.TREAND_ID_LIST) {

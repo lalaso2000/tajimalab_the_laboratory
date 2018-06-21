@@ -5,7 +5,6 @@
 package ai;
 
 import gameElements.Game;
-import gui.ClientGUI;
 import gui.MessageRecevable;
 import network.ServerConnecter;
 

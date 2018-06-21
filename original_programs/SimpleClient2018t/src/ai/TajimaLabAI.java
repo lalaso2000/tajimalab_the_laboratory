@@ -5,7 +5,6 @@
  */
 package ai;
 
-import gameElements.Board;
 import gameElements.Game;
 import gameElements.GameResources;
 import gui.ClientGUI;

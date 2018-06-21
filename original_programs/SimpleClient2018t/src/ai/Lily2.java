@@ -6,7 +6,6 @@ package ai;
  * and open the template in the editor.
  */
 
-import gameElements.Board;
 import gameElements.Game;
 import gameElements.GameResources;
 
@@ -312,17 +311,14 @@ public class Lily2 extends TajimaLabAI {
         String[] places = this.setPlaceArrays(cloneGame);
         
         // 全手探索
-        for (int j = 0; j < places.length; j++) {
+        for (String p : places) {
             // 全部の場所ループ
-            String p = places[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    String t = Game.TREAND_ID_LIST[k];
-                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         if (nextPlayer == this.myNumber) {
                             eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -344,9 +340,8 @@ public class Lily2 extends TajimaLabAI {
                     }
                 }
             } else {
-                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
                     if (nextPlayer == this.myNumber) {
                         eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -407,17 +402,14 @@ public class Lily2 extends TajimaLabAI {
         String[] places = this.setPlaceArrays(cloneGame);
         
         // 全手探索
-        for (int j = 0; j < places.length; j++) {
+        for (String p : places) {
             // 全部の場所ループ
-            String p = places[j];
             // 5-3の時
             if (p.equals("5-3")) {
-                for (int k = 0; k < Game.TREAND_ID_LIST.length; k++) {
+                for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    String t = Game.TREAND_ID_LIST[k];
-                    for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                    for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        String w = GameResources.WORKER_NAMES[i];
                         Action a = new Action(w, p, t);
                         if (nextPlayer == this.myNumber) {
                             eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -439,9 +431,8 @@ public class Lily2 extends TajimaLabAI {
                     }
                 }
             } else {
-                for (int i = 0; i < GameResources.WORKER_NAMES.length; i++) {
+                for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    String w = GameResources.WORKER_NAMES[i];
                     Action a = new Action(w, p);
                     if (nextPlayer == this.myNumber) {
                         eva = this.prefetchMin(level + 1, cloneGame, a, alpha, beta);
@@ -486,9 +477,8 @@ public class Lily2 extends TajimaLabAI {
         String[] places = this.setPlaceArrays(gameBoard);
         
         // 全手探索
-        for (int j = 0; j < places.length; j++) {
+        for (String p : places) {
             // 全部の場所ループ
-            String p = places[j];
             // 5-3の時
             if (p.equals("5-3")) {
                 for (String t : Game.TREAND_ID_LIST) {
