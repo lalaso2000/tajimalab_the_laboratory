@@ -14,6 +14,8 @@ import java.util.logging.Logger;
  */
 public class GameResources implements Cloneable {
 
+    public static final String[] WORKER_NAMES = {"P", "A", "S"};
+
     private int money;
     private int reserchPoint;
     private int[] score;
@@ -50,6 +52,18 @@ public class GameResources implements Cloneable {
         }
         return false;
     }
+    
+    //fixed 18.05.11
+    public boolean alreadyHiredAssistant(){
+        if(this.workerList[1] > 0){
+            return true;
+        }
+        if(this.usedWorkers[1] > 0){
+            return true;
+        }
+        return false;
+    }
+    //fixed 18.05.11
 
     public int getCurrentMoney() {
         return this.money;
@@ -95,6 +109,10 @@ public class GameResources implements Cloneable {
             return this.score[2];
         }
         return -1;
+    }
+    
+    public int getScoreOf(int scoreTrend) {
+        return this.score[scoreTrend];
     }
 
     public int getTotalScore() {
@@ -161,9 +179,22 @@ public class GameResources implements Cloneable {
         GameResources cloned = null;
         try {
             cloned = (GameResources) super.clone();
-            cloned.score = this.score.clone();
-            cloned.usedWorkers = this.usedWorkers.clone();
-            cloned.workerList = this.usedWorkers.clone();
+            cloned.score = new int[this.score.length];
+            for (int i = 0; i < score.length; i++) {
+                int s = this.score[i];
+                cloned.score[i] = s;
+            }
+            cloned.workerList = new int[this.workerList.length];
+            for (int i = 0; i < workerList.length; i++) {
+                int w = this.workerList[i];
+                cloned.workerList[i] = w;
+            }
+
+            cloned.usedWorkers = new int[this.usedWorkers.length];
+            for (int i = 0; i < usedWorkers.length; i++) {
+                int usedWorker = this.usedWorkers[i];
+                cloned.usedWorkers[i] = usedWorker;
+            }
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(GameResources.class.getName()).log(Level.SEVERE, null, ex);
         }

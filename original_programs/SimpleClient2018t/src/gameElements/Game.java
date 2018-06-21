@@ -52,6 +52,16 @@ public class Game extends Observable implements Cloneable {
         return this.gameState;
     }
 
+    /**
+     * 強制的にゲーム状態を変更する（AI用）
+     * @param gameState 
+     */
+    public void setGameState(int gameState) {
+        this.gameState = gameState;
+    }
+
+    
+    
     public String[] getPlayerName() {
         return this.PlayerName;
     }
@@ -334,7 +344,12 @@ public class Game extends Observable implements Cloneable {
             }
         }
         if (place.equals("6-2")) {
-            if (typeOfWorker.equals("P") || this.gameResource[player].getTotalScore() >= 10) {
+            //fixed 18.05.11
+            if(this.gameResource[player].alreadyHiredAssistant()){
+                return false;
+            }
+            //
+            if (typeOfWorker.equals("P") && this.gameResource[player].getTotalScore() >= 10) {
                 if (putmode) {
                     this.gameBoard.putWorker(player, place, typeOfWorker);
                     this.gameResource[player].putWorker(typeOfWorker);

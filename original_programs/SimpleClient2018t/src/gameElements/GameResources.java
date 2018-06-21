@@ -52,6 +52,18 @@ public class GameResources implements Cloneable {
         }
         return false;
     }
+    
+    //fixed 18.05.11
+    public boolean alreadyHiredAssistant(){
+        if(this.workerList[1] > 0){
+            return true;
+        }
+        if(this.usedWorkers[1] > 0){
+            return true;
+        }
+        return false;
+    }
+    //fixed 18.05.11
 
     public int getCurrentMoney() {
         return this.money;
@@ -97,6 +109,10 @@ public class GameResources implements Cloneable {
             return this.score[2];
         }
         return -1;
+    }
+    
+    public int getScoreOf(int scoreTrend) {
+        return this.score[scoreTrend];
     }
 
     public int getTotalScore() {
