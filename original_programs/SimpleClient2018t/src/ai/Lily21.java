@@ -12,7 +12,7 @@ import gameElements.GameResources;
  *
  * @author niwatakumi
  */
-public class Lily2 extends TajimaLabAI {
+public class Lily21 extends TajimaLabAI {
 
     private double moneyValue;              // お金の評価値
     private double reserchPointValue;       // 研究ポイントの評価値
@@ -41,10 +41,10 @@ public class Lily2 extends TajimaLabAI {
      *
      * @param game
      */
-    public Lily2(Game game) {
+    public Lily21(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily 2";
+        this.myName = "Lily 2.1";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(MONEY_AND_RESERCH_PRIORITY);
 
@@ -86,8 +86,8 @@ public class Lily2 extends TajimaLabAI {
                 this.employAssistantValue = 0.0;
                 break;
             case MONEY_AND_RESERCH_PRIORITY:
-                this.moneyValue = 1.0;
-                this.reserchPointValue = 2.0;
+                this.moneyValue = 1.5;
+                this.reserchPointValue = 3.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
@@ -574,13 +574,13 @@ public class Lily2 extends TajimaLabAI {
          */
         Double evaluation = 0.0;
         // 正直学生1-1は避けたい
-//        if (action.place.equals("1-1") && action.worker.equals("S")) {
-//            if (playerNum == this.myNumber) {
-//                evaluation -= 50;
-//            } else {
-//                evaluation += 50;
-//            }
-//        }
+        if (action.place.equals("1-1") && action.worker.equals("S")) {
+            if (playerNum == this.myNumber) {
+                evaluation -= 50;
+            } else {
+                evaluation += 50;
+            }
+        }
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
@@ -588,22 +588,22 @@ public class Lily2 extends TajimaLabAI {
         int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
 
         // スコア差でも評価してみる
-        if (scoreDiff > 0) {
-            evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
-        } else if (scoreDiff == 0) {
-            evaluation += 5;
-        } else {
-            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
-        }
-//        if (scoreDiff > 5) {
-//            evaluation += 5.0;
-//        } else if (scoreDiff > 0) {
-//            evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
+//        if (scoreDiff > 0) {
+//            evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
 //        } else if (scoreDiff == 0) {
 //            evaluation += 5;
 //        } else {
-//            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
+//            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
 //        }
+        if (scoreDiff > 5) {
+            evaluation += 5.0;
+        } else if (scoreDiff > 0) {
+            evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
+        } else if (scoreDiff == 0) {
+            evaluation += 5;
+        } else {
+            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
+        }
 
         return evaluation;
     }
