@@ -5,7 +5,6 @@
  */
 package ai;
 
-import gameElements.Board;
 import gameElements.Game;
 import gameElements.GameResources;
 
@@ -13,7 +12,7 @@ import gameElements.GameResources;
  *
  * @author niwatakumi
  */
-public class Lily extends TajimaLabAI {
+public class Lily3 extends TajimaLabAI {
 
     private double moneyValue;              // お金の評価値
     private double reserchPointValue;       // 研究ポイントの評価値
@@ -24,13 +23,16 @@ public class Lily extends TajimaLabAI {
     private double employAssistantValue;    // 助手を雇用することの評価値
 
     private int mode;           // 現在のモード
-    public static final int FREE_STYLE = 0;    // 自由形
-    public static final int MONEY_PRIORITY = 1;    // お金稼ぎモード
-    public static final int RESERCH_PRIORITY = 2;    // 研究ポイント稼ぎモード
-    public static final int SCORE_PRIORITY = 3;    // スコア稼ぎモード
-    public static final int MONEY_AND_RESERCH_PRIORITY = 4;    // お金と研究ポイント稼ぎモード
+    private static final int INIT_MODE = -1;        // 初期化用
+    private static final int FREE_STYLE = 0;        // 自由形
+    private static final int PLAYER0_MODE = 1;      // player0モード(Lily2.0)
+    private static final int PLAYER1_MODE = 2;      // player1モード(Lily2.1)
+    private static final int FINAL_MODE = 3;        // 最終局面
 
     public static final int PREFETCH_MAX_LEVEL = 4;     // 先読みの最高階数
+
+    private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
+    private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
 
     private Action[] bestActions;
 
@@ -39,12 +41,12 @@ public class Lily extends TajimaLabAI {
      *
      * @param game
      */
-    public Lily(Game game) {
+    public Lily3(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily";
+        this.myName = "Lily 3";
         // 最初はお金と研究ポイントを稼ぐモード
-        this.modeChange(MONEY_AND_RESERCH_PRIORITY);
+        this.modeChange(INIT_MODE);
 
     }
 
@@ -56,39 +58,39 @@ public class Lily extends TajimaLabAI {
     private void modeChange(int mode) {
         this.mode = mode;
         switch (mode) {
-            case MONEY_PRIORITY:
-                this.moneyValue = 2.0;
-                this.reserchPointValue = 1.0;
-                this.scoreValue = 1.0;
-                this.startPlayerValue = 1.5;
-                this.trendValue = 0.0;
-                this.employStudentValue = 0.0;
-                this.employAssistantValue = 0.0;
-                break;
-            case RESERCH_PRIORITY:
-                this.moneyValue = 1.0;
-                this.reserchPointValue = 2.0;
-                this.scoreValue = 1.0;
-                this.startPlayerValue = 1.5;
-                this.trendValue = 0.0;
-                this.employStudentValue = 0.0;
-                this.employAssistantValue = 0.0;
-                break;
-            case SCORE_PRIORITY:
+            case INIT_MODE:
                 this.moneyValue = 1.0;
                 this.reserchPointValue = 1.0;
-                this.scoreValue = 5.0;
-                this.startPlayerValue = 1.5;
-                this.trendValue = 0.0;
-                this.employStudentValue = 0.0;
-                this.employAssistantValue = 0.0;
+                this.scoreValue = 1.0;
+                this.startPlayerValue = 1.0;
+                this.trendValue = 1.0;
+                this.employStudentValue = 1.0;
+                this.employAssistantValue = 1.0;
                 break;
-            case MONEY_AND_RESERCH_PRIORITY:
+            case PLAYER0_MODE:
                 this.moneyValue = 1.0;
                 this.reserchPointValue = 2.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
+                this.employStudentValue = 0.0;
+                this.employAssistantValue = 0.0;
+                break;
+            case PLAYER1_MODE:
+                this.moneyValue = 1.5;
+                this.reserchPointValue = 3.0;
+                this.scoreValue = 5.0;
+                this.startPlayerValue = 1.0;
+                this.trendValue = 0.5;
+                this.employStudentValue = 0.0;
+                this.employAssistantValue = 0.0;
+                break;
+            case FINAL_MODE:
+                this.moneyValue = 1.0;
+                this.reserchPointValue = 2.0;
+                this.scoreValue = 5.0;
+                this.startPlayerValue = 0.0;
+                this.trendValue = 0.0;
                 this.employStudentValue = 0.0;
                 this.employAssistantValue = 0.0;
                 break;
@@ -106,7 +108,6 @@ public class Lily extends TajimaLabAI {
     }
 
     /*  以下、各種評価値のgetterとsetter  */
-
     /**
      * @return the moneyValue
      */
@@ -252,13 +253,33 @@ public class Lily extends TajimaLabAI {
         return cloneGame;
     }
 
+    /**
+     * 季節が春秋かどうかをチェックする関数
+     *
+     * @param game 盤面
+     * @return 春秋ならtrue、それ以外はfalse
+     */
+    private String[] setPlaceArrays(Game game) {
+        String season = game.getSeason();
+        String[] places;
+        if (season.contains("a")) {
+            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+        } else {
+            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
+            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+            System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
+        }
+        return places;
+    }
+
     private Double prefetchMax(int level, Game game, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, this.enemyNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -271,9 +292,9 @@ public class Lily extends TajimaLabAI {
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -283,8 +304,12 @@ public class Lily extends TajimaLabAI {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
+
+        // 春秋はスコアを取る場所を除外
+        String[] places = this.setPlaceArrays(cloneGame);
+
         // 全手探索
-        for (String p : Board.PLACE_NAMES) {
+        for (String p : places) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -301,7 +326,7 @@ public class Lily extends TajimaLabAI {
                         // bata値を上回ったら探索中止
                         if (eva != null && eva >= beta) {
                             bestEva = eva;
-                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -324,7 +349,7 @@ public class Lily extends TajimaLabAI {
                     // bata値を上回ったら探索中止
                     if (eva != null && eva >= beta) {
                         bestEva = eva;
-                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -336,7 +361,7 @@ public class Lily extends TajimaLabAI {
                 }
             }
         }
-        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
@@ -344,9 +369,9 @@ public class Lily extends TajimaLabAI {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -359,9 +384,9 @@ public class Lily extends TajimaLabAI {
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
-            if (eva != null) {
-                this.addMessage("(" + level + ") " + action + " -> " + eva);
-            }
+//            if (eva != null) {
+//                this.addMessage("(" + level + ") " + action + " -> " + eva);
+//            }
             return eva;
         }
 
@@ -371,8 +396,11 @@ public class Lily extends TajimaLabAI {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
+        // 春秋はスコアを取る場所を除外
+        String[] places = this.setPlaceArrays(cloneGame);
+
         // 全手探索
-        for (String p : Board.PLACE_NAMES) {
+        for (String p : places) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -389,7 +417,7 @@ public class Lily extends TajimaLabAI {
                         // alpha値を下回ったら探索中止
                         if (eva != null && eva <= alpha) {
                             bestEva = eva;
-                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
+//                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -412,7 +440,7 @@ public class Lily extends TajimaLabAI {
                     // alpha値を下回ったら探索中止
                     if (eva != null && eva <= alpha) {
                         bestEva = eva;
-                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
+//                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -424,7 +452,7 @@ public class Lily extends TajimaLabAI {
                 }
             }
         }
-        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
@@ -442,8 +470,12 @@ public class Lily extends TajimaLabAI {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
+
+        // 春秋はスコアを取らない
+        String[] places = this.setPlaceArrays(gameBoard);
+
         // 全手探索
-        for (String p : Board.PLACE_NAMES) {
+        for (String p : places) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -453,12 +485,13 @@ public class Lily extends TajimaLabAI {
                         // 全部のワーカーループ
                         Action a = new Action(w, p, t);
                         eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
+                        if (eva != null) {
+                            this.addMessage(a + " -> " + eva);
+                        }
                         // 評価良いの見つけたら
                         if (eva != null && eva > bestEva) {
                             // 更新
                             bestEva = eva;
-                            this.addMessage("(" + 0 + ") " + a + " -> " + bestEva);
                             bestAction = a;
                         }
                     }
@@ -468,11 +501,13 @@ public class Lily extends TajimaLabAI {
                     // 全部のワーカーループ
                     Action a = new Action(w, p);
                     eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    if (eva != null) {
+                        this.addMessage(a + " -> " + eva);
+                    }
                     // 評価良いの見つけたら
                     if (eva != null && eva > bestEva) {
                         // 更新
                         bestEva = eva;
-                        this.addMessage("(" + 0 + ") " + a + " -> " + bestEva);
                         bestAction = a;
                     }
                 }
@@ -541,6 +576,17 @@ public class Lily extends TajimaLabAI {
          * 評価値の計算
          */
         Double evaluation = 0.0;
+        // 正直学生1-1は避けたい
+        // player1のときのみ
+        if (this.mode == PLAYER1_MODE) {
+            if (action.place.equals("1-1") && action.worker.equals("S")) {
+                if (playerNum == this.myNumber) {
+                    evaluation -= 50;
+                } else {
+                    evaluation += 50;
+                }
+            }
+        }
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
@@ -548,14 +594,31 @@ public class Lily extends TajimaLabAI {
         int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
 
         // スコア差でも評価してみる
-        if (scoreDiff > 0) {
-            evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
-        } else if (scoreDiff == 0) {
-            evaluation += 5;
-        } else {
-            evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) + 0.0;
+        switch (this.mode) {
+            case PLAYER0_MODE:
+                if (scoreDiff > 0) {
+                    evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
+                } else if (scoreDiff == 0) {
+                    evaluation += 5;
+                } else {
+                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
+                }   break;
+            case PLAYER1_MODE:
+                if (scoreDiff > 5) {
+                    evaluation += 5.0;
+                } else if (scoreDiff > 0) {
+                    evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
+                } else if (scoreDiff == 0) {
+                    evaluation += 5;
+                } else {
+                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
+                }   break;
+            case FINAL_MODE:
+                evaluation += 100 * scoreDiff;
+                break;
+            default:
+                break;
         }
-
         return evaluation;
     }
 
@@ -596,9 +659,20 @@ public class Lily extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
-//        if (this.gameBoard.getSeason().equals("6b")) {
-//            System.out.println("last season.");
-//        }
+        if (this.gameBoard.getSeason().equals("6b")) {
+            this.modeChange(FINAL_MODE);
+        }
     }
 
+    /**
+     * プレイヤー番号が通知された時呼び出される
+     */
+    @Override
+    protected void playerNumDecided() {
+        if (this.myNumber == 0) {
+            this.modeChange(PLAYER0_MODE);
+        } else {
+            this.modeChange(PLAYER1_MODE);
+        }
+    }
 }

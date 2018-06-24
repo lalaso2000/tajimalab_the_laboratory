@@ -360,4 +360,9 @@ public class SampleAI extends TajimaLabAI {
         }
     }
 
+    @Override
+    protected void playerNumDecided() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
