@@ -155,6 +155,9 @@ public class ServerThread implements Runnable {
             for (ClientConnectionThread client : this.clientThread) {
                 if (!client.equals(aThis)) {
                     client.sendMessage(SendMessage);
+                    if(addMessage != null){
+                        client.sendMessage(addMessage);  // add on 2018.06.25
+                    }
                 }
                 if (client.getPlayerID() == this.gameBoard.getCurrentPlayer()) {
                     client.doplay();
@@ -164,6 +167,9 @@ public class ServerThread implements Runnable {
             for (ClientConnectionThread client : this.clientThread) {
                 if (!client.equals(aThis)) {
                     client.sendMessage(SendMessage);
+                    if(addMessage != null){
+                        client.sendMessage(addMessage);  // add on 2018.06.25
+                    }
                 }
             }
         }
