@@ -5,14 +5,16 @@
  */
 package ai;
 
-import gameElements.Board;
 import gameElements.Game;
 import gameElements.GameResources;
 import gui.ClientGUI;
 import gui.MessageRecevable;
 import java.awt.Color;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Queue;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import network.ServerConnecter;
@@ -35,11 +37,6 @@ public abstract class TajimaLabAI extends LaboAI {
     protected ServerConnecter connecter;
     // GUI
     protected ClientGUI gui;
-
-    // 季節を更新してもいいか
-    protected boolean canChangeSeason = true;
-    // 季節の更新があるか
-    protected boolean changeSeasonFlag = false;
 
     /**
      * コンストラクタ
@@ -120,6 +117,7 @@ public abstract class TajimaLabAI extends LaboAI {
      */
     @Override
     public void reciveMessage(String text) {
+
         String messageNum = text.substring(0, 3);
         switch (messageNum) {
             case "100":
@@ -129,6 +127,7 @@ public abstract class TajimaLabAI extends LaboAI {
             case "102":
                 // サーバーからプレイヤー番号が返ってきた時
                 this.checkNumber(text);
+                this.playerNumDecided();
                 this.gameBoard.startGame();
                 break;
             case "204":
@@ -143,10 +142,9 @@ public abstract class TajimaLabAI extends LaboAI {
                 break;
             case "207":
                 // 季節が変わったらしい時は自分の仮想ゲームでも更新する
-                this.changeSeasonFlag = true;
                 this.changeSeason();
                 break;
-            case "214":
+            case "209":
                 // トレンドを更新する
                 this.setTrend(text);
                 break;
@@ -185,10 +183,10 @@ public abstract class TajimaLabAI extends LaboAI {
         String worker = text.substring(13, 14);
         String place = text.substring(15, 18);
         this.gameBoard.play(this.enemyNumber, place, worker);
-        if (place.equals("5-3")) {
-            // 5-3打たれた時はトレンドを確認
-            this.checkTrend();
-        }
+//        if (place.equals("5-3")) {
+//            // 5-3打たれた時はトレンドを確認
+//            this.checkTrend();
+//        }
     }
 
     /**
@@ -240,14 +238,6 @@ public abstract class TajimaLabAI extends LaboAI {
     }
 
     /**
-     * トレンド移動確認
-     */
-    private void checkTrend() {
-        this.canChangeSeason = false;
-        this.sendMessage("210 CONFPRM");
-    }
-
-    /**
      * トレンドをセットする
      *
      * @param text
@@ -255,23 +245,14 @@ public abstract class TajimaLabAI extends LaboAI {
     private void setTrend(String text) {
         String trendStr = text.substring(10);
         this.gameBoard.setTreand(trendStr);
-        this.canChangeSeason = true;
-        this.changeSeason();
     }
 
     /**
      * 季節を更新する
      */
     protected void changeSeason() {
-        if (this.canChangeSeason && this.changeSeasonFlag) {
-            this.gameBoard.changeNewSeason();
-            String log = this.gameBoard.getBoardInformation();
-            this.addMessage(log);
-            log = this.gameBoard.getResourceInformation();
-            this.addMessage(log);
-            this.changeSeasonFlag = false;
-            this.seasonChanged();
-        }
+        this.gameBoard.changeNewSeason();
+        this.seasonChanged();
     }
 
     /**
@@ -568,18 +549,14 @@ public abstract class TajimaLabAI extends LaboAI {
      */
     protected abstract void think();
 
-//    /**
-//     * 評価関数 継承＆オーバーライドで実装しないと使えません 現在のボード状態、プレイする人の番号、アクションを入れると、そのアクション後のボードの評価が返る player0が有利な時はプラス、player1が有利な時はマイナスになるようにするといい感じ？
-//     *
-//     * @param game
-//     * @param playerNum
-//     * @param action
-//     * @return 盤面の評価
-//     */
-//    protected abstract Double evaluateBoard(Game game, int playerNum, Action action);
     /**
      * 季節が変わった時に呼び出される関数 継承先でオーバーライドしてください
      */
     protected abstract void seasonChanged();
+
+    /**
+     * プレイヤー番号が決定された時に呼び出される関数 継承先でオーバーライドすること
+     */
+    protected abstract void playerNumDecided();
 
 }

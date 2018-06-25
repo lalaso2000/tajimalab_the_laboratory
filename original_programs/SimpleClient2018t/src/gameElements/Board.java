@@ -4,7 +4,6 @@
  */
 package gameElements;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;

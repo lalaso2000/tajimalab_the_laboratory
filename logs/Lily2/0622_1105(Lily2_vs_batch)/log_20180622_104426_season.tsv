@@ -1,0 +1,14 @@
+	Num	Season	1-1(Seminar)	2-1(Experiment)	2-2(Experiment)	2-3(Experiment)	3-1(Presentation)	3-2(Presentation)	3-3(Presentation)	4-1(Paper)	4-2(Paper)	4-3(Paper)	5-1(Report)	5-2(Report)	5-3(Report)	6-1(Employ)	6-2(Employ)	Trend	player0_T1_Score	player1_T1_Score	player0_T2_Score	player1_T2_Score	player0_T3_Score	player1_T3_Score	player0_Money	player0_ReserchPoint	player0_TotalScore	player1_Money	player1_ReserchPoint	player1_TotalScore
+0	0	start	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T0	0	0	0	0	0	0	5	0	0	5	0	0
+1	5	1a	[P0]	[S0]	[S1]	null	null	null	null	null	null	null	[P1]	null	null	null	null	T0	0	0	0	0	0	0	3	5	0	6	4	0
+2	11	1b	[P1]	null	null	null	[S0]	[S1]	null	null	null	null	[P0]	null	null	null	null	T0	2	4	0	0	0	0	5	3	2	4	2	4
+3	17	2a	[P0]	[S1]	[S0]	[P1]	null	null	null	null	null	null	null	null	null	null	null	T0	2	4	0	0	0	0	2	9	2	4	10	4
+4	23	2b	[P0]	null	null	null	[S1]	null	null	[S0]	null	null	[P1]	null	null	null	null	T0	2	4	6	2	0	0	0	3	8	6	8	6
+5	29	3a	[P0]	[S1]	[S0]	null	null	null	null	null	null	null	[P1]	null	null	null	null	T0	2	4	6	2	0	0	2	9	8	6	11	6
+6	35	3b	null	[S1]	null	null	null	[S0]	null	[P1]	null	null	[P0]	null	null	null	null	T0	2	4	6	2	4	8	3	5	12	2	6	14
+7	41	4a	null	[S0]	[P1]	null	null	[S1]	null	null	null	null	[P0]	null	null	null	null	T0	2	8	6	2	4	8	3	8	12	3	6	18
+8	47	4b	[S0]	null	null	null	null	[S1]	null	[P0]	null	null	[P1]	null	null	null	null	T0	10	12	6	2	4	8	1	0	20	4	2	22
+9	53	5a	[P0, S0]	[S1]	null	null	null	null	null	null	null	null	[P1]	null	null	null	null	T0	10	12	6	2	4	8	0	2	20	9	5	22
+10	59	5b	[P0, S0]	[S1]	null	null	null	null	null	null	null	null	[P1]	null	null	null	null	T0	10	12	6	2	4	8	0	4	17	9	8	22
+11	65	6a	null	[S1]	[P1]	[S0]	null	null	null	null	null	null	[P0]	null	null	null	null	T0	10	12	6	2	4	8	5	9	17	4	15	22
+12	72	6b	null	null	null	null	null	null	null	null	null	null	null	null	null	null	null	T0	10	12	6	2	12	19	3	1	25	1	3	33
