@@ -489,7 +489,7 @@ public class Lily3 extends TajimaLabAI {
                             this.addMessage(a + " -> " + eva);
                         }
                         // 評価良いの見つけたら
-                        if (eva != null && eva > bestEva) {
+                        if (eva != null && eva >= bestEva) {
                             // 更新
                             bestEva = eva;
                             bestAction = a;
@@ -505,7 +505,7 @@ public class Lily3 extends TajimaLabAI {
                         this.addMessage(a + " -> " + eva);
                     }
                     // 評価良いの見つけたら
-                    if (eva != null && eva > bestEva) {
+                    if (eva != null && eva >= bestEva) {
                         // 更新
                         bestEva = eva;
                         bestAction = a;
@@ -533,6 +533,8 @@ public class Lily3 extends TajimaLabAI {
      */
 //    @Override
     protected Double evaluateBoard(Game game, int playerNum, Action action) {
+        
+        
         /**
          * この辺テンプレ
          */
@@ -619,7 +621,9 @@ public class Lily3 extends TajimaLabAI {
             default:
                 break;
         }
-        return evaluation;
+        
+        return Double.POSITIVE_INFINITY;
+        //return evaluation;
     }
 
     /**

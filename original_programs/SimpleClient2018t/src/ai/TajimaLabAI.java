@@ -10,8 +10,11 @@ import gameElements.GameResources;
 import gui.ClientGUI;
 import gui.MessageRecevable;
 import java.awt.Color;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Queue;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import network.ServerConnecter;
@@ -34,11 +37,6 @@ public abstract class TajimaLabAI extends LaboAI {
     protected ServerConnecter connecter;
     // GUI
     protected ClientGUI gui;
-
-    // 季節を更新してもいいか
-    protected boolean canChangeSeason = true;
-    // 季節の更新があるか
-    protected boolean changeSeasonFlag = false;
 
     /**
      * コンストラクタ
@@ -119,6 +117,7 @@ public abstract class TajimaLabAI extends LaboAI {
      */
     @Override
     public void reciveMessage(String text) {
+
         String messageNum = text.substring(0, 3);
         switch (messageNum) {
             case "100":
@@ -143,10 +142,9 @@ public abstract class TajimaLabAI extends LaboAI {
                 break;
             case "207":
                 // 季節が変わったらしい時は自分の仮想ゲームでも更新する
-                this.changeSeasonFlag = true;
                 this.changeSeason();
                 break;
-            case "214":
+            case "209":
                 // トレンドを更新する
                 this.setTrend(text);
                 break;
@@ -185,10 +183,10 @@ public abstract class TajimaLabAI extends LaboAI {
         String worker = text.substring(13, 14);
         String place = text.substring(15, 18);
         this.gameBoard.play(this.enemyNumber, place, worker);
-        if (place.equals("5-3")) {
-            // 5-3打たれた時はトレンドを確認
-            this.checkTrend();
-        }
+//        if (place.equals("5-3")) {
+//            // 5-3打たれた時はトレンドを確認
+//            this.checkTrend();
+//        }
     }
 
     /**
@@ -240,14 +238,6 @@ public abstract class TajimaLabAI extends LaboAI {
     }
 
     /**
-     * トレンド移動確認
-     */
-    private void checkTrend() {
-        this.canChangeSeason = false;
-        this.sendMessage("210 CONFPRM");
-    }
-
-    /**
      * トレンドをセットする
      *
      * @param text
@@ -255,23 +245,14 @@ public abstract class TajimaLabAI extends LaboAI {
     private void setTrend(String text) {
         String trendStr = text.substring(10);
         this.gameBoard.setTreand(trendStr);
-        this.canChangeSeason = true;
-        this.changeSeason();
     }
 
     /**
      * 季節を更新する
      */
     protected void changeSeason() {
-        if (this.canChangeSeason && this.changeSeasonFlag) {
-            this.gameBoard.changeNewSeason();
-//            String log = this.gameBoard.getBoardInformation();
-//            this.addMessage(log);
-//            log = this.gameBoard.getResourceInformation();
-//            this.addMessage(log);
-            this.changeSeasonFlag = false;
-            this.seasonChanged();
-        }
+        this.gameBoard.changeNewSeason();
+        this.seasonChanged();
     }
 
     /**
@@ -577,5 +558,5 @@ public abstract class TajimaLabAI extends LaboAI {
      * プレイヤー番号が決定された時に呼び出される関数 継承先でオーバーライドすること
      */
     protected abstract void playerNumDecided();
-    
+
 }
