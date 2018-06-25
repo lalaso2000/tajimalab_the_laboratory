@@ -750,6 +750,8 @@ public class Game extends Observable{
                 this.trendID = i;
             }
         }
+        this.setChanged();
+        this.notifyObservers();
     }
     
     /***

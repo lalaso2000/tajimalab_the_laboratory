@@ -146,10 +146,19 @@ public class ServerThread implements Runnable {
     //誰かが手を打った時にほかの相手にメッセージを転送するケース
     public void played(ClientConnectionThread aThis, int PlayerID, String workertype, int placeType, int placeNumber) {
         String SendMessage = "206 PLAYED " + PlayerID + " " + workertype + " " + placeType + "-" + placeNumber;
+        // add on 2018.06.25
+        String addMessage = null;
+        if(placeType == 5 && placeNumber == 3){
+            addMessage = "209 TREND " + this.gameBoard.getTrend();
+        }
+        //
         if (this.gameBoard.getGameState() == Game.STATE_WAIT_PLAYER_PLAY || this.gameBoard.getGameState() == Game.STATE_SEASON_END) {
             for (ClientConnectionThread client : this.clientThread) {
                 if (!client.equals(aThis)) {
                     client.sendMessage(SendMessage);
+                    if(addMessage != null){
+                        client.sendMessage(addMessage);  // add on 2018.06.25
+                    }
                 }
                 if (client.getPlayerID() == this.gameBoard.getCurrentPlayer()) {
                     client.doplay();
@@ -159,6 +168,9 @@ public class ServerThread implements Runnable {
             for (ClientConnectionThread client : this.clientThread) {
                 if (!client.equals(aThis)) {
                     client.sendMessage(SendMessage);
+                    if(addMessage != null){
+                        client.sendMessage(addMessage);  // add on 2018.06.25
+                    }
                 }
             }
         }
