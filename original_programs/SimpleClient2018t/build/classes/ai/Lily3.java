@@ -608,6 +608,12 @@ public class Lily3 extends TajimaLabAI {
             default:
                 break;
         }
+
+        
+        if(scoreDiff < 0){
+            this.setMoneyValue(this.moneyValue * 2.0);
+            this.setReserchPointValue(this.reserchPointValue * 2.0);
+        }
         
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
