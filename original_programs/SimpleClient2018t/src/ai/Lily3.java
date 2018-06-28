@@ -622,8 +622,8 @@ public class Lily3 extends TajimaLabAI {
                 break;
         }
         
-        return Double.POSITIVE_INFINITY;
-        //return evaluation;
+        //return Double.POSITIVE_INFINITY;
+        return evaluation;
     }
 
     /**

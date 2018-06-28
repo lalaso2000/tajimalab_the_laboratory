@@ -5,6 +5,7 @@
 package simpleclient;
 
 import ai.Lily3;
+import ai.SampleAI;
 import gameElements.Game;
 import gui.ClientGUI;
 import java.util.logging.Level;
