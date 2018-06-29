@@ -261,7 +261,7 @@ public abstract class TajimaLabAI extends LaboAI {
      * @param season 季節文字列
      * @return トレンド文字列 or null
      */
-    protected Integer convertSeasonToTrend(String season) {
+    protected Integer convertSeasonToTrendInt(String season) {
         Integer trendInt = null;    // 現在の季節はトレンドだと何番目か
         switch (season) {
             case "1a":
@@ -284,6 +284,36 @@ public abstract class TajimaLabAI extends LaboAI {
                 break;
         }
         return trendInt;
+    }
+        
+    /**
+     * 季節をトレンドの文字列に変換
+     * @param season 季節の文字列
+     * @return トレンドの文字列
+     */
+    protected String convertSeasonToTrendStr(String season){
+        String trend = null;    // 現在の季節はトレンドだと何番目か
+        switch (season) {
+            case "1a":
+            case "1b":
+            case "4a":
+            case "4b":
+                trend = "T1";
+                break;
+            case "2a":
+            case "2b":
+            case "5a":
+            case "5b":
+                trend = "T2";
+                break;
+            case "3a":
+            case "3b":
+            case "6a":
+            case "6b":
+                trend = "T3";
+                break;
+        }
+        return trend;
     }
 
     /**
@@ -376,7 +406,7 @@ public abstract class TajimaLabAI extends LaboAI {
         }
 
         //発表による業績の獲得
-        int ScoreTreand = this.convertSeasonToTrend(game.getSeason());
+        int ScoreTreand = this.convertSeasonToTrendInt(game.getSeason());
 
         String key;
         key = "3-1";

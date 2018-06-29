@@ -546,7 +546,7 @@ public class Lily3 extends TajimaLabAI {
         // アクションする前の季節を取得（表彰を計算するため）
         String seasonStr = game.getSeason();
         // その季節はトレンド番号だと何番目か
-        int seasonTrendID = this.convertSeasonToTrend(seasonStr);
+        int seasonTrendID = this.convertSeasonToTrendInt(seasonStr);
 
         // ゲームを複製
         Game cloneGame = game.clone();
