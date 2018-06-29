@@ -29,7 +29,7 @@ public class Lily4 extends TajimaLabAI {
     private static final int PLAYER1_MODE = 2;      // player1モード(Lily2.1)
     private static final int FINAL_MODE = 3;        // 最終局面
 
-    public static final int PREFETCH_MAX_LEVEL = 8;     // 先読みの最高階数
+    public static final int PREFETCH_MAX_LEVEL = 4;     // 先読みの最高階数
 
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
@@ -44,7 +44,7 @@ public class Lily4 extends TajimaLabAI {
     public Lily4(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily 48";
+        this.myName = "Lily 4";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(INIT_MODE);
 
@@ -297,7 +297,6 @@ public class Lily4 extends TajimaLabAI {
 //            }
             return eva;
         }
-
         // 次のプレイヤーを調べる
         int nextPlayer = cloneGame.getCurrentPlayer();
 
@@ -381,7 +380,7 @@ public class Lily4 extends TajimaLabAI {
         if (cloneGame == null) {
             return null;
         }
-
+        
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, this.myNumber, action);
@@ -610,7 +609,6 @@ public class Lily4 extends TajimaLabAI {
 //            default:
 //                break;
 //        }
-
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
@@ -724,10 +722,10 @@ public class Lily4 extends TajimaLabAI {
                     // 全部のワーカーループ
                     Action a = new Action(w, p);
                     if (currentPlayer == this.myNumber) {
-                            eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        } else {
-                            eva = this.prefetchMax(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        }
+                        eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    } else {
+                        eva = this.prefetchMax(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    }
                     if (eva != null) {
                         this.addMessage(a + " -> " + eva);
                     }
