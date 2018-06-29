@@ -12,7 +12,7 @@ import gameElements.GameResources;
  *
  * @author niwatakumi
  */
-public class Lily3 extends TajimaLabAI {
+public class Lily4 extends TajimaLabAI {
 
     private double moneyValue;              // お金の評価値
     private double reserchPointValue;       // 研究ポイントの評価値
@@ -29,7 +29,7 @@ public class Lily3 extends TajimaLabAI {
     private static final int PLAYER1_MODE = 2;      // player1モード(Lily2.1)
     private static final int FINAL_MODE = 3;        // 最終局面
 
-    public static final int PREFETCH_MAX_LEVEL = 4;     // 先読みの最高階数
+    public static final int PREFETCH_MAX_LEVEL = 8;     // 先読みの最高階数
 
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
@@ -41,10 +41,10 @@ public class Lily3 extends TajimaLabAI {
      *
      * @param game
      */
-    public Lily3(Game game) {
+    public Lily4(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily 3";
+        this.myName = "Lily 48";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(INIT_MODE);
 
@@ -68,8 +68,8 @@ public class Lily3 extends TajimaLabAI {
                 this.employAssistantValue = 1.0;
                 break;
             case PLAYER0_MODE:
-                this.moneyValue = 1.5;
-                this.reserchPointValue = 3.0;
+                this.moneyValue = 1.0;
+                this.reserchPointValue = 2.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
@@ -291,7 +291,7 @@ public class Lily3 extends TajimaLabAI {
 
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
-            Double eva = evaluateBoard(game, this.myNumber, action);
+            Double eva = evaluateBoard(game, this.enemyNumber, action);
 //            if (eva != null) {
 //                this.addMessage("(" + level + ") " + action + " -> " + eva);
 //            }
@@ -302,6 +302,7 @@ public class Lily3 extends TajimaLabAI {
         int nextPlayer = cloneGame.getCurrentPlayer();
 
         // 全手やってみて一番いい手を探す
+        //Double bestEva = Double.NEGATIVE_INFINITY;
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
 
@@ -394,6 +395,7 @@ public class Lily3 extends TajimaLabAI {
         int nextPlayer = cloneGame.getCurrentPlayer();
 
         // 全手やってみて一番いい手を探す
+        //Double bestEva = Double.POSITIVE_INFINITY;
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
         // 春秋はスコアを取る場所を除外
@@ -581,34 +583,34 @@ public class Lily3 extends TajimaLabAI {
         int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
 
         // スコア差で評価してみる
-        switch (this.mode) {
-            case PLAYER0_MODE:
-                if (scoreDiff > 0) {
-                    evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
-                } else if (scoreDiff == 0) {
-                    evaluation += 5;
-                } else {
-                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
-                }
-                break;
-            case PLAYER1_MODE:
-                if (scoreDiff > 5) {
-                    evaluation += 5.0;
-                } else if (scoreDiff > 0) {
-                    evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
-                } else if (scoreDiff == 0) {
-                    evaluation += 5;
-                } else {
-                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
-                }
-                break;
-            case FINAL_MODE:
-                evaluation += 100 * scoreDiff;
-                break;
-            default:
-                break;
-        }
-        
+//        switch (this.mode) {
+//            case PLAYER0_MODE:
+//                if (scoreDiff > 0) {
+//                    evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
+//                } else if (scoreDiff == 0) {
+//                    evaluation += 5;
+//                } else {
+//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
+//                }
+//                break;
+//            case PLAYER1_MODE:
+//                if (scoreDiff > 5) {
+//                    evaluation += 5.0;
+//                } else if (scoreDiff > 0) {
+//                    evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
+//                } else if (scoreDiff == 0) {
+//                    evaluation += 5;
+//                } else {
+//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
+//                }
+//                break;
+//            case FINAL_MODE:
+//                evaluation += 100 * scoreDiff;
+//                break;
+//            default:
+//                break;
+//        }
+
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
@@ -652,6 +654,12 @@ public class Lily3 extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
+        // 夏冬の最初に表彰が取れるかどうかをチェック
+//        if (this.gameBoard.getSeason().contains("b")) {
+//            if (!this.isAwardable()) {
+//                this.addMessage("***** no Awardable!! *****");
+//            }
+//        }
         if (this.gameBoard.getSeason().equals("6b")) {
             this.modeChange(FINAL_MODE);
         }
@@ -667,5 +675,71 @@ public class Lily3 extends TajimaLabAI {
         } else {
             this.modeChange(PLAYER1_MODE);
         }
+    }
+
+    /**
+     * 夏と冬のはじめに表彰が取れるかをチェックする
+     *
+     * @return 表彰取れるかどうか
+     */
+    private boolean isAwardable() {
+        // 先手確認
+        int currentPlayer = gameBoard.getCurrentPlayer();
+
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = 0.0;
+
+        // 春秋はスコアを取らない
+        String[] places = this.setPlaceArrays(gameBoard);
+
+        // 全手探索
+        for (String p : places) {
+            // 全部の場所ループ
+            // 5-3の時
+            if (p.equals("5-3")) {
+                for (String t : Game.TREAND_ID_LIST) {
+                    // 全部のトレンドループ
+                    for (String w : GameResources.WORKER_NAMES) {
+                        // 全部のワーカーループ
+                        Action a = new Action(w, p, t);
+                        if (currentPlayer == this.myNumber) {
+                            eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        } else {
+                            eva = this.prefetchMax(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        }
+                        if (eva != null) {
+                            this.addMessage(a + " -> " + eva);
+                        }
+                        // 評価良いの見つけたら
+                        if (eva != null && eva >= bestEva) {
+                            // 更新
+                            bestEva = eva;
+                            //bestAction = a;
+                        }
+                    }
+                }
+            } else {
+                for (String w : GameResources.WORKER_NAMES) {
+                    // 全部のワーカーループ
+                    Action a = new Action(w, p);
+                    if (currentPlayer == this.myNumber) {
+                            eva = this.prefetchMin(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        } else {
+                            eva = this.prefetchMax(1, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        }
+                    if (eva != null) {
+                        this.addMessage(a + " -> " + eva);
+                    }
+                    // 評価良いの見つけたら
+                    if (eva != null && eva >= bestEva) {
+                        // 更新
+                        bestEva = eva;
+                        //bestAction = a;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }
