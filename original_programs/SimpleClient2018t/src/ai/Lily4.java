@@ -7,6 +7,7 @@ package ai;
 
 import gameElements.Game;
 import gameElements.GameResources;
+import java.util.ArrayList;
 
 /**
  *
@@ -35,7 +36,7 @@ public class Lily4 extends TajimaLabAI {
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
 
-    private Action[] bestActions;
+    private ArrayList<AwardCheckData> awardCheckDatas;
 
     /**
      * コンストラクタ
@@ -69,8 +70,8 @@ public class Lily4 extends TajimaLabAI {
                 this.employAssistantValue = 1.0;
                 break;
             case PLAYER0_MODE:
-                this.moneyValue = 1.0;
-                this.reserchPointValue = 2.0;
+                this.moneyValue = 1.5;
+                this.reserchPointValue = 3.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
@@ -90,7 +91,7 @@ public class Lily4 extends TajimaLabAI {
                 this.moneyValue = 1.0;
                 this.reserchPointValue = 2.0;
                 this.scoreValue = 5.0;
-                this.startPlayerValue = 0.0;
+                this.startPlayerValue = 3.0;
                 this.trendValue = 0.0;
                 this.employStudentValue = 0.0;
                 this.employAssistantValue = 0.0;
@@ -673,9 +674,7 @@ public class Lily4 extends TajimaLabAI {
     protected void seasonChanged() {
         // 夏冬の最初に表彰が取れるかどうかをチェック
 //        if (this.gameBoard.getSeason().contains("b")) {
-//            if (!this.isAwardable()) {
-//                this.addMessage("***** no Awardable!! *****");
-//            }
+//            this.checkAwardable();
 //        }
         if (this.gameBoard.getSeason().equals("6b")) {
             this.modeChange(FINAL_MODE);
@@ -699,7 +698,7 @@ public class Lily4 extends TajimaLabAI {
      *
      * @return 表彰取れるかどうか
      */
-    private boolean isAwardable() {
+    private void checkAwardable() {
         this.addMessage("==========================");
         this.addMessage("======== award check ========");
         this.addMessage("==========================");
@@ -710,6 +709,11 @@ public class Lily4 extends TajimaLabAI {
 
         // 先手確認
         int currentPlayer = gameBoard.getCurrentPlayer();
+
+        // 表彰獲得可能パスを初期化
+        this.awardCheckDatas = new ArrayList<>();
+        // 表彰可能かどうか調べるオブジェクトを初期化
+        AwardCheckData acd = new AwardCheckData();
 
         Action bestAction = null;
 
@@ -722,245 +726,23 @@ public class Lily4 extends TajimaLabAI {
 
         // 全手探索
         for (String p : places) {
-            // 全部の場所ループ
-            // 5-3の時
-            if (p.equals("5-3")) {
-                for (String t : Game.TREAND_ID_LIST) {
-                    // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
-                        // 全部のワーカーループ
-                        Action a = new Action(w, p, t);
-                        if (currentPlayer == this.myNumber) {
-                            eva = this.prefetchAwardMin(currentPlayer, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        } else {
-                            eva = this.prefetchAwardMax(currentPlayer, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        }
-                        if (eva != null) {
-                            this.addMessage(a + " -> " + eva);
-                        }
-                        // 評価良いの見つけたら
-                        if (eva != null && eva >= bestEva) {
-                            // 更新
-                            bestEva = eva;
-                            bestAction = a;
-                        }
-                    }
-                }
-            } else {
-                for (String w : GameResources.WORKER_NAMES) {
-                    // 全部のワーカーループ
-                    Action a = new Action(w, p);
-                    if (currentPlayer == this.myNumber) {
-                        eva = this.prefetchAwardMin(currentPlayer, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                    } else {
-                        eva = this.prefetchAwardMax(currentPlayer, gameBoard, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                    }
-                    if (eva != null) {
-                        this.addMessage(a + " -> " + eva);
-                    }
-                    // 評価良いの見つけたら
-                    if (eva != null && eva >= bestEva) {
-                        // 更新
-                        bestEva = eva;
-                        bestAction = a;
-                    }
-                }
+            for (String w : GameResources.WORKER_NAMES) {
+                // 全部のワーカーループ
+                Action a = new Action(w, p);
+                this.awardPrefetch(acd, gameBoard, this.myNumber, a);
             }
         }
+
         this.addMessage("===========================");
         this.addMessage("========== check end ==========");
         this.addMessage("===========================");
 
-        boolean awardable = false;
-        if (bestEva >= 0) {
-            awardable = true;
-        }
-
-        if (awardable) {
-            this.addMessage("Award is OK. eva -> " + bestEva);
-        } else {
-            this.addMessage("Award is NG. eva -> " + bestEva);
-        }
-
         // 通常モードに戻す
         this.modeChange(beforeMode);
-
-        return awardable;
-
     }
 
-    private Double prefetchAwardMax(int currentPlayer, Game game, Action action, Double alpha, Double beta) {
-        // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, this.enemyNumber, action, false);
-        if (cloneGame == null) {
-            return null;
-        }
-
-        // もし打った手でゲーム終了なら評価を返す
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            Double eva = evaluateBoard(game, currentPlayer, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
-            return eva;
-        }
-        // 次のプレイヤーを調べる
-        int nextPlayer = cloneGame.getCurrentPlayer();
-
-        // 全手やってみて一番いい手を探す
-        //Double bestEva = Double.NEGATIVE_INFINITY;
-        Double bestEva = Double.NEGATIVE_INFINITY;
-        Double eva = 0.0;
-
-        // 春秋はスコアを取る場所を除外
-        String[] places = this.setPlaceArrays(cloneGame);
-
-        // 全手探索
-        for (String p : places) {
-            // 全部の場所ループ
-            // 5-3の時
-            if (p.equals("5-3")) {
-                for (String t : Game.TREAND_ID_LIST) {
-                    // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
-                        // 全部のワーカーループ
-                        Action a = new Action(w, p, t);
-                        if (nextPlayer == this.myNumber) {
-                            eva = this.prefetchMin(nextPlayer, cloneGame, a, alpha, beta);
-                        } else {
-                            eva = this.prefetchMax(nextPlayer, cloneGame, a, alpha, beta);
-                        }
-                        // bata値を上回ったら探索中止
-                        if (eva != null && eva >= beta) {
-                            bestEva = eva;
-//                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
-                            return bestEva;
-                        }
-                        // 評価良いの見つけたら
-                        if (eva != null && eva >= bestEva) {
-                            // 更新
-                            bestEva = eva;
-                            alpha = Double.max(alpha, bestEva);
-                        }
-                    }
-                }
-            } else {
-                for (String w : GameResources.WORKER_NAMES) {
-                    // 全部のワーカーループ
-                    Action a = new Action(w, p);
-                    if (nextPlayer == this.myNumber) {
-                        eva = this.prefetchMin(nextPlayer, cloneGame, a, alpha, beta);
-                    } else {
-                        eva = this.prefetchMax(nextPlayer, cloneGame, a, alpha, beta);
-                    }
-                    // bata値を上回ったら探索中止
-                    if (eva != null && eva >= beta) {
-                        bestEva = eva;
-//                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
-                        return bestEva;
-                    }
-                    // 評価良いの見つけたら
-                    if (eva != null && eva >= bestEva) {
-                        // 更新
-                        bestEva = eva;
-                        alpha = Double.max(alpha, bestEva);
-                    }
-                }
-            }
-        }
-//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
-        return bestEva;
+    private void awardPrefetch(AwardCheckData acd, Game gameBoard, int myNumber, Action a) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private Double prefetchAwardMin(int level, Game game, Action action, Double alpha, Double beta) {
-        // 最下層まで読んだら評価値を返す
-        if (level == PREFETCH_MAX_LEVEL) {
-            Double eva = evaluateBoard(game, this.myNumber, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
-            return eva;
-        }
-
-        // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, this.myNumber, action, false);
-        if (cloneGame == null) {
-            return null;
-        }
-
-        // もし打った手でゲーム終了なら評価を返す
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            Double eva = evaluateBoard(game, this.myNumber, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
-            return eva;
-        }
-
-        // 次のプレイヤー
-        int nextPlayer = cloneGame.getCurrentPlayer();
-
-        // 全手やってみて一番いい手を探す
-        //Double bestEva = Double.POSITIVE_INFINITY;
-        Double bestEva = Double.POSITIVE_INFINITY;
-        Double eva = 0.0;
-        // 春秋はスコアを取る場所を除外
-        String[] places = this.setPlaceArrays(cloneGame);
-
-        // 全手探索
-        for (String p : places) {
-            // 全部の場所ループ
-            // 5-3の時
-            if (p.equals("5-3")) {
-                for (String t : Game.TREAND_ID_LIST) {
-                    // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
-                        // 全部のワーカーループ
-                        Action a = new Action(w, p, t);
-                        if (nextPlayer == this.myNumber) {
-                            eva = this.prefetchMin(level, cloneGame, a, alpha, beta);
-                        } else {
-                            eva = this.prefetchMax(level, cloneGame, a, alpha, beta);
-                        }
-                        // alpha値を下回ったら探索中止
-                        if (eva != null && eva <= alpha) {
-                            bestEva = eva;
-//                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
-                            return bestEva;
-                        }
-                        // 評価良いの見つけたら
-                        if (eva != null && eva <= bestEva) {
-                            // 更新
-                            bestEva = eva;
-                            beta = Double.min(beta, bestEva);
-                        }
-                    }
-                }
-            } else {
-                for (String w : GameResources.WORKER_NAMES) {
-                    // 全部のワーカーループ
-                    Action a = new Action(w, p);
-                    if (nextPlayer == this.myNumber) {
-                        eva = this.prefetchMin(level, cloneGame, a, alpha, beta);
-                    } else {
-                        eva = this.prefetchMax(level, cloneGame, a, alpha, beta);
-                    }
-                    // alpha値を下回ったら探索中止
-                    if (eva != null && eva <= alpha) {
-                        bestEva = eva;
-//                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
-                        return bestEva;
-                    }
-                    // 評価良いの見つけたら
-                    if (eva != null && eva <= bestEva) {
-                        // 更新
-                        bestEva = eva;
-                        beta = Double.min(beta, bestEva);
-                    }
-                }
-            }
-        }
-//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
-        return bestEva;
-    }
 }
