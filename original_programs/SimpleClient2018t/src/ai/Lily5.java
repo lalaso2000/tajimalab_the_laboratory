@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *
  * @author niwatakumi
  */
-public class Lily4 extends TajimaLabAI {
+public class Lily5 extends TajimaLabAI {
 
     private double moneyValue;              // お金の評価値
     private double reserchPointValue;       // 研究ポイントの評価値
@@ -43,10 +43,10 @@ public class Lily4 extends TajimaLabAI {
      *
      * @param game
      */
-    public Lily4(Game game) {
+    public Lily5(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily 48";
+        this.myName = "Lily5(award stop)";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(INIT_MODE);
 
@@ -298,10 +298,10 @@ public class Lily4 extends TajimaLabAI {
     }
 
     /**
-     * 季節が春秋かどうかをチェックする関数
+     * 季節に応じた探索場所を返す関数
      *
      * @param game 盤面
-     * @return 春秋ならtrue、それ以外はfalse
+     * @return 探索場所の配列
      */
     private String[] setPlaceArrays(Game game) {
         String season = game.getSeason();
@@ -332,24 +332,31 @@ public class Lily4 extends TajimaLabAI {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, playerNum, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
             return eva;
         }
 
         // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, playerNum, action);
+        Game cloneGame = clonePlay(game, playerNum, action, false);
         if (cloneGame == null) {
             return null;
+        }
+
+        // もし打った手で季節が変わるとき
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            String season = cloneGame.getSeason();
+            if (season.contains("b")) {
+                // 夏冬なら評価を返す
+                Double eva = evaluateBoard(game, playerNum, action);
+                return eva;
+            } else {
+                // 春秋なら季節更新→探索続行
+                cloneGame.changeNewSeason();
+            }
         }
 
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, playerNum, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
             return eva;
         }
 
@@ -672,6 +679,10 @@ public class Lily4 extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
+        // 夏冬の最初に表彰が取れるかどうかをチェック
+//        if (this.gameBoard.getSeason().contains("b")) {
+//            this.checkAwardable();
+//        }
         if (this.gameBoard.getSeason().equals("6b")) {
             this.modeChange(FINAL_MODE);
         }
@@ -689,5 +700,56 @@ public class Lily4 extends TajimaLabAI {
         }
     }
 
+    /**
+     * 夏と冬のはじめに表彰が取れるかをチェックする
+     *
+     * @return 表彰取れるかどうか
+     */
+    private void checkAwardable() {
+        this.addMessage("==========================");
+        this.addMessage("======== award check ========");
+        this.addMessage("==========================");
+
+        // 確認モードに切り替え
+        int beforeMode = this.mode;
+        this.modeChange(SCORE_CHECK_MODE);
+
+        // 先手確認
+        int currentPlayer = gameBoard.getCurrentPlayer();
+
+        // 表彰獲得可能パスを初期化
+        this.awardCheckDatas = new ArrayList<>();
+        // 表彰可能かどうか調べるオブジェクトを初期化
+        AwardCheckData acd = new AwardCheckData();
+
+        Action bestAction = null;
+
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = 0.0;
+
+        // 春秋はスコアを取らない
+        String[] places = this.setPlaceArrays(gameBoard);
+
+        // 全手探索
+        for (String p : places) {
+            for (String w : GameResources.WORKER_NAMES) {
+                // 全部のワーカーループ
+                Action a = new Action(w, p);
+                this.awardPrefetch(acd, gameBoard, this.myNumber, a);
+            }
+        }
+
+        this.addMessage("===========================");
+        this.addMessage("========== check end ==========");
+        this.addMessage("===========================");
+
+        // 通常モードに戻す
+        this.modeChange(beforeMode);
+    }
+
+    private void awardPrefetch(AwardCheckData acd, Game gameBoard, int myNumber, Action a) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }
