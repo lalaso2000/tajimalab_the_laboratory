@@ -259,7 +259,7 @@ public abstract class TajimaLabAI extends LaboAI {
      * 季節の文字列をトレンドの数値に変換（リソース取得時に必要） 存在しない季節を投げるとnullが返ってきます
      *
      * @param season 季節文字列
-     * @return トレンド文字列 or null
+     * @return トレンド数値 or null
      */
     protected Integer convertSeasonToTrendInt(String season) {
         Integer trendInt = null;    // 現在の季節はトレンドだと何番目か

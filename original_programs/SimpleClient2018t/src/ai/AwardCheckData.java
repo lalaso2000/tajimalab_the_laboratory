@@ -26,7 +26,7 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
      */
     public AwardCheckData() {
         path = new ArrayList<>();
-        awardable = false;
+        awardable = true;
         workers = 0;
         reserchPoint = 0;
         score = 0;
@@ -47,7 +47,7 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
     
     public AwardCheckData(Action action){
         path = new ArrayList<>();
-        awardable = false;
+        awardable = true;
         workers = 0;
         reserchPoint = 0;
         score = 0;
@@ -257,23 +257,23 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
     public int compareTo(AwardCheckData o) {
         // 表彰が取れるやつが優先
         if (this.awardable == true && o.awardable == false) {
-            return 1;
+            return 4;
         } else if (this.awardable == false && o.awardable == true) {
-            return -1;
+            return -4;
         }
 
         // 3,4に置くコマが少ないほうが優先
         if (this.workers < o.workers) {
-            return 1;
+            return 3;
         } else if (this.workers > o.workers) {
-            return -1;
+            return -3;
         }
 
         // 使う研究ポイントが少ないほうが優先
         if (this.reserchPoint < o.reserchPoint) {
-            return 1;
+            return 2;
         } else if (this.reserchPoint > o.reserchPoint) {
-            return -1;
+            return -2;
         }
 
         // もらえる点が多いほうが優先
@@ -306,6 +306,10 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
     public void addScore(int score) {
         this.score += score;
     }
+    
+    public Action getAction(int index){
+        return this.path.get(index);
+    }
 
     @Override
     public String toString() {
@@ -337,6 +341,11 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
         
         return str;
     }
+
+    public boolean isAwardable() {
+        return awardable;
+    }
+    
     
     
 
