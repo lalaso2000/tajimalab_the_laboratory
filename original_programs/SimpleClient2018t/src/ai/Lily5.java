@@ -8,6 +8,11 @@ package ai;
 import gameElements.Game;
 import gameElements.GameResources;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import static javafx.scene.input.KeyCode.T;
 
 /**
  *
@@ -35,6 +40,9 @@ public class Lily5 extends TajimaLabAI {
 
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
+    private static final String[] AWARD_CHECK_PLACES_NAMES = {"1-1", "3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
+    private static final int[] AWARD_CHECK_MONEY = {0,0,1,1,1,1,1};
+    private static final int[] AWARD_CHECK_RESERCH_POINT = {0,2,4,8,8,8,8};
 
     private ArrayList<AwardCheckData> awardCheckDatas;
 
@@ -605,37 +613,6 @@ public class Lily5 extends TajimaLabAI {
         /**
          * 評価値の計算
          */
-        // スコアの差を計算
-        int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
-
-        // スコア差で評価してみる
-//        switch (this.mode) {
-//            case PLAYER0_MODE:
-//                if (scoreDiff > 0) {
-//                    evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
-//                } else if (scoreDiff == 0) {
-//                    evaluation += 5;
-//                } else {
-//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
-//                }
-//                break;
-//            case PLAYER1_MODE:
-//                if (scoreDiff > 5) {
-//                    evaluation += 5.0;
-//                } else if (scoreDiff > 0) {
-//                    evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
-//                } else if (scoreDiff == 0) {
-//                    evaluation += 5;
-//                } else {
-//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
-//                }
-//                break;
-//            case FINAL_MODE:
-//                evaluation += 100 * scoreDiff;
-//                break;
-//            default:
-//                break;
-//        }
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
@@ -680,9 +657,9 @@ public class Lily5 extends TajimaLabAI {
     @Override
     protected void seasonChanged() {
         // 夏冬の最初に表彰が取れるかどうかをチェック
-//        if (this.gameBoard.getSeason().contains("b")) {
-//            this.checkAwardable();
-//        }
+        if (this.gameBoard.getSeason().contains("b")) {
+            this.checkAwardable();
+        }
         if (this.gameBoard.getSeason().equals("6b")) {
             this.modeChange(FINAL_MODE);
         }
@@ -717,28 +694,38 @@ public class Lily5 extends TajimaLabAI {
         // 先手確認
         int currentPlayer = gameBoard.getCurrentPlayer();
 
-        // 表彰獲得可能パスを初期化
-        this.awardCheckDatas = new ArrayList<>();
         // 表彰可能かどうか調べるオブジェクトを初期化
         AwardCheckData acd = new AwardCheckData();
+        this.awardCheckDatas = new ArrayList<>();
 
-        Action bestAction = null;
-
-        // 全手やってみて一番いい手を探す
-        Double bestEva = Double.NEGATIVE_INFINITY;
-        Double eva = 0.0;
-
-        // 春秋はスコアを取らない
-        String[] places = this.setPlaceArrays(gameBoard);
-
-        // 全手探索
-        for (String p : places) {
-            for (String w : GameResources.WORKER_NAMES) {
-                // 全部のワーカーループ
-                Action a = new Action(w, p);
-                this.awardPrefetch(acd, gameBoard, this.myNumber, a);
-            }
+        // 自分の全ての手を決定する
+        // 自分の持ってるワーカーを数える
+        ArrayList<String> workersList = new ArrayList<>();
+        GameResources myResources = this.gameBoard.getResourcesOf(this.myNumber);
+        workersList.add("P");
+        int assistantNum = myResources.getNumberofUseableWorkers("A");
+        if (assistantNum == 1) {
+            workersList.add("A");
         }
+        int studentNum = myResources.getNumberofUseableWorkers("S");
+        for (int i = 0; i < studentNum; i++) {
+            workersList.add("S");
+        }
+        // アクション一覧を生成
+        // asListは固定長しか返せない
+        List<String> tmp = Arrays.asList(AWARD_CHECK_PLACES_NAMES);
+        ArrayList<String> placesList = new ArrayList<>(tmp);
+        // お金を取得
+        int myMoney = myResources.getCurrentMoney();
+        // 研究ポイントを取得
+        int myReserchPoint = myResources.getCurrentResrchPoint();
+
+        // 自分の手を全て抽出
+        this.setMyAllAction(workersList, placesList, myMoney, myReserchPoint);
+
+        // awardCheckDatasをソート（最適解を出す）
+        Collections.sort(awardCheckDatas);
+        this.addMessage("BestPath : " + awardCheckDatas.get(0).toString());
 
         this.addMessage("===========================");
         this.addMessage("========== check end ==========");
@@ -748,8 +735,137 @@ public class Lily5 extends TajimaLabAI {
         this.modeChange(beforeMode);
     }
 
-    private void awardPrefetch(AwardCheckData acd, Game gameBoard, int myNumber, Action a) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private void setMyAllAction(ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
+        for (int j = 0; j < workersList.size(); j++) {
+            for (int i = 0; i < placesList.size(); i++) {
+                // 必要コストが支払えない場合はスキップ
+                if(money < AWARD_CHECK_MONEY[i]) continue;
+                if(reserchPoint < AWARD_CHECK_RESERCH_POINT[i]) continue;
+                // acdのactionに追加
+                Action a = new Action(workersList.get(j), placesList.get(i));
+                // acd初期化
+                AwardCheckData acd = new AwardCheckData(a);
+                // 次のアクションを追加しに行く
+                ArrayList<String> newWorkersList = new ArrayList<>(workersList);
+                newWorkersList.remove(j);
+                ArrayList<String> newPlacesList = new ArrayList<>(placesList);
+                if(!placesList.get(i).equals("1-1")){
+                    newPlacesList.remove(i);
+                }
+                // 必要コストをへらす
+                money -= AWARD_CHECK_MONEY[i];
+                reserchPoint -= AWARD_CHECK_RESERCH_POINT[i];
+                setMyAllAction(acd, newWorkersList, newPlacesList, money, reserchPoint);
+            }
+        }
     }
+    
+    private void setMyAllAction(AwardCheckData acd, ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
+        if(workersList.isEmpty()){
+            this.awardCheckDatas.add(acd);
+            this.addMessage(acd.toString());
+            return;
+        }
+        for (int j = 0; j < workersList.size(); j++) {
+            for (int i = 0; i < placesList.size(); i++) {
+                // 必要コストが支払えない場合はスキップ
+                if(money < AWARD_CHECK_MONEY[i]) continue;
+                if(reserchPoint < AWARD_CHECK_RESERCH_POINT[i]) continue;
+                // acdのactionに追加
+                Action a = new Action(workersList.get(j), placesList.get(i));
+                AwardCheckData newAcd = new AwardCheckData(acd, a);
+                // 次のアクションを追加しに行く
+                ArrayList<String> newWorkersList = new ArrayList<>(workersList);
+                newWorkersList.remove(j);
+                ArrayList<String> newPlacesList = new ArrayList<>(placesList);
+                if(!placesList.get(i).equals("1-1")){
+                    newPlacesList.remove(i);
+                }
+                // 必要コストをへらす
+                money -= AWARD_CHECK_MONEY[i];
+                reserchPoint -= AWARD_CHECK_RESERCH_POINT[i];
+                setMyAllAction(newAcd, newWorkersList, newPlacesList, money, reserchPoint);
+            }
+        }
+    }
+
+    private void awardPrefetch(AwardCheckData acd, Game game, int playerNum, Action action) {
+
+        // 仮想でゲームを進める（打てないならnull返して終了）
+        Game cloneGame = clonePlay(game, playerNum, action, false);
+        if (cloneGame == null) {
+            return;
+        }
+
+        // 打った手をacdに反映
+        AwardCheckData newAcd;
+        if (playerNum == this.myNumber) {
+            newAcd = new AwardCheckData(acd, action);
+        } else {
+            newAcd = new AwardCheckData(acd);
+        }
+
+        // もし打った手で季節が変わると
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            String season = cloneGame.getSeason();
+            if (season.contains("b")) {
+                // 夏冬ならacdを配列にセット
+                setAwardable(newAcd, game);
+                this.awardCheckDatas.add(newAcd);
+                this.addMessage(acd.toString());
+                return;
+            } else {
+                // 春秋なら季節更新→探索続行(ここは通らないはずだけど。。。)
+                cloneGame.changeNewSeason();
+            }
+        }
+
+        // もし打った手でゲーム終了なら評価を返す
+        if (cloneGame.getGameState() == Game.STATE_GAME_END) {
+            setAwardable(newAcd, game);
+            this.awardCheckDatas.add(newAcd);
+            this.addMessage(newAcd.toString());
+            return;
+        }
+
+        // 探索続行なら
+        // 次のプレイヤーを調べる
+        int nextPlayer = cloneGame.getCurrentPlayer();
+
+        // 全手探索
+        for (String p : AWARD_CHECK_PLACES_NAMES) {
+            for (String w : GameResources.WORKER_NAMES) {
+                // 全部のワーカーループ
+                Action a = new Action(w, p);
+                this.awardPrefetch(newAcd, gameBoard, nextPlayer, a);
+            }
+        }
+
+    }
+
+    
+
+
+    private void setAwardable(AwardCheckData acd, Game game) {
+        // 今の季節
+        String seasonStr = game.getSeason();
+
+        // リソース
+        GameResources myResources = game.getResourcesOf(this.myNumber);
+        GameResources enemyResources = game.getResourcesOf(this.enemyNumber);
+
+        // 表彰用のスコア
+        int myScore = myResources.getSocreOf(seasonStr);
+        int enemyScore = enemyResources.getSocreOf(seasonStr);
+
+        // 表彰がとれるか判定
+        if (myScore >= enemyScore) {
+            acd.setAwardable(true);
+        } else {
+            acd.setAwardable(false);
+        }
+    }
+
+    
 
 }
