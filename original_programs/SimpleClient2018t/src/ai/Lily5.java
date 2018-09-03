@@ -980,7 +980,7 @@ public class Lily5 extends TajimaLabAI {
         // 表彰可能かどうか調べるオブジェクトを初期化
         this.awardCheckDatas = new ArrayList<>();
 
-        // 自分の全ての手を決定する
+        // 自分の全てのパスを決定する
         // 自分の持ってるワーカーを数える
         ArrayList<String> workersList = new ArrayList<>();
         GameResources myResources = this.gameBoard.getResourcesOf(this.myNumber);
@@ -993,7 +993,7 @@ public class Lily5 extends TajimaLabAI {
         for (int i = 0; i < studentNum; i++) {
             workersList.add("S");
         }
-        // アクション一覧を生成
+        // 場所一覧を生成(ArrayList)
         // asListは固定長しか返せない
         List<String> tmp = Arrays.asList(AWARD_CHECK_PLACES_NAMES);
         ArrayList<String> placesList = new ArrayList<>(tmp);
@@ -1003,7 +1003,7 @@ public class Lily5 extends TajimaLabAI {
         int myReserchPoint = myResources.getCurrentResrchPoint();
 
         // 自分のパスを全て抽出してacdの一覧を生成する
-        this.setMyAllAction(workersList, placesList, myMoney, myReserchPoint);
+        this.setMyAllPath(workersList, placesList, myMoney, myReserchPoint);
 
         // acd一覧が表彰獲得可能かを確認する
         for (AwardCheckData acd : this.awardCheckDatas) {
@@ -1039,7 +1039,7 @@ public class Lily5 extends TajimaLabAI {
      * @param money
      * @param reserchPoint
      */
-    private void setMyAllAction(ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
+    private void setMyAllPath(ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
         for (int j = 0; j < workersList.size(); j++) {
             for (int i = 0; i < placesList.size(); i++) {
                 // 必要コストが支払えない場合はスキップ
@@ -1063,7 +1063,7 @@ public class Lily5 extends TajimaLabAI {
                 // 必要コストをへらす
                 int newMoney = money - moneyCost(placesList.get(i));
                 int newReserchPoint = reserchPoint - reserchPointCost(placesList.get(i));
-                setMyAllAction(acd, newWorkersList, newPlacesList, newMoney, newReserchPoint);
+                setMyAllPath(acd, newWorkersList, newPlacesList, newMoney, newReserchPoint);
             }
         }
     }
@@ -1077,7 +1077,7 @@ public class Lily5 extends TajimaLabAI {
      * @param money
      * @param reserchPoint
      */
-    private void setMyAllAction(AwardCheckData acd, ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
+    private void setMyAllPath(AwardCheckData acd, ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
         // 使えるワーカー一覧がなくなった＝表彰まで見えた
         if (workersList.isEmpty()) {
             // acdを一覧に追加
@@ -1107,7 +1107,7 @@ public class Lily5 extends TajimaLabAI {
                 // 必要コストをへらす
                 int newMoney = money - moneyCost(placesList.get(i));
                 int newReserchPoint = reserchPoint - reserchPointCost(placesList.get(i));
-                setMyAllAction(newAcd, newWorkersList, newPlacesList, newMoney, newReserchPoint);
+                setMyAllPath(newAcd, newWorkersList, newPlacesList, newMoney, newReserchPoint);
             }
         }
     }
