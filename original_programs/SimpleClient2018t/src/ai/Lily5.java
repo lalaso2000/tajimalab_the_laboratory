@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import static javafx.scene.input.KeyCode.T;
 
@@ -43,7 +44,8 @@ public class Lily5 extends TajimaLabAI {
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
     private static final String[] AWARD_CHECK_PLACES_NAMES = {"1-1", "3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
 
-    private ArrayList<AwardCheckData> awardCheckDatas;
+    private ArrayList<AwardCheckData> awardCheckDatas;  // 夏冬用、acdの一覧
+    private LinkedList<Action> awardPath = new LinkedList<>();         // 夏冬用、表彰を取るための最適解を保持する
 
     /**
      * コンストラクタ
@@ -80,7 +82,7 @@ public class Lily5 extends TajimaLabAI {
                 this.moneyValue = 1.5;
                 this.reserchPointValue = 3.0;
                 this.scoreValue = 5.0;
-                this.startPlayerValue = 1.0;
+                this.startPlayerValue = 10.0;
                 this.trendValue = 0.5;
                 this.employStudentValue = 0.0;
                 this.employAssistantValue = 0.0;
@@ -89,7 +91,7 @@ public class Lily5 extends TajimaLabAI {
                 this.moneyValue = 1.5;
                 this.reserchPointValue = 3.0;
                 this.scoreValue = 5.0;
-                this.startPlayerValue = 1.0;
+                this.startPlayerValue = 10.0;
                 this.trendValue = 0.5;
                 this.employStudentValue = 0.0;
                 this.employAssistantValue = 0.0;
@@ -313,14 +315,16 @@ public class Lily5 extends TajimaLabAI {
     private String[] setPlaceArrays(Game game) {
         String season = game.getSeason();
         String[] places;
-        if (season.contains("a")) {
-            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
-            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-        } else {
-            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
-            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-            System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
-        }
+        places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+        System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+//        if (season.contains("a")) {
+//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+//        } else {
+//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
+//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+//            System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
+//        }
         return places;
     }
 
@@ -350,15 +354,18 @@ public class Lily5 extends TajimaLabAI {
 
         // もし打った手で季節が変わるとき
         if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            String season = cloneGame.getSeason();
-            if (season.contains("b")) {
-                // 夏冬なら評価を返す
-                Double eva = evaluateBoard(game, playerNum, action);
-                return eva;
-            } else {
-                // 春秋なら季節更新→探索続行
-                cloneGame.changeNewSeason();
-            }
+            // 評価を返す
+            Double eva = evaluateBoard(game, playerNum, action);
+            return eva;
+//            String season = cloneGame.getSeason();
+//            if (season.contains("b")) {
+//                // 夏冬なら評価を返す
+//                Double eva = evaluateBoard(game, playerNum, action);
+//                return eva;
+//            } else {
+//                // 春秋なら季節更新→探索続行
+//                cloneGame.changeNewSeason();
+//            }
         }
 
         // もし打った手でゲーム終了なら評価を返す
@@ -378,6 +385,15 @@ public class Lily5 extends TajimaLabAI {
 
     }
 
+    /**
+     * 先読み中、自分の手を探索する
+     *
+     * @param level
+     * @param game
+     * @param alpha
+     * @param beta
+     * @return
+     */
     private Double prefetchMax(int level, Game game, Double alpha, Double beta) {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
@@ -431,10 +447,20 @@ public class Lily5 extends TajimaLabAI {
                 }
             }
         }
+
 //        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
+    /**
+     * 先読み中、相手の手を探索する
+     *
+     * @param level
+     * @param game
+     * @param alpha
+     * @param beta
+     * @return
+     */
     private Double prefetchMin(int level, Game game, Double alpha, Double beta) {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.POSITIVE_INFINITY;
@@ -492,6 +518,213 @@ public class Lily5 extends TajimaLabAI {
     }
 
     /**
+     * 先読み関数（表彰獲得可能時） 表彰を取るための手が打てなくならないように手を探索する
+     *
+     * @param level 先読みの階層
+     * @param game 現在のゲーム場面
+     * @param playerNum 次にプレイする人
+     * @param action 次のアクション
+     * @param alpha アルファ値
+     * @param beta ベータ値
+     * @return
+     */
+    private Double prefetch(int level, Game game, int playerNum, Action action, LinkedList<Action> path, Double alpha, Double beta) {
+        // 最下層まで読んだら評価値を返す
+        if (level == PREFETCH_MAX_LEVEL) {
+            Double eva = evaluateBoard(game, playerNum, action);
+            return eva;
+        }
+
+        // 仮想でゲームを進める（打てないならnull返して終了）
+        Game cloneGame = clonePlay(game, playerNum, action, false);
+        if (cloneGame == null) {
+            return null;
+        }
+
+        // もし打った手で季節が変わるとき
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            // 評価を返す
+            Double eva = evaluateBoard(game, playerNum, action);
+            return eva;
+//            String season = cloneGame.getSeason();
+//            if (season.contains("b")) {
+//                // 夏冬なら評価を返す
+//                Double eva = evaluateBoard(game, playerNum, action);
+//                return eva;
+//            } else {
+//                // 春秋なら季節更新→探索続行
+//                cloneGame.changeNewSeason();
+//            }
+        }
+
+        // もし打った手でゲーム終了なら評価を返す
+        if (cloneGame.getGameState() == Game.STATE_GAME_END) {
+            Double eva = evaluateBoard(game, playerNum, action);
+            return eva;
+        }
+
+        // 次のプレイヤーを調べる
+        int nextPlayer = cloneGame.getCurrentPlayer();
+        // path複製
+        LinkedList<Action> clonePath = (LinkedList<Action>) path.clone();
+        // 次の手を探索
+        if (nextPlayer == this.myNumber) {
+            return this.prefetchMax(level, cloneGame, clonePath, alpha, beta);
+        } else {
+            return this.prefetchMin(level, cloneGame, clonePath, alpha, beta);
+        }
+
+    }
+
+    /**
+     * 先読み中、自分の手を探索する(表彰獲得可能時)
+     *
+     * @param level
+     * @param game
+     * @param alpha
+     * @param beta
+     * @return
+     */
+    private Double prefetchMax(int level, Game game, LinkedList<Action> path, Double alpha, Double beta) {
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = 0.0;
+
+        // 春秋はスコアを取る場所を除外
+        String[] places = this.setPlaceArrays(game);
+
+        // path複製
+        LinkedList<Action> clonePath = (LinkedList<Action>) path.clone();
+        Action a = clonePath.poll();
+        if (a != null) {
+            // aがnullじゃない＝awardPathが存在する＝表彰が取れる
+            if (!a.place.equals("1-1")) {
+                // aが1-1以外＝その手を打つ
+                bestEva = this.prefetch(level + 1, game, this.myNumber, a, clonePath, alpha, beta);
+                return bestEva;
+            }
+            // aが1-1＝自由行動のため探索
+            // スコア以外の場所を探索対象に
+            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+        }
+
+        // 全手探索
+        for (String p : places) {
+            // 全部の場所ループ
+            // 5-3の時
+            if (p.equals("5-3")) {
+                for (String t : Game.TREAND_ID_LIST) {
+                    // 全部のトレンドループ
+                    for (String w : GameResources.WORKER_NAMES) {
+                        // 全部のワーカーループ
+                        a = new Action(w, p, t);
+                        eva = this.prefetch(level + 1, game, this.myNumber, a, clonePath, alpha, beta);
+                        // bata値を上回ったら探索中止
+                        if (eva != null && eva >= beta) {
+                            bestEva = eva;
+//                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                            return bestEva;
+                        }
+                        // 評価良いの見つけたら
+                        if (eva != null && eva >= bestEva) {
+                            // 更新
+                            bestEva = eva;
+                            alpha = Double.max(alpha, bestEva);
+                        }
+                    }
+                }
+            } else {
+                for (String w : GameResources.WORKER_NAMES) {
+                    // 全部のワーカーループ
+                    a = new Action(w, p);
+                    eva = this.prefetch(level + 1, game, this.myNumber, a, clonePath, alpha, beta);
+                    // bata値を上回ったら探索中止
+                    if (eva != null && eva >= beta) {
+                        bestEva = eva;
+//                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+                        return bestEva;
+                    }
+                    // 評価良いの見つけたら
+                    if (eva != null && eva >= bestEva) {
+                        // 更新
+                        bestEva = eva;
+                        alpha = Double.max(alpha, bestEva);
+                    }
+                }
+            }
+        }
+//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+        return bestEva;
+    }
+
+    /**
+     * 先読み中、相手の手を探索する(表彰獲得可能時)
+     *
+     * @param level
+     * @param game
+     * @param alpha
+     * @param beta
+     * @return
+     */
+    private Double prefetchMin(int level, Game game, LinkedList<Action> path, Double alpha, Double beta) {
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.POSITIVE_INFINITY;
+        Double eva = 0.0;
+        // 春秋はスコアを取る場所を除外
+        String[] places = this.setPlaceArrays(game);
+        // pathを複製
+        LinkedList<Action> clonePath = (LinkedList<Action>) path.clone();
+        // 全手探索
+        for (String p : places) {
+            // 全部の場所ループ
+            // 5-3の時
+            if (p.equals("5-3")) {
+                for (String t : Game.TREAND_ID_LIST) {
+                    // 全部のトレンドループ
+                    for (String w : GameResources.WORKER_NAMES) {
+                        // 全部のワーカーループ
+                        Action a = new Action(w, p, t);
+                        eva = this.prefetch(level + 1, game, this.enemyNumber, a, clonePath, alpha, beta);
+                        // alpha値を下回ったら探索中止
+                        if (eva != null && eva <= alpha) {
+                            bestEva = eva;
+//                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
+                            return bestEva;
+                        }
+                        // 評価良いの見つけたら
+                        if (eva != null && eva <= bestEva) {
+                            // 更新
+                            bestEva = eva;
+                            beta = Double.min(beta, bestEva);
+                        }
+                    }
+                }
+            } else {
+                for (String w : GameResources.WORKER_NAMES) {
+                    // 全部のワーカーループ
+                    Action a = new Action(w, p);
+                    eva = this.prefetch(level + 1, game, this.enemyNumber, a, clonePath, alpha, beta);
+                    // alpha値を下回ったら探索中止
+                    if (eva != null && eva <= alpha) {
+                        bestEva = eva;
+//                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
+                        return bestEva;
+                    }
+                    // 評価良いの見つけたら
+                    if (eva != null && eva <= bestEva) {
+                        // 更新
+                        bestEva = eva;
+                        beta = Double.min(beta, bestEva);
+                    }
+                }
+            }
+        }
+//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
+        return bestEva;
+    }
+
+    /**
      * 考えるフェーズ 手を打つところまで実装
      */
     @Override
@@ -509,6 +742,34 @@ public class Lily5 extends TajimaLabAI {
         // 春秋はスコアを取らない
         String[] places = this.setPlaceArrays(gameBoard);
 
+        LinkedList<Action> path = new LinkedList<>();
+
+        // awardPathの先頭を引っ張り出す
+        Action a = this.awardPath.poll();
+        if (a != null) {
+            // aがnullじゃない＝awardPathが存在する＝表彰が取れる
+            path = (LinkedList<Action>) this.awardPath.clone();
+            if (!a.place.equals("1-1")) {
+                // aが1-1以外＝その手を打つ
+                bestAction = a;
+                bestEva = Double.POSITIVE_INFINITY;
+
+                this.addMessage("===========================");
+                this.addMessage("========== think end ==========");
+                this.addMessage("===========================");
+
+                this.addMessage("* Best Action is " + bestAction + " -> " + bestEva);
+
+                // 最適解を打つ
+                this.putWorker(bestAction);
+                return;
+            }
+            // aが1-1＝自由行動のため探索
+            // スコア以外の場所を探索対象に
+            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+        }
+
         // 全手探索
         for (String p : places) {
             // 全部の場所ループ
@@ -518,8 +779,14 @@ public class Lily5 extends TajimaLabAI {
                     // 全部のトレンドループ
                     for (String w : GameResources.WORKER_NAMES) {
                         // 全部のワーカーループ
-                        Action a = new Action(w, p, t);
-                        eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        a = new Action(w, p, t);
+                        if (path.isEmpty()) {
+                            // pathが空＝表彰は取れない＝通常探索
+                            eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        } else {
+                            // pathが空じゃない＝表彰が取れる＝表彰用探索
+                            eva = this.prefetch(1, gameBoard, this.myNumber, a, path, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        }
                         if (eva != null) {
                             this.addMessage(a + " -> " + eva);
                         }
@@ -534,8 +801,14 @@ public class Lily5 extends TajimaLabAI {
             } else {
                 for (String w : GameResources.WORKER_NAMES) {
                     // 全部のワーカーループ
-                    Action a = new Action(w, p);
-                    eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    a = new Action(w, p);
+                    if (path.isEmpty()) {
+                        // pathが空＝表彰は取れない＝通常探索
+                        eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    } else {
+                        // pathが空じゃない＝表彰が取れる＝表彰用探索
+                        eva = this.prefetch(1, gameBoard, this.myNumber, a, path, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    }
                     if (eva != null) {
                         this.addMessage(a + " -> " + eva);
                     }
@@ -548,6 +821,7 @@ public class Lily5 extends TajimaLabAI {
                 }
             }
         }
+
         this.addMessage("===========================");
         this.addMessage("========== think end ==========");
         this.addMessage("===========================");
@@ -614,6 +888,15 @@ public class Lily5 extends TajimaLabAI {
          */
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
+        if (cloneGame.getSeason().contains("b")) {
+            // 季節が夏冬の時、スタートプレイヤーにボーナス
+            int cp = cloneGame.getCurrentPlayer();
+            if (cp == this.myNumber) {
+                evaluation += 100;
+            } else {
+                evaluation -= 100;
+            }
+        }
 
         return evaluation;
     }
@@ -655,6 +938,7 @@ public class Lily5 extends TajimaLabAI {
      */
     @Override
     protected void seasonChanged() {
+        this.awardPath = new LinkedList<>();
         // 夏冬の最初に表彰が取れるかどうかをチェック
         if (this.gameBoard.getSeason().contains("b")) {
             this.checkAwardable();
@@ -718,17 +1002,25 @@ public class Lily5 extends TajimaLabAI {
         // 研究ポイントを取得
         int myReserchPoint = myResources.getCurrentResrchPoint();
 
-        // 自分の手を全て抽出
+        // 自分のパスを全て抽出してacdの一覧を生成する
         this.setMyAllAction(workersList, placesList, myMoney, myReserchPoint);
 
-        // 抽出した手を確認する
+        // acd一覧が表彰獲得可能かを確認する
         for (AwardCheckData acd : this.awardCheckDatas) {
             this.startAwardPrefetch(acd, gameBoard, currentPlayer);
             this.addMessage(acd.toString());
         }
 
         // awardCheckDatasをソート（最適解を出す）
-        Collections.sort(awardCheckDatas, Comparator.reverseOrder());
+        Collections.sort(this.awardCheckDatas, Comparator.reverseOrder());
+        // もし最適解が表彰獲得可能ならawardPathをセット
+        if (this.awardCheckDatas.get(0).isAwardable()) {
+            this.awardPath = new LinkedList<>(this.awardCheckDatas.get(0).getPath());
+        } else {
+            // 最適解が表彰獲得不可ならリストを空にしておく
+            this.awardPath = new LinkedList<>();
+        }
+
         this.addMessage("BestPath : " + awardCheckDatas.get(0).toString());
 
         this.addMessage("===========================");
@@ -739,6 +1031,14 @@ public class Lily5 extends TajimaLabAI {
         this.modeChange(beforeMode);
     }
 
+    /**
+     * 表彰が取れるかをチェックするため、このターンでの表彰関連の全てのパスを抽出する この関数は始めの一手を抽出する関数
+     *
+     * @param workersList
+     * @param placesList
+     * @param money
+     * @param reserchPoint
+     */
     private void setMyAllAction(ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
         for (int j = 0; j < workersList.size(); j++) {
             for (int i = 0; i < placesList.size(); i++) {
@@ -768,11 +1068,23 @@ public class Lily5 extends TajimaLabAI {
         }
     }
 
+    /**
+     * 表彰が取れるかをチェックするため、このターンでの表彰関連の全てのパスを抽出する この関数は２手目以降を探索するための関数 パスが確定したらawardCheckDatasに追加する
+     *
+     * @param acd
+     * @param workersList
+     * @param placesList
+     * @param money
+     * @param reserchPoint
+     */
     private void setMyAllAction(AwardCheckData acd, ArrayList<String> workersList, ArrayList<String> placesList, int money, int reserchPoint) {
+        // 使えるワーカー一覧がなくなった＝表彰まで見えた
         if (workersList.isEmpty()) {
+            // acdを一覧に追加
             this.awardCheckDatas.add(acd);
             return;
         }
+        // 自分の手を探索
         for (int j = 0; j < workersList.size(); j++) {
             for (int i = 0; i < placesList.size(); i++) {
                 // 必要コストが支払えない場合はスキップ
@@ -800,6 +1112,12 @@ public class Lily5 extends TajimaLabAI {
         }
     }
 
+    /**
+     * 場所に対応するお金のコストを返す関数
+     *
+     * @param place
+     * @return
+     */
     private int moneyCost(String place) {
         switch (place) {
             case "1-1":
@@ -810,6 +1128,12 @@ public class Lily5 extends TajimaLabAI {
         }
     }
 
+    /**
+     * 場所に対応する研究ポイントを返す関数
+     *
+     * @param place
+     * @return
+     */
     private int reserchPointCost(String place) {
         switch (place) {
             case "1-1":
@@ -823,6 +1147,13 @@ public class Lily5 extends TajimaLabAI {
         }
     }
 
+    /**
+     * 事前に探索したパス一覧が表彰獲得可能化を先読み開始
+     *
+     * @param acd
+     * @param game
+     * @param currentPlayer
+     */
     private void startAwardPrefetch(AwardCheckData acd, Game game, int currentPlayer) {
         // 次が自分ならacdの手を使用
         if (currentPlayer == this.myNumber) {
@@ -833,12 +1164,21 @@ public class Lily5 extends TajimaLabAI {
         }
     }
 
+    /**
+     * 事前に探索したパス一覧が表彰獲得可能化を先読み
+     *
+     * @param acd チェックするパスを持つacd
+     * @param index パスの何番目か
+     * @param game ゲーム盤面
+     * @param playerNum プレイヤー番号
+     * @param action 実行したい手
+     */
     private void awardPrefetch(AwardCheckData acd, int index, Game game, int playerNum, Action action) {
         // すでにacdで表彰が取れないことがわかっているなら探索中止
-        if(!acd.isAwardable()){
+        if (!acd.isAwardable()) {
             return;
         }
-        
+
         // 仮想でゲームを進める（打てないならnull返して終了）
         Game cloneGame = clonePlay(game, playerNum, action, false);
         if (cloneGame == null) {
@@ -877,22 +1217,37 @@ public class Lily5 extends TajimaLabAI {
         }
     }
 
+    /**
+     * acdのパスが表彰獲得可能かを先読みする際の相手の手の全探索
+     *
+     * @param acd
+     * @param index
+     * @param game
+     */
     private void decideEnemyActionForAwardPrefetch(AwardCheckData acd, int index, Game game) {
         // 相手側は全探索
         for (String p : AWARD_CHECK_PLACES_NAMES) {
             for (String w : GameResources.WORKER_NAMES) {
-                if(!acd.isAwardable()) return;
+                if (!acd.isAwardable()) {
+                    return;
+                }
                 Action a = new Action(w, p);
                 this.awardPrefetch(acd, index, game, this.enemyNumber, a);
             }
         }
     }
 
+    /**
+     * acdにawardableをセットする
+     *
+     * @param acd
+     * @param game
+     */
     private void setAwardable(AwardCheckData acd, Game game) {
         // 今の季節
         String seasonStr = game.getSeason();
         String trendStr = this.convertSeasonToTrendStr(seasonStr);
-        
+
         Game cloneGame = game.clone();
         cloneGame.changeNewSeason();
 

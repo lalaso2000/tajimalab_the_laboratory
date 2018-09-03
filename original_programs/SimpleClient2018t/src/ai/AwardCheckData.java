@@ -10,7 +10,10 @@ import gameElements.GameResources;
 import java.util.ArrayList;
 
 /**
- *
+ * AwardCheckData（通称acd）
+ * 夏冬のターン開始時に表彰が取れるかどうかを判定するのに使用する
+ * 「自分の手の一覧＝パス」「表彰が取れるかの真偽」「使用するワーカーの数」「使用する研究ポイントの数」「獲得できるスコア」
+ * を保持している
  * @author niwatakumi
  */
 public class AwardCheckData implements Comparable<AwardCheckData> {
@@ -286,7 +289,7 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
         // それでも同じなら評価は同じ
         return 0;
     }
-
+    
     public void addPath(Action a) {
         this.path.add(a);
     }
@@ -344,6 +347,10 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
 
     public boolean isAwardable() {
         return awardable;
+    }
+
+    ArrayList<Action> getPath() {
+        return (ArrayList<Action>) path.clone();
     }
     
     
