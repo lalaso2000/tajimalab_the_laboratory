@@ -36,8 +36,6 @@ public class Lily4 extends TajimaLabAI {
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
 
-    private ArrayList<AwardCheckData> awardCheckDatas;
-
     /**
      * コンストラクタ
      *
@@ -241,27 +239,7 @@ public class Lily4 extends TajimaLabAI {
      * @return 打ったあとのゲーム（季節更新済み）
      */
     private Game clonePlay(Game game, int playerNum, Action action) {
-        Game cloneGame = game.clone();
-
-        /**
-         * この辺テンプレ
-         */
-        // 配置可能かチェック(出来ないならnullを返却)
-        if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
-        }
-
-        // アクションしてみる
-        cloneGame.play(playerNum, action.place, action.worker);
-        if (action.place.equals("5-3")) {
-            cloneGame.setTreand(action.trend);
-        }
-        // 季節が変わるなら更新
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            cloneGame.changeNewSeason();
-        }
-
-        return cloneGame;
+        return clonePlay(game, playerNum, action, true);
     }
 
     /**
@@ -298,18 +276,20 @@ public class Lily4 extends TajimaLabAI {
     }
 
     /**
-     * 季節が春秋かどうかをチェックする関数
+     * 季節に応じた探索場所を指定する関数
      *
      * @param game 盤面
-     * @return 春秋ならtrue、それ以外はfalse
+     * @return 探索場所一覧
      */
     private String[] setPlaceArrays(Game game) {
         String season = game.getSeason();
         String[] places;
         if (season.contains("a")) {
+            // 春秋はお金と研究ポイントの場所のみ
             places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
             System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
         } else {
+            // 夏冬は春秋のもの＋スコアの場所
             places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
             System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
             System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
@@ -326,15 +306,12 @@ public class Lily4 extends TajimaLabAI {
      * @param action 次のアクション
      * @param alpha アルファ値
      * @param beta ベータ値
-     * @return
+     * @return 評価値
      */
     private Double prefetch(int level, Game game, int playerNum, Action action, Double alpha, Double beta) {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, playerNum, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
             return eva;
         }
 
@@ -347,9 +324,6 @@ public class Lily4 extends TajimaLabAI {
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, playerNum, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
             return eva;
         }
 
@@ -364,6 +338,18 @@ public class Lily4 extends TajimaLabAI {
 
     }
 
+    /**
+     * 自分の手を探す<br>
+     *
+     * prefetchから呼び出して使う
+     *
+     * @param level
+     * @param game
+     * @param action
+     * @param alpha
+     * @param beta
+     * @return
+     */
     private Double prefetchMax(int level, Game game, Action action, Double alpha, Double beta) {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.NEGATIVE_INFINITY;
@@ -386,7 +372,6 @@ public class Lily4 extends TajimaLabAI {
                         // bata値を上回ったら探索中止
                         if (eva != null && eva >= beta) {
                             bestEva = eva;
-//                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -405,7 +390,6 @@ public class Lily4 extends TajimaLabAI {
                     // bata値を上回ったら探索中止
                     if (eva != null && eva >= beta) {
                         bestEva = eva;
-//                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -417,10 +401,21 @@ public class Lily4 extends TajimaLabAI {
                 }
             }
         }
-//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
+    /**
+     * 相手の手を探す<br>
+     *
+     * prefetchから呼び出して使う
+     *
+     * @param level
+     * @param game
+     * @param action
+     * @param alpha
+     * @param beta
+     * @return
+     */
     private Double prefetchMin(int level, Game game, Action action, Double alpha, Double beta) {
         // 全手やってみて一番いい手を探す
         Double bestEva = Double.POSITIVE_INFINITY;
@@ -442,7 +437,6 @@ public class Lily4 extends TajimaLabAI {
                         // alpha値を下回ったら探索中止
                         if (eva != null && eva <= alpha) {
                             bestEva = eva;
-//                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -461,7 +455,6 @@ public class Lily4 extends TajimaLabAI {
                     // alpha値を下回ったら探索中止
                     if (eva != null && eva <= alpha) {
                         bestEva = eva;
-//                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -473,8 +466,99 @@ public class Lily4 extends TajimaLabAI {
                 }
             }
         }
-//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
+    }
+
+    /**
+     * 評価関数
+     *
+     * @param game アクションする前のゲーム状態
+     * @param playerNum アクションする人
+     * @param action アクション内容
+     * @return 評価値
+     */
+//    @Override
+    protected Double evaluateBoard(Game game, int playerNum, Action action) {
+        Double evaluation = 0.0;
+
+        /**
+         * この辺テンプレ
+         */
+        // 配置可能かチェック(出来ないならnullを返却)
+        if (game.canPutWorker(playerNum, action.place, action.worker) == false) {
+            return null;
+        }
+
+        // アクションする前の季節を取得（表彰を計算するため）
+        String seasonStr = game.getSeason();
+        // その季節はトレンド番号だと何番目か
+        int seasonTrendID = this.convertSeasonToTrendInt(seasonStr);
+
+        // ゲームを複製
+        Game cloneGame = game.clone();
+        // アクションしてみる
+        cloneGame.play(playerNum, action.place, action.worker);
+        if (action.place.equals("5-3")) {
+            cloneGame.setTreand(action.trend);
+        }
+        // 季節が変わるなら更新
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            cloneGame.changeNewSeason();
+        }
+
+        // 計算用リソースを取得
+        GameResources[] resources = this.getResourcesForEvaluation(cloneGame);
+
+        // トレンドはいつか
+        String trendStr = game.getTrend();
+        if (action.place.equals("5-3")) {
+            trendStr = action.trend;
+        }
+        // トレンドの数値
+        int trendInt = this.convertTrendStrToInt(trendStr);
+        /**
+         * ここまでテンプレ
+         */
+
+        /**
+         * 評価値の計算
+         */
+        evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
+        evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
+
+        return evaluation;
+    }
+
+    /**
+     * リソースから評価値を計算
+     *
+     * @param resource リソース
+     * @param seasonTrendID 現在の季節
+     * @param trendInt トレンドの場所
+     * @return
+     */
+    private Double calcEvaluate(GameResources resource, int seasonTrendID, int trendInt) {
+        // リソースに応じて評価値を計算
+        Double evaluation = 0.0;
+        // 自分のお金×お金の評価値
+        evaluation += resource.getCurrentMoney() * this.moneyValue;
+        // 自分の研究ポイント×研究ポイントの評価値
+        evaluation += resource.getCurrentResrchPoint() * this.reserchPointValue;
+        // 現状までのトータルスコア
+        evaluation += resource.getTotalScore() * this.scoreValue;
+        // 今がトレンドか
+        if (seasonTrendID == trendInt) {
+            evaluation += this.trendValue;
+        }
+        // 負の点数は許されない
+        if (resource.getTotalScore() < 0) {
+            return -100.0;
+        }
+        // 負債は許されない
+        if (resource.getDebt() > 0) {
+            return -100.0;
+        }
+        return evaluation;
     }
 
     /**
@@ -545,129 +629,6 @@ public class Lily4 extends TajimaLabAI {
     }
 
     /**
-     * 評価関数
-     *
-     * @param game アクションする前のゲーム状態
-     * @param playerNum アクションする人
-     * @param action アクション内容
-     * @return 評価値
-     */
-//    @Override
-    protected Double evaluateBoard(Game game, int playerNum, Action action) {
-        Double evaluation = 0.0;
-
-        /**
-         * この辺テンプレ
-         */
-        // 配置可能かチェック(出来ないならnullを返却)
-        if (game.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
-        }
-
-        // アクションする前の季節を取得（表彰を計算するため）
-        String seasonStr = game.getSeason();
-        // その季節はトレンド番号だと何番目か
-        int seasonTrendID = this.convertSeasonToTrendInt(seasonStr);
-
-        // ゲームを複製
-        Game cloneGame = game.clone();
-        // アクションしてみる
-        cloneGame.play(playerNum, action.place, action.worker);
-        if (action.place.equals("5-3")) {
-            cloneGame.setTreand(action.trend);
-        }
-        // 季節が変わるなら更新
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            cloneGame.changeNewSeason();
-        }
-
-        // 計算用リソースを取得
-        GameResources[] resources = this.getResourcesForEvaluation(cloneGame);
-
-        // トレンドはいつか
-        String trendStr = game.getTrend();
-        if (action.place.equals("5-3")) {
-            trendStr = action.trend;
-        }
-        // トレンドの数値
-        int trendInt = this.convertTrendStrToInt(trendStr);
-        /**
-         * ここまでテンプレ
-         */
-
-        /**
-         * 評価値の計算
-         */
-        // スコアの差を計算
-        int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
-
-        // スコア差で評価してみる
-//        switch (this.mode) {
-//            case PLAYER0_MODE:
-//                if (scoreDiff > 0) {
-//                    evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
-//                } else if (scoreDiff == 0) {
-//                    evaluation += 5;
-//                } else {
-//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
-//                }
-//                break;
-//            case PLAYER1_MODE:
-//                if (scoreDiff > 5) {
-//                    evaluation += 5.0;
-//                } else if (scoreDiff > 0) {
-//                    evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
-//                } else if (scoreDiff == 0) {
-//                    evaluation += 5;
-//                } else {
-//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
-//                }
-//                break;
-//            case FINAL_MODE:
-//                evaluation += 100 * scoreDiff;
-//                break;
-//            default:
-//                break;
-//        }
-        evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
-        evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
-
-        return evaluation;
-    }
-
-    /**
-     * リソースから評価値を計算
-     *
-     * @param resource リソース
-     * @param seasonTrendID 現在の季節
-     * @param trendInt トレンドの場所
-     * @return
-     */
-    private Double calcEvaluate(GameResources resource, int seasonTrendID, int trendInt) {
-        // リソースに応じて評価値を計算
-        Double evaluation = 0.0;
-        // 自分のお金×お金の評価値
-        evaluation += resource.getCurrentMoney() * this.moneyValue;
-        // 自分の研究ポイント×研究ポイントの評価値
-        evaluation += resource.getCurrentResrchPoint() * this.reserchPointValue;
-        // 現状までのトータルスコア
-        evaluation += resource.getTotalScore() * this.scoreValue;
-        // 今がトレンドか
-        if (seasonTrendID == trendInt) {
-            evaluation += this.trendValue;
-        }
-        // 負の点数は許されない
-        if (resource.getTotalScore() < 0) {
-            return -100.0;
-        }
-        // 負債は許されない
-        if (resource.getDebt() > 0) {
-            return -100.0;
-        }
-        return evaluation;
-    }
-
-    /**
      * 季節が変わった時に呼び出される
      */
     @Override
@@ -688,6 +649,5 @@ public class Lily4 extends TajimaLabAI {
             this.modeChange(PLAYER1_MODE);
         }
     }
-
 
 }

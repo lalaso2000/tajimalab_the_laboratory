@@ -264,7 +264,11 @@ public abstract class TajimaLabAI extends LaboAI {
     }
 
     /**
-     * 季節の文字列をトレンドの数値に変換（リソース取得時に必要） 存在しない季節を投げるとnullが返ってきます
+     * 季節の文字列をトレンドの数値に変換（リソース取得時に必要） <br>
+     * 
+     * 存在しない季節を投げるとnullが返ってきます<br>
+     * 
+     * (ex) "1a" -> 0 , "6a" -> 2
      *
      * @param season 季節文字列
      * @return トレンド数値 or null
@@ -293,13 +297,18 @@ public abstract class TajimaLabAI extends LaboAI {
         }
         return trendInt;
     }
-        
+
     /**
-     * 季節をトレンドの文字列に変換
+     * 季節の文字列をトレンドの文字列に変換<br>
+     * 
+     * 存在しない季節はnullが返ります<br>
+     * 
+     * (ex) "1a" -> "T1" , "6a" -> "T3"
+     *
      * @param season 季節の文字列
      * @return トレンドの文字列
      */
-    protected String convertSeasonToTrendStr(String season){
+    protected String convertSeasonToTrendStr(String season) {
         String trend = null;    // 現在の季節はトレンドだと何番目か
         switch (season) {
             case "1a":
@@ -325,7 +334,9 @@ public abstract class TajimaLabAI extends LaboAI {
     }
 
     /**
-     * トレンドの文字列を数値に変換 トレンド無しは-1、トレンドT1、T2、T3はそれぞれ0,1,2に変換されます
+     * トレンドの文字列を数値に変換<br> 
+     * 
+     * トレンド無しは-1、トレンドT1、T2、T3はそれぞれ0,1,2に変換されます
      *
      * @param trendStr トレンドの文字列
      * @return 数値に変換した結果
@@ -347,9 +358,13 @@ public abstract class TajimaLabAI extends LaboAI {
     }
 
     /**
-     * 計算用の仮想リソースを返す
+     * 計算用の仮想リソースを返す。<br>
      *
-     * @param game アクション前のゲーム盤面
+     * 季節の更新タイミング以外でも、その季節終わりにどのくらいリソースを獲得できるかを知ることができます。 
+     * 
+     * 更新されるのは「お金」「研究ポイント」「スコア」「負債」「所持ワーカー一覧」です。
+     *
+     * @param game アクション後、季節更新後のゲーム盤面
      * @return リソースの配列
      */
     protected GameResources[] getResourcesForEvaluation(Game game) {
