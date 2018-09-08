@@ -42,7 +42,7 @@ public class Lily5 extends TajimaLabAI {
 
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
     private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
-    private static final String[] AWARD_CHECK_PLACES_NAMES = {"1-1", "3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
+    private static final String[] AWARD_CHECK_PLACES_NAMES = {"1-1", "3-1", "3-2", "3-3", "4-1"};
 
     private ArrayList<AwardCheckData> awardCheckDatas;  // 夏冬用、acdの一覧
     private LinkedList<Action> awardPath = new LinkedList<>();         // 夏冬用、表彰を取るための最適解を保持する
@@ -250,27 +250,7 @@ public class Lily5 extends TajimaLabAI {
      * @return 打ったあとのゲーム（季節更新済み）
      */
     private Game clonePlay(Game game, int playerNum, Action action) {
-        Game cloneGame = game.clone();
-
-        /**
-         * この辺テンプレ
-         */
-        // 配置可能かチェック(出来ないならnullを返却)
-        if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
-        }
-
-        // アクションしてみる
-        cloneGame.play(playerNum, action.place, action.worker);
-        if (action.place.equals("5-3")) {
-            cloneGame.setTreand(action.trend);
-        }
-        // 季節が変わるなら更新
-        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
-            cloneGame.changeNewSeason();
-        }
-
-        return cloneGame;
+        return clonePlay(game, playerNum, action, true);
     }
 
     /**
@@ -289,8 +269,22 @@ public class Lily5 extends TajimaLabAI {
          * この辺テンプレ
          */
         // 配置可能かチェック(出来ないならnullを返却)
+        // ただし論文の場合、次の場所に置いてみる
         if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
+            switch (action.place) {
+                case "4-1":
+                {
+                    Action a = new Action(action.worker, "4-2");
+                    return clonePlay(game, playerNum, a, seasonChangeable);
+                }
+                case "4-2":
+                {
+                    Action a = new Action(action.worker, "4-3");
+                    return clonePlay(game, playerNum, a, seasonChangeable);
+                }
+                default:
+                    return null;
+            }
         }
 
         // アクションしてみる
@@ -306,27 +300,27 @@ public class Lily5 extends TajimaLabAI {
         return cloneGame;
     }
 
-    /**
-     * 季節に応じた探索場所を返す関数
-     *
-     * @param game 盤面
-     * @return 探索場所の配列
-     */
-    private String[] setPlaceArrays(Game game) {
-        String season = game.getSeason();
-        String[] places;
-        places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
-        System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-//        if (season.contains("a")) {
-//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
-//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-//        } else {
-//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
-//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-//            System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
-//        }
-        return places;
-    }
+//    /**
+//     * 季節に応じた探索場所を返す関数
+//     *
+//     * @param game 盤面
+//     * @return 探索場所の配列
+//     */
+//    private String[] setPlaceArrays(Game game) {
+//        String season = game.getSeason();
+//        String[] places;
+//        places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+//        System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+////        if (season.contains("a")) {
+////            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+////            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+////        } else {
+////            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
+////            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+////            System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
+////        }
+//        return places;
+//    }
 
     /**
      * 先読み関数
@@ -399,11 +393,11 @@ public class Lily5 extends TajimaLabAI {
         Double bestEva = Double.NEGATIVE_INFINITY;
         Double eva = 0.0;
 
-        // 春秋はスコアを取る場所を除外
-        String[] places = this.setPlaceArrays(game);
+//        // 春秋はスコアを取る場所を除外
+//        String[] places = this.setPlaceArrays(game);
 
         // 全手探索
-        for (String p : places) {
+        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -466,10 +460,10 @@ public class Lily5 extends TajimaLabAI {
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
         // 春秋はスコアを取る場所を除外
-        String[] places = this.setPlaceArrays(game);
+//        String[] places = this.setPlaceArrays(game);
 
         // 全手探索
-        for (String p : places) {
+        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -591,7 +585,7 @@ public class Lily5 extends TajimaLabAI {
         Double eva = 0.0;
 
         // 春秋はスコアを取る場所を除外
-        String[] places = this.setPlaceArrays(game);
+//        String[] places = this.setPlaceArrays(game);
 
         // path複製
         LinkedList<Action> clonePath = (LinkedList<Action>) path.clone();
@@ -603,14 +597,14 @@ public class Lily5 extends TajimaLabAI {
                 bestEva = this.prefetch(level + 1, game, this.myNumber, a, clonePath, alpha, beta);
                 return bestEva;
             }
-            // aが1-1＝自由行動のため探索
-            // スコア以外の場所を探索対象に
-            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
-            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+//            // aが1-1＝自由行動のため探索
+//            // スコア以外の場所を探索対象に
+//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
         }
 
         // 全手探索
-        for (String p : places) {
+        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -672,11 +666,11 @@ public class Lily5 extends TajimaLabAI {
         Double bestEva = Double.POSITIVE_INFINITY;
         Double eva = 0.0;
         // 春秋はスコアを取る場所を除外
-        String[] places = this.setPlaceArrays(game);
+//        String[] places = this.setPlaceArrays(game);
         // pathを複製
         LinkedList<Action> clonePath = (LinkedList<Action>) path.clone();
         // 全手探索
-        for (String p : places) {
+        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
@@ -740,7 +734,7 @@ public class Lily5 extends TajimaLabAI {
         Double eva = 0.0;
 
         // 春秋はスコアを取らない
-        String[] places = this.setPlaceArrays(gameBoard);
+//        String[] places = this.setPlaceArrays(gameBoard);
 
         LinkedList<Action> path = new LinkedList<>();
 
@@ -766,12 +760,12 @@ public class Lily5 extends TajimaLabAI {
             }
             // aが1-1＝自由行動のため探索
             // スコア以外の場所を探索対象に
-            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
-            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
         }
 
         // 全手探索
-        for (String p : places) {
+        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
