@@ -285,9 +285,11 @@ public class Lily4 extends TajimaLabAI {
         String season = game.getSeason();
         String[] places;
         if (season.contains("a")) {
+            // 春秋はお金と研究ポイントの場所のみ
             places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
             System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
         } else {
+            // 夏冬は春秋のもの＋スコアの場所
             places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length + SCORE_PLACES_NAMES.length];
             System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
             System.arraycopy(SCORE_PLACES_NAMES, 0, places, MONEY_AND_RESERCH_PLACES_NAMES.length, SCORE_PLACES_NAMES.length);
@@ -310,9 +312,6 @@ public class Lily4 extends TajimaLabAI {
         // 最下層まで読んだら評価値を返す
         if (level == PREFETCH_MAX_LEVEL) {
             Double eva = evaluateBoard(game, playerNum, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
             return eva;
         }
 
@@ -325,9 +324,6 @@ public class Lily4 extends TajimaLabAI {
         // もし打った手でゲーム終了なら評価を返す
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, playerNum, action);
-//            if (eva != null) {
-//                this.addMessage("(" + level + ") " + action + " -> " + eva);
-//            }
             return eva;
         }
 
@@ -376,7 +372,6 @@ public class Lily4 extends TajimaLabAI {
                         // bata値を上回ったら探索中止
                         if (eva != null && eva >= beta) {
                             bestEva = eva;
-//                            this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -395,7 +390,6 @@ public class Lily4 extends TajimaLabAI {
                     // bata値を上回ったら探索中止
                     if (eva != null && eva >= beta) {
                         bestEva = eva;
-//                        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -407,7 +401,6 @@ public class Lily4 extends TajimaLabAI {
                 }
             }
         }
-//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
@@ -444,7 +437,6 @@ public class Lily4 extends TajimaLabAI {
                         // alpha値を下回ったら探索中止
                         if (eva != null && eva <= alpha) {
                             bestEva = eva;
-//                            this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                             return bestEva;
                         }
                         // 評価良いの見つけたら
@@ -463,7 +455,6 @@ public class Lily4 extends TajimaLabAI {
                     // alpha値を下回ったら探索中止
                     if (eva != null && eva <= alpha) {
                         bestEva = eva;
-//                        this.addMessage("(" + level + ") " + a + " -> " + bestEva);
                         return bestEva;
                     }
                     // 評価良いの見つけたら
@@ -475,7 +466,6 @@ public class Lily4 extends TajimaLabAI {
                 }
             }
         }
-//        this.addMessage("(" + level + ") " + action + " -> " + bestEva);
         return bestEva;
     }
 
@@ -533,36 +523,6 @@ public class Lily4 extends TajimaLabAI {
         /**
          * 評価値の計算
          */
-        // スコアの差を計算
-//        int scoreDiff = resources[this.myNumber].getScoreOf(seasonTrendID) - resources[this.enemyNumber].getScoreOf(seasonTrendID);
-        // スコア差で評価してみる
-//        switch (this.mode) {
-//            case PLAYER0_MODE:
-//                if (scoreDiff > 0) {
-//                    evaluation += -(0.25 * scoreDiff) * (0.25 * scoreDiff) + 10.0;
-//                } else if (scoreDiff == 0) {
-//                    evaluation += 5;
-//                } else {
-//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.0;
-//                }
-//                break;
-//            case PLAYER1_MODE:
-//                if (scoreDiff > 5) {
-//                    evaluation += 5.0;
-//                } else if (scoreDiff > 0) {
-//                    evaluation += -(scoreDiff) * (scoreDiff) + 20.0;
-//                } else if (scoreDiff == 0) {
-//                    evaluation += 5;
-//                } else {
-//                    evaluation += -(0.5 * scoreDiff) * (0.5 * scoreDiff) - 0.5;
-//                }
-//                break;
-//            case FINAL_MODE:
-//                evaluation += 100 * scoreDiff;
-//                break;
-//            default:
-//                break;
-//        }
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
         evaluation -= calcEvaluate(resources[this.enemyNumber], seasonTrendID, trendInt);
 
