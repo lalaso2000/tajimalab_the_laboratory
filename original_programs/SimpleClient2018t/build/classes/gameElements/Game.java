@@ -121,8 +121,8 @@ public class Game extends Observable implements Cloneable {
         this.currentSeason = 0;
         this.trendID = -1;
 
-//        this.timerThread = new TimerThread();
-//        new Thread(this.timerThread).start();
+        this.timerThread = new TimerThread();
+        new Thread(this.timerThread).start();
 
         this.setChanged();
         this.notifyObservers();

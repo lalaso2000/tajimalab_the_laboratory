@@ -68,8 +68,8 @@ public class Lily3 extends TajimaLabAI {
                 this.employAssistantValue = 1.0;
                 break;
             case PLAYER0_MODE:
-                this.moneyValue = 1.5;
-                this.reserchPointValue = 3.0;
+                this.moneyValue = 1.0;
+                this.reserchPointValue = 2.0;
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 1.0;
                 this.trendValue = 0.5;
@@ -546,7 +546,7 @@ public class Lily3 extends TajimaLabAI {
         // アクションする前の季節を取得（表彰を計算するため）
         String seasonStr = game.getSeason();
         // その季節はトレンド番号だと何番目か
-        int seasonTrendID = this.convertSeasonToTrendInt(seasonStr);
+        int seasonTrendID = this.convertSeasonToTrend(seasonStr);
 
         // ゲームを複製
         Game cloneGame = game.clone();
@@ -607,6 +607,12 @@ public class Lily3 extends TajimaLabAI {
                 break;
             default:
                 break;
+        }
+
+        
+        if(scoreDiff < 0){
+            this.setMoneyValue(this.moneyValue * 2.0);
+            this.setReserchPointValue(this.reserchPointValue * 2.0);
         }
         
         evaluation += calcEvaluate(resources[this.myNumber], seasonTrendID, trendInt);
