@@ -18,18 +18,18 @@ import java.util.ArrayList;
  */
 public class AwardCheckData implements Comparable<AwardCheckData> {
 
-    private ArrayList<Action> path;
-    private boolean awardable;
-    private int workers;
-    private int reserchPoint;
-    private int score;
+    private ArrayList<Action> path; // パス
+    private boolean awardable;      // 表彰が取れるかの真偽
+    private int workers;            // 使用するワーカーの数
+    private int reserchPoint;       // 使用する研究ポイント
+    private int score;              // 獲得できるスコア
 
     /**
      * 初期化コンストラクタ
      */
     public AwardCheckData() {
         path = new ArrayList<>();
-        awardable = true;
+        awardable = true;           // 表彰が取れるかの真偽は「真」で初期化（少しでも表彰が取れない可能性があるときのみ偽になる）
         workers = 0;
         reserchPoint = 0;
         score = 0;
@@ -48,6 +48,10 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
         score = a.score;
     }
     
+    /**
+     * 最初のアクションを指定した状態でacdを初期化する
+     * @param action 
+     */
     public AwardCheckData(Action action){
         path = new ArrayList<>();
         awardable = true;
@@ -152,6 +156,11 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
         }
     }
     
+    /**
+     * 既存のacdのパスに新たにアクションを追加したものを作成
+     * @param acd
+     * @param action 
+     */
     public AwardCheckData(AwardCheckData acd, Action action){
         path = (ArrayList<Action>) acd.path.clone();
         awardable = acd.awardable;
