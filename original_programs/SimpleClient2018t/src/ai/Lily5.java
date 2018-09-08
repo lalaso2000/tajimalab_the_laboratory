@@ -272,13 +272,11 @@ public class Lily5 extends TajimaLabAI {
         // ただし論文の場合、次の場所に置いてみる
         if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
             switch (action.place) {
-                case "4-1":
-                {
+                case "4-1": {
                     Action a = new Action(action.worker, "4-2");
                     return clonePlay(game, playerNum, a, seasonChangeable);
                 }
-                case "4-2":
-                {
+                case "4-2": {
                     Action a = new Action(action.worker, "4-3");
                     return clonePlay(game, playerNum, a, seasonChangeable);
                 }
@@ -321,7 +319,6 @@ public class Lily5 extends TajimaLabAI {
 ////        }
 //        return places;
 //    }
-
     /**
      * 先読み関数
      *
@@ -395,7 +392,6 @@ public class Lily5 extends TajimaLabAI {
 
 //        // 春秋はスコアを取る場所を除外
 //        String[] places = this.setPlaceArrays(game);
-
         // 全手探索
         for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
             // 全部の場所ループ
@@ -586,7 +582,6 @@ public class Lily5 extends TajimaLabAI {
 
         // 春秋はスコアを取る場所を除外
 //        String[] places = this.setPlaceArrays(game);
-
         // path複製
         LinkedList<Action> clonePath = (LinkedList<Action>) path.clone();
         Action a = clonePath.poll();
@@ -719,114 +714,6 @@ public class Lily5 extends TajimaLabAI {
     }
 
     /**
-     * 考えるフェーズ 手を打つところまで実装
-     */
-    @Override
-    protected void think() {
-        this.addMessage("==========================");
-        this.addMessage("========== thinking ==========");
-        this.addMessage("==========================");
-
-        Action bestAction = null;
-
-        // 全手やってみて一番いい手を探す
-        Double bestEva = Double.NEGATIVE_INFINITY;
-        Double eva = 0.0;
-
-        // 春秋はスコアを取らない
-//        String[] places = this.setPlaceArrays(gameBoard);
-
-        LinkedList<Action> path = new LinkedList<>();
-
-        // awardPathの先頭を引っ張り出す
-        Action a = this.awardPath.poll();
-        if (a != null) {
-            // aがnullじゃない＝awardPathが存在する＝表彰が取れる
-            path = (LinkedList<Action>) this.awardPath.clone();
-            if (!a.place.equals("1-1")) {
-                // aが1-1以外＝その手を打つ
-                bestAction = a;
-                bestEva = Double.POSITIVE_INFINITY;
-
-                this.addMessage("===========================");
-                this.addMessage("========== think end ==========");
-                this.addMessage("===========================");
-
-                this.addMessage("* Best Action is " + bestAction + " -> " + bestEva);
-
-                // 最適解を打つ
-                this.putWorker(bestAction);
-                return;
-            }
-            // aが1-1＝自由行動のため探索
-            // スコア以外の場所を探索対象に
-//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
-//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
-        }
-
-        // 全手探索
-        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
-            // 全部の場所ループ
-            // 5-3の時
-            if (p.equals("5-3")) {
-                for (String t : Game.TREAND_ID_LIST) {
-                    // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
-                        // 全部のワーカーループ
-                        a = new Action(w, p, t);
-                        if (path.isEmpty()) {
-                            // pathが空＝表彰は取れない＝通常探索
-                            eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        } else {
-                            // pathが空じゃない＝表彰が取れる＝表彰用探索
-                            eva = this.prefetch(1, gameBoard, this.myNumber, a, path, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                        }
-                        if (eva != null) {
-                            this.addMessage(a + " -> " + eva);
-                        }
-                        // 評価良いの見つけたら
-                        if (eva != null && eva >= bestEva) {
-                            // 更新
-                            bestEva = eva;
-                            bestAction = a;
-                        }
-                    }
-                }
-            } else {
-                for (String w : GameResources.WORKER_NAMES) {
-                    // 全部のワーカーループ
-                    a = new Action(w, p);
-                    if (path.isEmpty()) {
-                        // pathが空＝表彰は取れない＝通常探索
-                        eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                    } else {
-                        // pathが空じゃない＝表彰が取れる＝表彰用探索
-                        eva = this.prefetch(1, gameBoard, this.myNumber, a, path, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-                    }
-                    if (eva != null) {
-                        this.addMessage(a + " -> " + eva);
-                    }
-                    // 評価良いの見つけたら
-                    if (eva != null && eva >= bestEva) {
-                        // 更新
-                        bestEva = eva;
-                        bestAction = a;
-                    }
-                }
-            }
-        }
-
-        this.addMessage("===========================");
-        this.addMessage("========== think end ==========");
-        this.addMessage("===========================");
-
-        this.addMessage("* Best Action is " + bestAction + " -> " + bestEva);
-
-        // 最適解を打つ
-        this.putWorker(bestAction);
-    }
-
-    /**
      * 評価関数
      *
      * @param game アクションする前のゲーム状態
@@ -925,33 +812,6 @@ public class Lily5 extends TajimaLabAI {
             return -100.0;
         }
         return evaluation;
-    }
-
-    /**
-     * 季節が変わった時に呼び出される
-     */
-    @Override
-    protected void seasonChanged() {
-        this.awardPath = new LinkedList<>();
-        // 夏冬の最初に表彰が取れるかどうかをチェック
-        if (this.gameBoard.getSeason().contains("b")) {
-            this.checkAwardable();
-        }
-        if (this.gameBoard.getSeason().equals("6b")) {
-            this.modeChange(FINAL_MODE);
-        }
-    }
-
-    /**
-     * プレイヤー番号が通知された時呼び出される
-     */
-    @Override
-    protected void playerNumDecided() {
-        if (this.myNumber == 0) {
-            this.modeChange(PLAYER0_MODE);
-        } else {
-            this.modeChange(PLAYER1_MODE);
-        }
     }
 
     /**
@@ -1258,6 +1118,140 @@ public class Lily5 extends TajimaLabAI {
             acd.setAwardable(true);
         } else {
             acd.setAwardable(false);
+        }
+    }
+
+    /**
+     * 考えるフェーズ 手を打つところまで実装
+     */
+    @Override
+    protected void think() {
+        this.addMessage("==========================");
+        this.addMessage("========== thinking ==========");
+        this.addMessage("==========================");
+
+        Action bestAction = null;
+
+        // 全手やってみて一番いい手を探す
+        Double bestEva = Double.NEGATIVE_INFINITY;
+        Double eva = 0.0;
+
+        // 春秋はスコアを取らない
+//        String[] places = this.setPlaceArrays(gameBoard);
+        LinkedList<Action> path = new LinkedList<>();
+
+        // awardPathの先頭を引っ張り出す
+        Action a = this.awardPath.poll();
+        if (a != null) {
+            // aがnullじゃない＝awardPathが存在する＝表彰が取れる
+            path = (LinkedList<Action>) this.awardPath.clone();
+            if (!a.place.equals("1-1")) {
+                // aが1-1以外＝その手を打つ
+                bestAction = a;
+                bestEva = Double.POSITIVE_INFINITY;
+
+                this.addMessage("===========================");
+                this.addMessage("========== think end ==========");
+                this.addMessage("===========================");
+
+                this.addMessage("* Best Action is " + bestAction + " -> " + bestEva);
+
+                // 最適解を打つ
+                this.putWorker(bestAction);
+                return;
+            }
+            // aが1-1＝自由行動のため探索
+            // スコア以外の場所を探索対象に
+//            places = new String[MONEY_AND_RESERCH_PLACES_NAMES.length];
+//            System.arraycopy(MONEY_AND_RESERCH_PLACES_NAMES, 0, places, 0, MONEY_AND_RESERCH_PLACES_NAMES.length);
+        }
+
+        // 全手探索
+        for (String p : MONEY_AND_RESERCH_PLACES_NAMES) {
+            // 全部の場所ループ
+            // 5-3の時
+            if (p.equals("5-3")) {
+                for (String t : Game.TREAND_ID_LIST) {
+                    // 全部のトレンドループ
+                    for (String w : GameResources.WORKER_NAMES) {
+                        // 全部のワーカーループ
+                        a = new Action(w, p, t);
+                        if (path.isEmpty()) {
+                            // pathが空＝表彰は取れない＝通常探索
+                            eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        } else {
+                            // pathが空じゃない＝表彰が取れる＝表彰用探索
+                            eva = this.prefetch(1, gameBoard, this.myNumber, a, path, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                        }
+                        if (eva != null) {
+                            this.addMessage(a + " -> " + eva);
+                        }
+                        // 評価良いの見つけたら
+                        if (eva != null && eva >= bestEva) {
+                            // 更新
+                            bestEva = eva;
+                            bestAction = a;
+                        }
+                    }
+                }
+            } else {
+                for (String w : GameResources.WORKER_NAMES) {
+                    // 全部のワーカーループ
+                    a = new Action(w, p);
+                    if (path.isEmpty()) {
+                        // pathが空＝表彰は取れない＝通常探索
+                        eva = this.prefetch(1, gameBoard, this.myNumber, a, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    } else {
+                        // pathが空じゃない＝表彰が取れる＝表彰用探索
+                        eva = this.prefetch(1, gameBoard, this.myNumber, a, path, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                    }
+                    if (eva != null) {
+                        this.addMessage(a + " -> " + eva);
+                    }
+                    // 評価良いの見つけたら
+                    if (eva != null && eva >= bestEva) {
+                        // 更新
+                        bestEva = eva;
+                        bestAction = a;
+                    }
+                }
+            }
+        }
+
+        this.addMessage("===========================");
+        this.addMessage("========== think end ==========");
+        this.addMessage("===========================");
+
+        this.addMessage("* Best Action is " + bestAction + " -> " + bestEva);
+
+        // 最適解を打つ
+        this.putWorker(bestAction);
+    }
+
+    /**
+     * 季節が変わった時に呼び出される
+     */
+    @Override
+    protected void seasonChanged() {
+        this.awardPath = new LinkedList<>();
+        // 夏冬の最初に表彰が取れるかどうかをチェック
+        if (this.gameBoard.getSeason().contains("b")) {
+            this.checkAwardable();
+        }
+        if (this.gameBoard.getSeason().equals("6b")) {
+            this.modeChange(FINAL_MODE);
+        }
+    }
+
+    /**
+     * プレイヤー番号が通知された時呼び出される
+     */
+    @Override
+    protected void playerNumDecided() {
+        if (this.myNumber == 0) {
+            this.modeChange(PLAYER0_MODE);
+        } else {
+            this.modeChange(PLAYER1_MODE);
         }
     }
 
