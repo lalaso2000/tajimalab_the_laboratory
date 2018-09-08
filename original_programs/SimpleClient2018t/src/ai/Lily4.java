@@ -34,7 +34,7 @@ public class Lily4 extends TajimaLabAI {
     public static final int PREFETCH_MAX_LEVEL = 8;     // 先読みの最高階数
 
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};
-    private static final String[] SCORE_PLACES_NAMES = {"3-1", "3-2", "3-3", "4-1", "4-2", "4-3"};
+    private static final String[] SCORE_PLACES_NAMES = {"3-1","3-2", "3-3", "4-1", "4-2", "4-3"};
 
     /**
      * コンストラクタ
@@ -44,7 +44,7 @@ public class Lily4 extends TajimaLabAI {
     public Lily4(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily 48";
+        this.myName = "Lily 48+";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(INIT_MODE);
 
@@ -493,6 +493,7 @@ public class Lily4 extends TajimaLabAI {
         String seasonStr = game.getSeason();
         // その季節はトレンド番号だと何番目か
         int seasonTrendID = this.convertSeasonToTrendInt(seasonStr);
+        
 
         // ゲームを複製
         Game cloneGame = game.clone();
@@ -540,16 +541,53 @@ public class Lily4 extends TajimaLabAI {
     private Double calcEvaluate(GameResources resource, int seasonTrendID, int trendInt) {
         // リソースに応じて評価値を計算
         Double evaluation = 0.0;
-        // 自分のお金×お金の評価値
-        evaluation += resource.getCurrentMoney() * this.moneyValue;
-        // 自分の研究ポイント×研究ポイントの評価値
-        evaluation += resource.getCurrentResrchPoint() * this.reserchPointValue;
+//        // 自分のお金×お金の評価値
+//        evaluation += resource.getCurrentMoney() * this.moneyValue;
+//        // 自分の研究ポイント×研究ポイントの評価値
+//        evaluation += resource.getCurrentResrchPoint() * this.reserchPointValue;
         // 現状までのトータルスコア
         evaluation += resource.getTotalScore() * this.scoreValue;
-        // 今がトレンドか
-        if (seasonTrendID == trendInt) {
-            evaluation += this.trendValue;
+
+        // 研究ポイントと得点がいい感じになっていたら加点
+        // お金取得、ただし学生の支払うコストを差し引いておく
+        int money = resource.getCurrentMoney() - resource.getTotalStudentsCount();
+        if(money < 0){
+            // え、学生のコストでお金なくなるの…
+            evaluation -= 100.0;
         }
+        // 研究ポイント取得
+        int reserchPoint = resource.getCurrentResrchPoint();
+
+        // 研究ポイント8点につきお金1円で加点
+        int res8 = reserchPoint / 8;
+        if (res8 < money) {
+            // 獲得できるスコア(毎回8点ではないので平均の6点)×スコアの評価値×0.8(ちょい低め)
+            evaluation += 7 * this.scoreValue * 0.8;
+            // 今の計算で使った分差し引き
+            reserchPoint -= res8 * 8;
+            money -= res8;
+        }
+        
+        // 研究ポイント4点につきお金1円で加点、ただし1回
+        int res4 = reserchPoint /4;
+        if(res4 == 1 && money != 0){
+            // 獲得できるスコア(4点)×スコアの評価値×0.8(ちょい低め)
+            evaluation += 4 * this.scoreValue * 0.8;
+            // 今の計算で使った分差し引き
+            reserchPoint -= 4;
+            money -= 1;
+        }
+        
+        // 研究ポイント2点で加点、これも1回
+        int res2 = reserchPoint / 2;
+        if(res2 == 1){
+            // 獲得できるスコア(4点)×スコアの評価値×0.8(ちょい低め)
+            evaluation += 2 * this.scoreValue * 0.8;
+            // 今の計算で使った分差し引き
+            reserchPoint -= 2;
+        }
+        
+
         // 負の点数は許されない
         if (resource.getTotalScore() < 0) {
             return -100.0;

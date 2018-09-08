@@ -39,8 +39,8 @@ public class SimpleClient {
         Game myGame = new Game();
         // TajimaAI myAI = new TajimaAI(myGame);
 //        Lily3 myAI = new Lily3(myGame);
-//        Lily4 myAI = new Lily4(myGame);
-        Lily5 myAI = new Lily5(myGame);
+        Lily4 myAI = new Lily4(myGame);
+//        Lily5 myAI = new Lily5(myGame);
         ClientGUI gui = new ClientGUI(myAI);
         
         gui.setVisible(true);
