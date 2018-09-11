@@ -553,7 +553,7 @@ public class Lily4 extends TajimaLabAI {
         int money = resource.getCurrentMoney() - resource.getTotalStudentsCount();
         if(money < 0){
             // え、学生のコストでお金なくなるの…
-            evaluation -= 100.0;
+            return -100.0;
         }
         // 研究ポイント取得
         int reserchPoint = resource.getCurrentResrchPoint();
@@ -562,7 +562,7 @@ public class Lily4 extends TajimaLabAI {
         int res8 = reserchPoint / 8;
         if (res8 < money) {
             // 獲得できるスコア(毎回8点ではないので平均の6点)×スコアの評価値×0.8(ちょい低め)
-            evaluation += 7 * this.scoreValue * 0.8;
+            evaluation += res8 * 7 * this.scoreValue * 0.8;
             // 今の計算で使った分差し引き
             reserchPoint -= res8 * 8;
             money -= res8;
@@ -581,7 +581,7 @@ public class Lily4 extends TajimaLabAI {
         // 研究ポイント2点で加点、これも1回
         int res2 = reserchPoint / 2;
         if(res2 == 1){
-            // 獲得できるスコア(4点)×スコアの評価値×0.8(ちょい低め)
+            // 獲得できるスコア(2点)×スコアの評価値×0.8(ちょい低め)
             evaluation += 2 * this.scoreValue * 0.8;
             // 今の計算で使った分差し引き
             reserchPoint -= 2;
