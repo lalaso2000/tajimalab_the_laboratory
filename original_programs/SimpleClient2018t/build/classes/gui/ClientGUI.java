@@ -24,6 +24,9 @@ import network.ServerConnecter;
  */
 public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
 
+    //ウィンドウタイトル
+    private static final String WINDOW_TITLE = "Simple Client 1.02-t002 b180419t002";
+    
     //サーバとの通信クラス
     private ServerConnecter connecter;
     //表示部分のドキュメントを管理するクラス
@@ -36,6 +39,7 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
 
     /**
      * コンストラクタ　文字の表示部分のみを初期化する
+     * @param ai 使用するAI
      */
     public ClientGUI(TajimaLabAI ai) {
         initComponents();
@@ -49,6 +53,7 @@ public class ClientGUI extends javax.swing.JFrame implements MessageRecevable {
         this.myAI = ai;
         this.jTextField2.setText(defaultIP);
         this.jTextField4.setText(defaultPort);
+        this.setTitle(WINDOW_TITLE + " (" + myAI.getMyName() + ")");
     }
 
     public ClientGUI() {
