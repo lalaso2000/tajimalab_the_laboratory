@@ -320,12 +320,6 @@ public class Lily4 extends TajimaLabAI {
             return null;
         }
 
-        // もし打った手でゲーム終了なら評価を返す
-        if (cloneGame.getGameState() == Game.STATE_GAME_END) {
-            Double eva = evaluateBoard(game, playerNum, action);
-            return eva;
-        }
-
         double extraEva = 0.0;
         // 季節の更新がある場合
         if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
@@ -347,13 +341,19 @@ public class Lily4 extends TajimaLabAI {
             cloneGame.changeNewSeason();
         }
 
+        // もし打った手でゲーム終了なら評価を返す
+        if (cloneGame.getGameState() == Game.STATE_GAME_END) {
+            Double eva = evaluateBoard(game, playerNum, action);
+            return eva;
+        }
+
         // 次のプレイヤーを調べる
         int nextPlayer = cloneGame.getCurrentPlayer();
         // 次の手を探索
         if (nextPlayer == this.myNumber) {
-            return this.prefetchMax(level, cloneGame, action, alpha, beta);
+            return this.prefetchMax(level, cloneGame, action, alpha, beta) + extraEva;
         } else {
-            return this.prefetchMin(level, cloneGame, action, alpha, beta);
+            return this.prefetchMin(level, cloneGame, action, alpha, beta) + extraEva;
         }
 
     }
