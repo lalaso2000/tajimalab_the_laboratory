@@ -256,9 +256,6 @@ public class Lily4 extends TajimaLabAI {
     private Game clonePlay(Game game, int playerNum, Action action, boolean seasonChangeable) {
         Game cloneGame = game.clone();
 
-        /**
-         * この辺テンプレ
-         */
         // 配置可能かチェック(出来ないならnullを返却)
         if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
             return null;
@@ -318,7 +315,7 @@ public class Lily4 extends TajimaLabAI {
         }
 
         // 仮想でゲームを進める（打てないならnull返して終了）
-        Game cloneGame = clonePlay(game, playerNum, action);
+        Game cloneGame = clonePlay(game, playerNum, action, false);
         if (cloneGame == null) {
             return null;
         }
@@ -327,6 +324,27 @@ public class Lily4 extends TajimaLabAI {
         if (cloneGame.getGameState() == Game.STATE_GAME_END) {
             Double eva = evaluateBoard(game, playerNum, action);
             return eva;
+        }
+
+        double extraEva = 0.0;
+        // 季節の更新がある場合
+        if (cloneGame.getGameState() == Game.STATE_SEASON_END) {
+            // 夏冬の終わりなら、表彰が取れているかチェック
+            String season = cloneGame.getSeason();
+            if (season.contains("b")) {
+                // 表彰のスコアを見る
+                String seasonTrendStr = this.convertSeasonToTrendStr(season);
+                int myScore = cloneGame.getScoreOf(seasonTrendStr, this.myNumber);
+                int enemyScore = cloneGame.getScoreOf(seasonTrendStr, this.enemyNumber);
+                // 表彰が取れているなら評価値にボーナス
+                if (myScore >= enemyScore) {
+                    extraEva = 100.0;
+                } else {
+                    extraEva = -100.0;
+                }
+            }
+            // 季節を更新
+            cloneGame.changeNewSeason();
         }
 
         // 次のプレイヤーを調べる
