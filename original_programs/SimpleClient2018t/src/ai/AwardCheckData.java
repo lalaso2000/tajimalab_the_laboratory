@@ -10,16 +10,14 @@ import gameElements.GameResources;
 import java.util.ArrayList;
 
 /**
- * AwardCheckData（通称acd）
- * 夏冬のターン開始時に表彰が取れるかどうかを判定するのに使用する
- * 「自分の手の一覧＝パス」「表彰が取れるかの真偽」「使用するワーカーの数」「使用する研究ポイントの数」「獲得できるスコア」
- * を保持している
+ * AwardCheckData（通称acd） 夏冬のターン開始時に表彰が取れるかどうかを判定するのに使用する 「自分の手の一覧＝パス」「表彰が取れるかの真偽」「使用するワーカーの数」「使用する研究ポイントの数」「獲得できるスコア」 を保持している
+ *
  * @author niwatakumi
  */
 public class AwardCheckData implements Comparable<AwardCheckData> {
 
     private ArrayList<Action> path; // パス
-    private boolean awardable;      // 表彰が取れるかの真偽
+    private int awardable;      // 表彰が取れるかの真偽
     private int workers;            // 使用するワーカーの数
     private int reserchPoint;       // 使用する研究ポイント
     private int score;              // 獲得できるスコア
@@ -29,7 +27,7 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
      */
     public AwardCheckData() {
         path = new ArrayList<>();
-        awardable = true;           // 表彰が取れるかの真偽は「真」で初期化（少しでも表彰が取れない可能性があるときのみ偽になる）
+        awardable = 1;           // 1 = 勝ち, 0 = 引き分け, -1 = 負け
         workers = 0;
         reserchPoint = 0;
         score = 0;
@@ -47,220 +45,90 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
         reserchPoint = a.reserchPoint;
         score = a.score;
     }
-    
+
     /**
      * 最初のアクションを指定した状態でacdを初期化する
-     * @param action 
+     *
+     * @param action
      */
-    public AwardCheckData(Action action){
+    public AwardCheckData(Action action) {
         path = new ArrayList<>();
-        awardable = true;
+        awardable = 1;
         workers = 0;
         reserchPoint = 0;
         score = 0;
-        
+
         // パスを追加
         path.add(action);
-        
+
         // コマ数を追加
-        if(!action.place.equals("1-1")){
-            workers+=1;
+        if (!action.place.equals("1-1")) {
+            workers += 1;
         }
-        
+
         // リサーチポイント、スコア追加
-        switch (action.place){
+        switch (action.place) {
             case "3-1":
                 reserchPoint += 2;
-                switch (action.worker){
-                    case "P":
-                        score += 1;
-                        break;
-                    case "A":
-                        score += 1;
-                        break;
-                    case "S":
-                        score += 2;
-                        break;
-                }
                 break;
             case "3-2":
                 reserchPoint += 4;
-                switch (action.worker){
-                    case "P":
-                        score += 3;
-                        break;
-                    case "A":
-                        score += 4;
-                        break;
-                    case "S":
-                        score += 4;
-                        break;
-                }
                 break;
             case "3-3":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 7;
-                        break;
-                    case "A":
-                        score += 6;
-                        break;
-                    case "S":
-                        score += 5;
-                        break;
-                }
                 break;
             case "4-1":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 8;
-                        break;
-                    case "A":
-                        score += 7;
-                        break;
-                    case "S":
-                        score += 6;
-                        break;
-                }
                 break;
             case "4-2":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 7;
-                        break;
-                    case "A":
-                        score += 6;
-                        break;
-                    case "S":
-                        score += 5;
-                        break;
-                }
                 break;
             case "4-3":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 6;
-                        break;
-                    case "A":
-                        score += 5;
-                        break;
-                    case "S":
-                        score += 4;
-                        break;
-                }
                 break;
         }
     }
-    
+
     /**
      * 既存のacdのパスに新たにアクションを追加したものを作成
+     *
      * @param acd
-     * @param action 
+     * @param action
      */
-    public AwardCheckData(AwardCheckData acd, Action action){
+    public AwardCheckData(AwardCheckData acd, Action action) {
         path = (ArrayList<Action>) acd.path.clone();
         awardable = acd.awardable;
         workers = acd.workers;
         reserchPoint = acd.reserchPoint;
         score = acd.score;
-        
+
         // パスを追加
         path.add(action);
-        
+
         // コマ数を追加
-        if(!action.place.equals("1-1")){
-            workers+=1;
+        if (!action.place.equals("1-1")) {
+            workers += 1;
         }
-        
+
         // リサーチポイント、スコア追加
-        switch (action.place){
+        switch (action.place) {
             case "3-1":
                 reserchPoint += 2;
-                switch (action.worker){
-                    case "P":
-                        score += 1;
-                        break;
-                    case "A":
-                        score += 1;
-                        break;
-                    case "S":
-                        score += 2;
-                        break;
-                }
                 break;
             case "3-2":
                 reserchPoint += 4;
-                switch (action.worker){
-                    case "P":
-                        score += 3;
-                        break;
-                    case "A":
-                        score += 4;
-                        break;
-                    case "S":
-                        score += 4;
-                        break;
-                }
                 break;
             case "3-3":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 7;
-                        break;
-                    case "A":
-                        score += 6;
-                        break;
-                    case "S":
-                        score += 5;
-                        break;
-                }
                 break;
             case "4-1":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 8;
-                        break;
-                    case "A":
-                        score += 7;
-                        break;
-                    case "S":
-                        score += 6;
-                        break;
-                }
                 break;
             case "4-2":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 7;
-                        break;
-                    case "A":
-                        score += 6;
-                        break;
-                    case "S":
-                        score += 5;
-                        break;
-                }
                 break;
             case "4-3":
                 reserchPoint += 8;
-                switch (action.worker){
-                    case "P":
-                        score += 6;
-                        break;
-                    case "A":
-                        score += 5;
-                        break;
-                    case "S":
-                        score += 4;
-                        break;
-                }
                 break;
         }
     }
@@ -268,9 +136,9 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
     @Override
     public int compareTo(AwardCheckData o) {
         // 表彰が取れるやつが優先
-        if (this.awardable == true && o.awardable == false) {
+        if (this.awardable > o.awardable) {
             return 4;
-        } else if (this.awardable == false && o.awardable == true) {
+        } else if (this.awardable < o.awardable) {
             return -4;
         }
 
@@ -298,12 +166,12 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
         // それでも同じなら評価は同じ
         return 0;
     }
-    
+
     public void addPath(Action a) {
         this.path.add(a);
     }
 
-    public void setAwardable(boolean b) {
+    public void setAwardable(int b) {
         this.awardable = b;
     }
 
@@ -318,8 +186,12 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
     public void addScore(int score) {
         this.score += score;
     }
-    
-    public Action getAction(int index){
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public Action getAction(int index) {
         return this.path.get(index);
     }
 
@@ -330,39 +202,36 @@ public class AwardCheckData implements Comparable<AwardCheckData> {
             str += this.path.get(i).worker;
             str += ":";
             str += this.path.get(i).place;
-            if(i != this.path.size() -1){
+            if (i != this.path.size() - 1) {
                 str += " -> ";
             }
         }
         str += "}, ";
-        
+
         str += "awardable = ";
         str += this.awardable;
         str += ", ";
-        
+
         str += "workers = ";
         str += this.workers;
         str += ", ";
-        
+
         str += "reserchPoint = ";
         str += this.reserchPoint;
         str += ", ";
-        
+
         str += "score = ";
         str += this.score;
-        
+
         return str;
     }
 
     public boolean isAwardable() {
-        return awardable;
+        return this.awardable >= 0;
     }
 
     ArrayList<Action> getPath() {
         return (ArrayList<Action>) path.clone();
     }
-    
-    
-    
 
 }
