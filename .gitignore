@@ -7,6 +7,6 @@
 !/original_programs/kano's_AI/*.pyc
 !/original_programs/kano's_AI/*.md
 *.xml
-original_programs/SimpleClient2018t/nbproject/private/private.xml
+original_programs/SimpleClient2018t/nbproject/private/
 /original_programs/SimpleClient2018t/dist/
 /original_programs/executable_jar/logs/
