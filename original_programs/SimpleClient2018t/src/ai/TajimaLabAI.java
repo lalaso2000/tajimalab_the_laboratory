@@ -220,6 +220,9 @@ public abstract class TajimaLabAI extends LaboAI {
                 putWorker(worker, "4-2");
             }
             else if(place.equals("4-2")) {
+                putWorker(worker, "3-3");
+            }
+            else if(place.equals("3-3")) {
                 putWorker(worker, "4-3");
             }
             else{
