@@ -66,7 +66,8 @@ public class Lily5plus extends TajimaLabAI {
     private static final int PREFETCH_MAX_LEVEL = 8;    // 先読みの最高階数
 
     private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};   // お金と研究ポイントの場所
-    private static final String[] FINAL_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3", "3-1", "3-2", "4-1"};  // スコアの場所
+    private static final String[] FINAL_1_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3", "3-1", "3-2", "4-1"};  // 最終局面（夏〜秋）に使う場所
+    private static final String[] FINAL_2_PLACES_NAMES = {"1-1", "3-1", "3-2", "4-1"};  // 最終局面（冬）に使う場所
     private static final ArrayList<String> AWARD_CHECK_PLACES_NAMES = new ArrayList<>(Arrays.asList("1-1", "3-1", "3-2", "4-1"));   // 表彰獲得可能かチェックするときに使う場所
 
     private ArrayList<AwardCheckData> awardCheckDatas;  // 夏冬用、acdの一覧
@@ -172,8 +173,9 @@ public class Lily5plus extends TajimaLabAI {
     private String[] setPlacesList() {
         switch (this.mode) {
             case FINAL_MODE_1:
+                return FINAL_1_PLACES_NAMES;
             case FINAL_MODE_2:
-                return FINAL_PLACES_NAMES;
+                return FINAL_2_PLACES_NAMES;
             default:
                 return MONEY_AND_RESERCH_PLACES_NAMES;
         }
