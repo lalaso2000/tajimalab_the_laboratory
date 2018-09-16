@@ -806,7 +806,8 @@ public class Lily5plus extends TajimaLabAI {
             // 最適解が表彰獲得不可ならリストを空にしておく
             this.awardPath = new ArrayList<>();
             // あと通常探索モードに切り替え
-            this.modeChange(NORMAL_MODE);
+            // は削除(諦めちゃだめな盤面があるかもしれない)
+//            this.modeChange(NORMAL_MODE);
         }
 
         this.addMessage("BestPath : " + awardCheckDatas.get(0).toString());
