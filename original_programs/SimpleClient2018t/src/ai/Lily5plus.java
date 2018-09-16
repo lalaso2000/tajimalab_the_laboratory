@@ -802,12 +802,13 @@ public class Lily5plus extends TajimaLabAI {
         // もし最適解が表彰獲得可能ならawardPathをセット
         if (this.awardCheckDatas.get(0).isAwardable()) {
             this.awardPath = this.awardCheckDatas.get(0).getPath();
+            // あと表彰モードに切り替え
+            this.modeChange(AWARD_MODE);
         } else {
             // 最適解が表彰獲得不可ならリストを空にしておく
             this.awardPath = new ArrayList<>();
             // あと通常探索モードに切り替え
-            // は削除(諦めちゃだめな盤面があるかもしれない)
-//            this.modeChange(NORMAL_MODE);
+            this.modeChange(NORMAL_MODE);
         }
 
         this.addMessage("BestPath : " + awardCheckDatas.get(0).toString());
@@ -1183,7 +1184,7 @@ public class Lily5plus extends TajimaLabAI {
     protected void think() {
 
         // 夏冬なら表彰チェック
-        if (this.mode == AWARD_MODE) {
+        if (this.mode == NORMAL_MODE && this.gameBoard.getSeason().contains("b")) {
             this.checkAwardable();
         }
 
@@ -1230,6 +1231,10 @@ public class Lily5plus extends TajimaLabAI {
 
                 // 最適解を打つ
                 this.putWorker(bestAction);
+                
+                // 通常モードに戻す
+                this.modeChange(NORMAL_MODE);
+                
                 return;
             }
 
@@ -1309,8 +1314,6 @@ public class Lily5plus extends TajimaLabAI {
             this.modeChange(FINAL_MODE_1);
         } else if (season.equals("6b")) {
             this.modeChange(FINAL_MODE_2);
-        } else if (season.contains("b")) {
-            this.modeChange(AWARD_MODE);
         } else {
             this.modeChange(NORMAL_MODE);
         }
