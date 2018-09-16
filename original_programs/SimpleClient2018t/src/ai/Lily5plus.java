@@ -80,7 +80,7 @@ public class Lily5plus extends TajimaLabAI {
     public Lily5plus(Game game) {
         super(game);
         this.myName = "Lily5+";
-        this.modeChange(NORMAL_MODE);
+        this.mode = NORMAL_MODE;
     }
 
     /**
@@ -92,17 +92,25 @@ public class Lily5plus extends TajimaLabAI {
         this.mode = mode;
         switch (mode) {
             case NORMAL_MODE:
+                this.addMessage("mode : NORMAL");
+                this.scoreValue = 5.0;
+                this.startPlayerValue = 0.0;
+                this.resourceValue = 2.5;       // 通常はスコアにしないと評価値は半分
+                break;
             case AWARD_MODE:
+                this.addMessage("mode : AWARD");
                 this.scoreValue = 5.0;
                 this.startPlayerValue = 0.0;
                 this.resourceValue = 2.5;       // 通常はスコアにしないと評価値は半分
                 break;
             case FINAL_MODE_1:
+                this.addMessage("mode : FINAL_1");
                 this.scoreValue = 1.0;
                 this.startPlayerValue = 0.0;
                 this.resourceValue = 1.0;       // 最終局面では、スコアに換算する前でもスコアと同じ値
                 break;
             case FINAL_MODE_2:
+                this.addMessage("mode : FINAL_2");
                 this.scoreValue = 1.0;
                 this.startPlayerValue = 0.0;
                 this.resourceValue = 0.0;
@@ -475,6 +483,10 @@ public class Lily5plus extends TajimaLabAI {
                 }
             }
         }
+        // 何置いても置けない場合、bestEvaがNEGATIVE_INFINITYになる
+        if(bestEva == Double.NEGATIVE_INFINITY){
+            bestEva = null;
+        }
         return bestEva;
     }
 
@@ -539,6 +551,10 @@ public class Lily5plus extends TajimaLabAI {
                 }
             }
         }
+        // 何置いても置けない場合、bestEvaがPOSITIVE_INFINITYになる
+        if(bestEva == Double.POSITIVE_INFINITY){
+            bestEva = null;
+        }
         return bestEva;
     }
 
@@ -552,11 +568,6 @@ public class Lily5plus extends TajimaLabAI {
      */
     protected Double evaluateBoard(Game game, int playerNum, Action action) {
         Double evaluation = 0.0;
-
-        // 配置可能かチェック(出来ないならnullを返却)
-        if (game.canPutWorker(playerNum, action.place, action.worker) == false) {
-            return null;
-        }
 
         // ゲームを複製
         Game cloneGame = game.clone();
@@ -676,6 +687,9 @@ public class Lily5plus extends TajimaLabAI {
         // 研究ポイント取得
         int reserchPoint = resource.getCurrentResrchPoint();
 
+        // 加点回数カウント
+        int workerNum = resource.getNumberofUseableWorkers("P") + resource.getNumberofUseableWorkers("A") + resource.getNumberofUseableWorkers("S");
+
         // 研究ポイント8点につきお金1円
         int res8 = 0;
         while (reserchPoint / 8 > 0 && money > 0) {
@@ -685,39 +699,53 @@ public class Lily5plus extends TajimaLabAI {
             reserchPoint -= 8;
             money -= 1;
         }
-        if (res8 == 1) {
+        if (workerNum >= 2 && res8 >= 2) {
+            // 論文2回
+            workerNum -= 2;
+            if (isStartPlayer) {
+                evaluation += 14 * this.resourceValue;
+            } else {
+                evaluation += 11 * this.resourceValue;
+            }
+        } else if (workerNum == 1 && res8 >= 1) {
             // 論文1回
+            workerNum -= 1;
             if (isStartPlayer) {
                 evaluation += 8 * this.resourceValue;
             } else {
                 evaluation += 7 * this.resourceValue;
             }
-        } else if (res8 >= 2) {
-            // 論文2回
+        } else if (workerNum >= 2 && res8 == 1) {
+            // 論文1回
+            workerNum -= 1;
             if (isStartPlayer) {
-                evaluation += 14 * this.resourceValue;
+                evaluation += 8 * this.resourceValue;
             } else {
-                evaluation += 11 * this.resourceValue;
+                evaluation += 7 * this.resourceValue;
             }
         }
 
         // 研究ポイント4点につきお金1円で加点、ただし1回
         int res4 = reserchPoint / 4;
         if (res8 >= 1 && res4 == 1 && money > 0) {
-            // 獲得できるスコア(4点)×リソースの評価値
-            evaluation += 4 * this.resourceValue;
-            // 今の計算で使った分差し引き
-            reserchPoint -= 4;
-            money -= 1;
+            if (workerNum >= 1) {
+                // 獲得できるスコア(4点)×リソースの評価値
+                evaluation += 4 * this.resourceValue;
+                // 今の計算で使った分差し引き
+                reserchPoint -= 4;
+                money -= 1;
+            }
         }
 
         // 研究ポイント2点で加点、これも1回
         int res2 = reserchPoint / 2;
         if (res8 >= 1 && res2 == 1) {
-            // 獲得できるスコア(2点)×リソースの評価値
-            evaluation += 2 * this.resourceValue;
-            // 今の計算で使った分差し引き
-            reserchPoint -= 2;
+            if (workerNum >= 1) {
+                // 獲得できるスコア(2点)×リソースの評価値
+                evaluation += 2 * this.resourceValue;
+                // 今の計算で使った分差し引き
+                reserchPoint -= 2;
+            }
         }
 
         // 負の点数は許されない
@@ -1174,7 +1202,21 @@ public class Lily5plus extends TajimaLabAI {
             a = this.awardPath.get(0);
             // aが1-1→探索, それ以外→打つ
             if (!a.place.equals("1-1")) {
-                bestAction = a;
+                // P4-1よりS4-1が先に打たれるのを回避する
+                if (a.place.equals("4-1") && a.worker.equals("S")) {
+                    int index = 1;
+                    while (index < this.awardPath.size()) {
+                        Action nextAction = this.awardPath.get(index);
+                        if (nextAction.place.equals("4-1") && nextAction.worker.equals("P")) {
+                            bestAction = nextAction;
+                            this.awardPath.set(index, a);
+                            break;
+                        }
+                        index += 1;
+                    }
+                } else {
+                    bestAction = a;
+                }
                 bestEva = Double.POSITIVE_INFINITY;
 
                 this.addMessage("===========================");
