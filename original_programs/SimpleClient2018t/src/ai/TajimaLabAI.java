@@ -216,17 +216,25 @@ public abstract class TajimaLabAI extends LaboAI {
             this.sendMessage("205 PLAY " + this.myNumber + " " + worker + " " + place);
             this.gameBoard.play(this.myNumber, place, worker);
         } else {
-            if(place.equals("4-1")) {
-                putWorker(worker, "4-2");
-            }
-            else if(place.equals("4-2")) {
-                putWorker(worker, "3-3");
-            }
-            else if(place.equals("3-3")) {
-                putWorker(worker, "4-3");
-            }
-            else{
-                System.err.println("Put Error!!");
+            switch (place) {
+                case "2-1":
+                    putWorker(worker, "2-2");
+                    break;
+                case "2-2":
+                    putWorker(worker, "2-3");
+                    break;
+                case "4-1":
+                    putWorker(worker, "4-2");
+                    break;
+                case "4-2":
+                    putWorker(worker, "3-3");
+                    break;
+                case "3-3":
+                    putWorker(worker, "4-3");
+                    break;
+                default:
+                    System.err.println("Put Error!!");
+                    break;
             }
         }
     }
