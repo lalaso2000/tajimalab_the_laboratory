@@ -65,8 +65,8 @@ public class Lily5plus extends TajimaLabAI {
 
     private static final int PREFETCH_MAX_LEVEL = 8;    // 先読みの最高階数
 
-    private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "5-1", "5-2", "5-3"};   // お金と研究ポイントの場所
-    private static final String[] FINAL_1_PLACES_NAMES = {"1-1", "2-1", "5-1", "5-2", "5-3", "3-1", "3-2", "4-1"};  // 最終局面（夏〜秋）に使う場所
+    private static final String[] MONEY_AND_RESERCH_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3"};   // お金と研究ポイントの場所
+    private static final String[] FINAL_1_PLACES_NAMES = {"1-1", "2-1", "2-2", "2-3", "5-1", "5-2", "5-3", "3-1", "3-2", "4-1"};  // 最終局面（夏〜秋）に使う場所
     private static final String[] FINAL_2_PLACES_NAMES = {"1-1", "3-1", "3-2", "4-1"};  // 最終局面（冬）に使う場所
     private static final ArrayList<String> AWARD_CHECK_PLACES_NAMES = new ArrayList<>(Arrays.asList("1-1", "3-1", "3-2", "4-1"));   // 表彰獲得可能かチェックするときに使う場所
 
@@ -135,14 +135,6 @@ public class Lily5plus extends TajimaLabAI {
         // ただし論文の場合、次の場所に置いてみる
         if (cloneGame.canPutWorker(playerNum, action.place, action.worker) == false) {
             switch (action.place) {
-                case "2-1": {
-                    Action a = new Action(action.worker, "2-2");
-                    return clonePlay(game, playerNum, a, seasonChangeable);
-                }
-                case "2-2":{
-                    Action a = new Action(action.worker, "2-3");
-                    return clonePlay(game, playerNum, a, seasonChangeable);
-                }
                 case "4-1": {
                     Action a = new Action(action.worker, "4-2");
                     return clonePlay(game, playerNum, a, seasonChangeable);
