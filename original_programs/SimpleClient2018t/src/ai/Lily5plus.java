@@ -486,7 +486,7 @@ public class Lily5plus extends TajimaLabAI {
             }
         }
         // 何置いても置けない場合、bestEvaがNEGATIVE_INFINITYになる
-        if(bestEva == Double.NEGATIVE_INFINITY){
+        if (bestEva == Double.NEGATIVE_INFINITY) {
             bestEva = null;
         }
         return bestEva;
@@ -554,7 +554,7 @@ public class Lily5plus extends TajimaLabAI {
             }
         }
         // 何置いても置けない場合、bestEvaがPOSITIVE_INFINITYになる
-        if(bestEva == Double.POSITIVE_INFINITY){
+        if (bestEva == Double.POSITIVE_INFINITY) {
             bestEva = null;
         }
         return bestEva;
@@ -1218,6 +1218,9 @@ public class Lily5plus extends TajimaLabAI {
                         }
                         index += 1;
                     }
+                    if (bestAction == null) {
+                        bestAction = a;
+                    }
                 } else {
                     bestAction = a;
                 }
@@ -1231,10 +1234,10 @@ public class Lily5plus extends TajimaLabAI {
 
                 // 最適解を打つ
                 this.putWorker(bestAction);
-                
+
                 // 通常モードに戻す
                 this.modeChange(NORMAL_MODE);
-                
+
                 return;
             }
 
