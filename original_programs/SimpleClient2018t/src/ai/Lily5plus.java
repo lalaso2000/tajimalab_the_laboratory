@@ -1178,6 +1178,23 @@ public class Lily5plus extends TajimaLabAI {
     }
 
     /**
+     * 評価値が同じ時の例外を確認する
+     *
+     * @param action 新しく見つけたアクション
+     * @param eva その評価値
+     * @param bestAction もともとのベストアクション
+     * @param bestEva もともとの最高評価値
+     * @return bestActionを更新する場合はtrue,そうでない場合はfalse
+     */
+    private boolean checkExperiment(Action action, Double eva, Action bestAction, Double bestEva) {
+        // P 1-1とS 2-Xの評価値が同じならP 1-1を先に打つ
+        if (action.worker.equals("P") && action.place.equals("1-1") && bestAction.worker.equals("S") && bestAction.place.contains("2-") && eva == bestEva) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 考えるフェーズ 手を打つところまで実装
      */
     @Override
@@ -1266,9 +1283,12 @@ public class Lily5plus extends TajimaLabAI {
                         }
                         // 評価良いの見つけたら
                         if (eva != null && eva >= bestEva) {
-                            // 更新
-                            bestEva = eva;
-                            bestAction = a;
+                            // 例外をチェックし
+                            if (this.checkExperiment(a, eva, bestAction, bestEva)) {
+                                // 更新
+                                bestEva = eva;
+                                bestAction = a;
+                            }
                         }
                     }
                 }
@@ -1286,9 +1306,12 @@ public class Lily5plus extends TajimaLabAI {
                     }
                     // 評価良いの見つけたら
                     if (eva != null && eva >= bestEva) {
-                        // 更新
-                        bestEva = eva;
-                        bestAction = a;
+                        // 例外をチェックし
+                        if (this.checkExperiment(a, eva, bestAction, bestEva)) {
+                            // 更新
+                            bestEva = eva;
+                            bestAction = a;
+                        }
                     }
                 }
             }
