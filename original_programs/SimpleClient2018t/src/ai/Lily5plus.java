@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Lily5の強化版<br>
@@ -1281,6 +1282,38 @@ public class Lily5plus extends TajimaLabAI {
     }
 
     /**
+     * 評価値が同じ時の例外を確認する
+     *
+     * @param action 新しく見つけたアクション
+     * @param eva その評価値
+     * @param bestAction もともとのベストアクション
+     * @param bestEva もともとの最高評価値
+     * @return bestActionを更新する場合はtrue,そうでない場合はfalse
+     */
+    private boolean checkExperiment(Action action, Double eva, Action bestAction, Double bestEva) {
+        // ベストアクションが無い時は更新確定
+        if (bestAction == null) {
+            return true;
+        }
+        // 評価値が同じ時
+        if (Objects.equals(eva, bestEva)) {
+            // P 1-1とS 1-1の評価値が同じならP 1-1を先に打つ
+            if (action.worker.equals("S") && action.place.equals("1-1")) {
+                if (bestAction.worker.equals("P") && bestAction.place.equals("1-1")) {
+                    return false;
+                }
+            }
+            // P 1-1とS 2-Xの評価値が同じならP 1-1を先に打つ
+            if (action.worker.equals("S") && action.place.contains("2-")) {
+                if (bestAction.worker.equals("P") && bestAction.place.equals("1-1")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * 考えるフェーズ 手を打つところまで実装
      */
     @Override
@@ -1369,9 +1402,12 @@ public class Lily5plus extends TajimaLabAI {
                         }
                         // 評価良いの見つけたら
                         if (eva != null && eva >= bestEva) {
-                            // 更新
-                            bestEva = eva;
-                            bestAction = a;
+                            // 例外をチェックし
+                            if (this.checkExperiment(a, eva, bestAction, bestEva)) {
+                                // 更新
+                                bestEva = eva;
+                                bestAction = a;
+                            }
                         }
                     }
                 }
@@ -1389,9 +1425,12 @@ public class Lily5plus extends TajimaLabAI {
                     }
                     // 評価良いの見つけたら
                     if (eva != null && eva >= bestEva) {
-                        // 更新
-                        bestEva = eva;
-                        bestAction = a;
+                        // 例外をチェックし
+                        if (this.checkExperiment(a, eva, bestAction, bestEva)) {
+                            // 更新
+                            bestEva = eva;
+                            bestAction = a;
+                        }
                     }
                 }
             }
