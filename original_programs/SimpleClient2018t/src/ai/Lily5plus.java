@@ -72,7 +72,7 @@ public class Lily5plus extends TajimaLabAI {
 
     private ArrayList<AwardCheckData> awardCheckDatas;  // 夏冬用、acdの一覧
     private ArrayList<Action> awardPath = new ArrayList<>();    // 表彰獲得可能時の最適解
-
+    
     /**
      * コンストラクタ
      *
@@ -80,7 +80,7 @@ public class Lily5plus extends TajimaLabAI {
      */
     public Lily5plus(Game game) {
         super(game);
-        this.myName = "Lily5+";
+        this.myName = "Lily5+(test)";
         this.mode = NORMAL_MODE;
     }
 
@@ -180,6 +180,23 @@ public class Lily5plus extends TajimaLabAI {
                 return MONEY_AND_RESERCH_PLACES_NAMES;
         }
     }
+    
+    private String[] setWorkerList(Game game) {
+        if(this.mode == NORMAL_MODE){
+            if(game.getSeason().contains("a")){
+                GameResources myResources = game.getResourcesOf(this.myNumber);
+                if(myResources.hasWorkerOf("P")){
+                    String[] workers = {"P"};
+                    return workers;
+                }
+                else{
+                    String[] workers = {"A", "S"};
+                    return workers;
+                }
+            }
+        }
+        return GameResources.WORKER_NAMES;
+    }
 
     /**
      * 先読み関数
@@ -250,6 +267,8 @@ public class Lily5plus extends TajimaLabAI {
 
         // 探索場所の設定
         String places[] = this.setPlacesList();
+        // 探索ワーカーの設定
+        String workers[] = this.setWorkerList(game);
 
         // 全手探索
         for (String p : places) {
@@ -258,7 +277,7 @@ public class Lily5plus extends TajimaLabAI {
             if (p.equals("5-3")) {
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
+                    for (String w : workers) {
                         // 全部のワーカーループ
                         Action a = new Action(w, p, t);
                         eva = this.prefetch(level + 1, game, this.myNumber, a, alpha, beta);
@@ -276,7 +295,7 @@ public class Lily5plus extends TajimaLabAI {
                     }
                 }
             } else {
-                for (String w : GameResources.WORKER_NAMES) {
+                for (String w : workers) {
                     // 全部のワーカーループ
                     Action a = new Action(w, p);
                     eva = this.prefetch(level + 1, game, this.myNumber, a, alpha, beta);
@@ -441,6 +460,8 @@ public class Lily5plus extends TajimaLabAI {
 
         // 探索場所の設定
         String places[] = this.setPlacesList();
+        // 探索ワーカーの設定
+        String workers[] = this.setWorkerList(game);
 
         // 全手探索
         for (String p : places) {
@@ -449,7 +470,7 @@ public class Lily5plus extends TajimaLabAI {
             if (p.equals("5-3")) {
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
+                    for (String w : workers) {
                         // 全部のワーカーループ
                         Action a = new Action(w, p, t);
                         eva = this.prefetch(level + 1, game, this.myNumber, a, pathIndex + 1, alpha, beta);
@@ -467,7 +488,7 @@ public class Lily5plus extends TajimaLabAI {
                     }
                 }
             } else {
-                for (String w : GameResources.WORKER_NAMES) {
+                for (String w : workers) {
                     // 全部のワーカーループ
                     Action a = new Action(w, p);
                     eva = this.prefetch(level + 1, game, this.myNumber, a, pathIndex + 1, alpha, beta);
@@ -1182,7 +1203,7 @@ public class Lily5plus extends TajimaLabAI {
      */
     @Override
     protected void think() {
-
+        
         // 夏冬なら表彰チェック
         if (this.mode == NORMAL_MODE && this.gameBoard.getSeason().contains("b")) {
             this.checkAwardable();
@@ -1245,6 +1266,8 @@ public class Lily5plus extends TajimaLabAI {
 
         // 探索場所の設定
         String places[] = this.setPlacesList();
+        // 探索ワーカーの設定
+        String workers[] = this.setWorkerList(this.gameBoard);
 
         // 全手探索
         for (String p : places) {
@@ -1253,7 +1276,7 @@ public class Lily5plus extends TajimaLabAI {
             if (p.equals("5-3")) {
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
-                    for (String w : GameResources.WORKER_NAMES) {
+                    for (String w : workers) {
                         // 全部のワーカーループ
                         a = new Action(w, p, t);
                         if (this.mode == AWARD_MODE) {
@@ -1273,7 +1296,7 @@ public class Lily5plus extends TajimaLabAI {
                     }
                 }
             } else {
-                for (String w : GameResources.WORKER_NAMES) {
+                for (String w : workers) {
                     // 全部のワーカーループ
                     a = new Action(w, p);
                     if (this.mode == AWARD_MODE) {
