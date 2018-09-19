@@ -580,8 +580,7 @@ public class Lily5plus extends TajimaLabAI {
         // 評価値の計算
         if (this.mode == FINAL_MODE_1 || this.mode == FINAL_MODE_2) {
             boolean isStartPlayer = cloneGame.getStartPlayer() == this.myNumber;
-            evaluation += calcEvaluateForFinal(resources[this.myNumber], isStartPlayer);
-            evaluation -= calcEvaluateForFinal(resources[this.enemyNumber], !isStartPlayer);
+            evaluation += calcEvaluateForFinal(resources, isStartPlayer);
         } else {
             evaluation += calcEvaluate(resources[this.myNumber]);
             evaluation -= calcEvaluate(resources[this.enemyNumber]);
@@ -663,92 +662,196 @@ public class Lily5plus extends TajimaLabAI {
         return evaluation;
     }
 
-    private Double calcEvaluateForFinal(GameResources resource, boolean isStartPlayer) {
+    private Double calcEvaluateForFinal(GameResources[] resources, boolean isStartPlayer) {
         // リソースに応じて評価値を計算
         Double evaluation = 0.0;
 
-        // 現状までのトータルスコア
-        evaluation += resource.getTotalScore() * this.scoreValue;
+        // 自分のリソース
+        GameResources myResource = resources[this.myNumber];
+        // 相手のリソース
+        GameResources enemyResource = resources[this.enemyNumber];
 
-        // 研究ポイントと得点がいい感じになっていたら加点
-        // お金取得、ただし学生の支払うコストを差し引いておく
-        int money = resource.getCurrentMoney() - resource.getTotalStudentsCount();
-        if (money < 0) {
-            // え、学生のコストでお金なくなるの…
-            return -1000.0;
-        }
+        // スコア差分
+        evaluation = (myResource.getTotalScore() - enemyResource.getTotalScore()) * this.scoreValue;
+
+        // 最終局面で何点取れるかを確認
+        // お金取得
+        int myMoney = myResource.getCurrentMoney();
+        int enemyMoney = enemyResource.getCurrentMoney();
+
+        // 最終季節で最低何点取れるかを確認
         // 研究ポイント取得
-        int reserchPoint = resource.getCurrentResrchPoint();
+        int myReserchPoint = myResource.getCurrentResrchPoint();
+        int enemyReserchPoint = enemyResource.getCurrentResrchPoint();
 
-        // 加点回数カウント
-        int workerNum = resource.getNumberofUseableWorkers("P") + resource.getNumberofUseableWorkers("A") + resource.getNumberofUseableWorkers("S");
+        // 人数カウント
+        int myWorkerNum = myResource.getNumberofUseableWorkers("P") + myResource.getNumberofUseableWorkers("A") + myResource.getNumberofUseableWorkers("S");
+        int enemyWorkerNum = enemyResource.getNumberofUseableWorkers("P") + enemyResource.getNumberofUseableWorkers("A") + enemyResource.getNumberofUseableWorkers("S");
 
-        // 研究ポイント8点につきお金1円
-        int res8 = 0;
-        while (reserchPoint / 8 > 0 && money > 0) {
-            // 数数える
-            res8++;
+        // 研究ポイント8点につきお金1円で加点
+        // ただし2回まで
+        int myRes8 = 0;
+        while (myReserchPoint / 8 > 0 && myMoney > 0 && myWorkerNum > 0 && myRes8 < 2) {
             // 今の計算で使った分差し引き
-            reserchPoint -= 8;
-            money -= 1;
+            myReserchPoint -= 8;
+            myMoney -= 1;
+            myWorkerNum -= 1;
+            myRes8 += 1;
         }
-        if (workerNum >= 2 && res8 >= 2) {
-            // 論文2回
-            workerNum -= 2;
-            if (isStartPlayer) {
-                evaluation += 14 * this.resourceValue;
-            } else {
-                evaluation += 11 * this.resourceValue;
+        int enemyRes8 = 0;
+        while (enemyReserchPoint / 8 > 0 && enemyMoney > 0 && enemyWorkerNum > 0 && enemyRes8 < 2) {
+            // 今の計算で使った分差し引き
+            enemyReserchPoint -= 8;
+            enemyMoney -= 1;
+            enemyWorkerNum -= 1;
+            enemyRes8 += 1;
+        }
+
+        // 自分2回論文
+        if (myRes8 == 2) {
+            switch (enemyRes8) {
+                case 2: // 相手が2回
+                    // 先手なら+2点
+                    if (isStartPlayer) {
+                        evaluation += 2.0 * this.resourceValue;
+                    } // 後手だと-2点
+                    else {
+                        evaluation += -2.0 * this.resourceValue;
+                    }
+                    break;
+                case 1: // 相手が1回
+                    // 先手なら8+5-7=6点
+                    if (isStartPlayer) {
+                        evaluation += 6.0 * this.resourceValue;
+                    } // 後手なら-8+7+5=4点
+                    else {
+                        evaluation += 4.0 * this.resourceValue;
+                    }
+                    break;
+                case 0: // 相手が0回
+                    // 先手後手関係なく8+5=13点
+                    evaluation += 13.0 * this.resourceValue;
+                    break;
+                default:
+                    break;
             }
-        } else if (workerNum == 1 && res8 >= 1) {
-            // 論文1回
-            workerNum -= 1;
-            if (isStartPlayer) {
-                evaluation += 8 * this.resourceValue;
-            } else {
-                evaluation += 7 * this.resourceValue;
+        }
+
+        // 自分は1回論文
+        if (myRes8 == 1) {
+            switch (enemyRes8) {
+                case 2: // 相手が2回
+                    // 先手なら8-7-5=-4点
+                    if (isStartPlayer) {
+                        evaluation += -4.0 * this.resourceValue;
+                    } // 後手だと-8+7-5=-6点
+                    else {
+                        evaluation += -6.0 * this.resourceValue;
+                    }
+                    break;
+                case 1: // 相手が1回
+                    // 先手なら8-7=1点
+                    if (isStartPlayer) {
+                        evaluation += 1.0 * this.resourceValue;
+                    } // 後手なら-8+7=-1点
+                    else {
+                        evaluation += -1.0 * this.resourceValue;
+                    }
+                    break;
+                case 0: // 相手が0回
+                    // 先手後手関係なく8点
+                    evaluation += 8.0 * this.resourceValue;
+                    break;
+                default:
+                    break;
             }
-        } else if (workerNum >= 2 && res8 == 1) {
-            // 論文1回
-            workerNum -= 1;
-            if (isStartPlayer) {
-                evaluation += 8 * this.resourceValue;
-            } else {
-                evaluation += 7 * this.resourceValue;
+        }
+
+        // 自分は0回論文
+        if (myRes8 == 0) {
+            switch (enemyRes8) {
+                case 2: // 相手が2回
+                    // -8-5=-13点
+                    evaluation += -13.0 * this.resourceValue;
+                    break;
+                case 1: // 相手が1回
+                    // -8点
+                    evaluation += -8.0 * this.resourceValue;
+                    break;
+                case 0: // 相手が0回
+                    break;
+                default:
+                    break;
             }
         }
 
         // 研究ポイント4点につきお金1円で加点、ただし1回
-        int res4 = reserchPoint / 4;
-        if (res8 >= 1 && res4 == 1 && money > 0) {
-            if (workerNum >= 1) {
-                // 獲得できるスコア(4点)×リソースの評価値
-                evaluation += 4 * this.resourceValue;
-                // 今の計算で使った分差し引き
-                reserchPoint -= 4;
-                money -= 1;
+        int myRes4 = myReserchPoint / 4;
+        int enemyRes4 = enemyReserchPoint / 4;
+        // S 3-2が置けそう
+        if (myRes4 == 1 && myMoney > 0 && myWorkerNum > 0) {
+            if (enemyRes4 == 1 && enemyMoney > 0 && enemyWorkerNum > 0) {
+                // 相手も置けそうな時
+                if (isStartPlayer) {
+                    // 先手なら取れる
+                    evaluation += 4.0 * this.resourceValue;
+                    myWorkerNum -= 1;
+                } else {
+                    // 後手なら諦める
+                    evaluation += -4.0 * this.resourceValue;
+                    enemyWorkerNum -= 1;
+                }
+            } else {
+                // 相手が置けなさそうな時
+                evaluation += 4.0 * this.resourceValue;
+                myWorkerNum -= 1;
+            }
+        } else {
+            if (enemyRes4 == 1 && enemyMoney > 0 && enemyWorkerNum > 0) {
+                // 相手だけS 3-2打てそう
+                evaluation += -4.0 * this.resourceValue;
+                enemyWorkerNum -= 1;
             }
         }
 
         // 研究ポイント2点で加点、これも1回
-        int res2 = reserchPoint / 2;
-        if (res8 >= 1 && res2 == 1) {
-            if (workerNum >= 1) {
-                // 獲得できるスコア(2点)×リソースの評価値
-                evaluation += 2 * this.resourceValue;
-                // 今の計算で使った分差し引き
-                reserchPoint -= 2;
+        int myRes2 = myReserchPoint / 2;
+        int enemyRes2 = enemyReserchPoint / 2;
+        // S 3-2が置けそう
+        if (myRes2 == 1  && myWorkerNum > 0) {
+            if (enemyRes2 == 1 && enemyWorkerNum > 0) {
+                // 相手も置けそうな時
+                if (isStartPlayer) {
+                    // 先手なら取れる
+                    evaluation += 2.0 * this.resourceValue;
+                    myWorkerNum -= 1;
+                } else {
+                    // 後手なら諦める
+                    evaluation += -2.0 * this.resourceValue;
+                    enemyWorkerNum -= 1;
+                }
+            } else {
+                // 相手が置けなさそうな時
+                evaluation += 2.0 * this.resourceValue;
+                myWorkerNum -= 1;
+            }
+        } else {
+            if (enemyRes2 == 1  && enemyWorkerNum > 0) {
+                // 相手だけS 3-2打てそう
+                evaluation += -2.0 * this.resourceValue;
+                enemyWorkerNum -= 1;
             }
         }
 
         // 負の点数は許されない
-        if (resource.getTotalScore() < 0) {
+        if (myResource.getTotalScore() < 0) {
             return -1000.0;
         }
         // 負債は許されない
-        if (resource.getDebt() > 0) {
+        if (myResource.getDebt() > 0) {
             return -1000.0;
         }
+
         return evaluation;
 
     }
