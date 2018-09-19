@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Lily5の強化版<br>
@@ -1187,9 +1188,24 @@ public class Lily5plus extends TajimaLabAI {
      * @return bestActionを更新する場合はtrue,そうでない場合はfalse
      */
     private boolean checkExperiment(Action action, Double eva, Action bestAction, Double bestEva) {
-        // P 1-1とS 2-Xの評価値が同じならP 1-1を先に打つ
-        if (action.worker.equals("P") && action.place.equals("1-1") && bestAction.worker.equals("S") && bestAction.place.contains("2-") && eva == bestEva) {
-            return false;
+        // ベストアクションが無い時は更新確定
+        if (bestAction == null) {
+            return true;
+        }
+        // 評価値が同じ時
+        if (Objects.equals(eva, bestEva)) {
+            // P 1-1とS 1-1の評価値が同じならP 1-1を先に打つ
+            if (action.worker.equals("S") && action.place.equals("1-1")) {
+                if (bestAction.worker.equals("P") && bestAction.place.equals("1-1")) {
+                    return false;
+                }
+            }
+            // P 1-1とS 2-Xの評価値が同じならP 1-1を先に打つ
+            if (action.worker.equals("S") && action.place.contains("2-")) {
+                if (bestAction.worker.equals("P") && bestAction.place.equals("1-1")) {
+                    return false;
+                }
+            }
         }
         return true;
     }
