@@ -80,7 +80,7 @@ public class Lily5plus extends TajimaLabAI {
      */
     public Lily5plus(Game game) {
         super(game);
-        this.myName = "Lily5+(test)";
+        this.myName = "Lily5+(\"P\"priority)";
         this.mode = NORMAL_MODE;
     }
 
