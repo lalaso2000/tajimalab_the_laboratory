@@ -573,6 +573,9 @@ public class Lily5plus extends TajimaLabAI {
 
         // ゲームを複製
         Game cloneGame = this.clonePlay(game, playerNum, action, true);
+        if (cloneGame == null) {
+            return null;
+        }
 
         // 計算用リソースを取得
         GameResources[] resources = this.getResourcesForEvaluation(cloneGame);
