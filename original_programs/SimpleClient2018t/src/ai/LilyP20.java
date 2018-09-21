@@ -1587,12 +1587,12 @@ public class LilyP20 extends TajimaLabAI {
 
         // 表彰モード＝表彰が取れる
         if (this.mode == AWARD_MODE) {
-            
+
             // 表彰モードのときのみ実行
             this.addMessage("---------------------------");
             this.addMessage("--------- award think ---------");
             this.addMessage("---------------------------");
-            
+
             // 次の手を取得
             a = this.awardPath.get(0);
             // aが1-1→探索, それ以外→打つ
@@ -1704,6 +1704,11 @@ public class LilyP20 extends TajimaLabAI {
                     }
                 }
             }
+        }
+
+        // PもSも実験に置くとき，Sの方を先に置く（ただしノーマルモード）
+        if (this.mode == NORMAL_MODE && bestAction.worker.equals("P") && bestAction.place.contains("2-") && this.gameBoard.getResourcesOf(this.myNumber).hasWorkerOf("S")) {
+            bestAction = new Action("S", bestAction.place);
         }
 
         this.addMessage("===========================");
