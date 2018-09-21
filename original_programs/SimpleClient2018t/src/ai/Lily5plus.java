@@ -1413,7 +1413,12 @@ public class Lily5plus extends TajimaLabAI {
                 }
             }
         }
-
+        
+        // PもSも実験に置くとき，Sの方を先に置く（ただしノーマルモード）
+        if(this.mode == NORMAL_MODE && bestAction.worker.equals("P") && bestAction.place.contains("2-") && this.gameBoard.getResourcesOf(this.myNumber).hasWorkerOf("S")){
+            bestAction = new Action("S", bestAction.place);
+        }
+        
         this.addMessage("===========================");
         this.addMessage("========== think end ==========");
         this.addMessage("===========================");
