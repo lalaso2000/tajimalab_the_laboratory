@@ -81,7 +81,7 @@ public class Lily5plus extends TajimaLabAI {
      */
     public Lily5plus(Game game) {
         super(game);
-        this.myName = "Lily5p v1.02";
+        this.myName = "Lily5p v1.03";
         this.mode = NORMAL_MODE;
     }
 
@@ -655,11 +655,12 @@ public class Lily5plus extends TajimaLabAI {
 
         // 研究ポイントと得点がいい感じになっていたら加点
         // お金取得、ただし学生の支払うコストを差し引いておく
-        int money = resource.getCurrentMoney() - resource.getTotalStudentsCount();
-        if (money < 0) {
-            // え、学生のコストでお金なくなるの…
-            return -1000.0;
-        }
+        //int money = resource.getCurrentMoney() - resource.getTotalStudentsCount();
+        int money = resource.getCurrentMoney();
+//        if (money < 0) {
+//            // え、学生のコストでお金なくなるの…
+//            return -1000.0;
+//        }
         // 研究ポイント取得
         int reserchPoint = resource.getCurrentResrchPoint();
 
