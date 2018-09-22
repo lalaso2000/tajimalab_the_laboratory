@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Lily5の強化版<br>
@@ -72,7 +73,7 @@ public class Lily5plus extends TajimaLabAI {
 
     private ArrayList<AwardCheckData> awardCheckDatas;  // 夏冬用、acdの一覧
     private ArrayList<Action> awardPath = new ArrayList<>();    // 表彰獲得可能時の最適解
-    
+
     /**
      * コンストラクタ
      *
@@ -180,16 +181,15 @@ public class Lily5plus extends TajimaLabAI {
                 return MONEY_AND_RESERCH_PLACES_NAMES;
         }
     }
-    
+
     private String[] setWorkerList(Game game) {
-        if(this.mode == NORMAL_MODE){
-            if(game.getSeason().contains("a")){
+        if (this.mode == NORMAL_MODE) {
+            if (game.getSeason().contains("a")) {
                 GameResources myResources = game.getResourcesOf(this.myNumber);
-                if(myResources.hasWorkerOf("P")){
+                if (myResources.hasWorkerOf("P")) {
                     String[] workers = {"P"};
                     return workers;
-                }
-                else{
+                } else {
                     String[] workers = {"A", "S"};
                     return workers;
                 }
@@ -275,6 +275,10 @@ public class Lily5plus extends TajimaLabAI {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
+                // 誰かが5-3を打ってない限り飛ばす
+                if (game.getTrend().equals("T0")) {
+                    continue;
+                }
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
                     for (String w : workers) {
@@ -338,6 +342,10 @@ public class Lily5plus extends TajimaLabAI {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
+                // 誰かが5-3を打ってない限り飛ばす
+                if (game.getTrend().equals("T0")) {
+                    continue;
+                }
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
                     for (String w : GameResources.WORKER_NAMES) {
@@ -468,6 +476,10 @@ public class Lily5plus extends TajimaLabAI {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
+                // 誰かが5-3を打ってない限り飛ばす
+                if (game.getTrend().equals("T0")) {
+                    continue;
+                }
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
                     for (String w : workers) {
@@ -536,6 +548,10 @@ public class Lily5plus extends TajimaLabAI {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
+                // 誰かが5-3を打ってない限り飛ばす
+                if (game.getTrend().equals("T0")) {
+                    continue;
+                }
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
                     for (String w : GameResources.WORKER_NAMES) {
@@ -842,7 +858,7 @@ public class Lily5plus extends TajimaLabAI {
         int myRes2 = myReserchPoint / 2;
         int enemyRes2 = enemyReserchPoint / 2;
         // S 3-2が置けそう
-        if (myRes2 == 1  && myWorkerNum > 0) {
+        if (myRes2 == 1 && myWorkerNum > 0) {
             if (enemyRes2 == 1 && enemyWorkerNum > 0) {
                 // 相手も置けそうな時
                 if (isStartPlayer) {
@@ -860,7 +876,7 @@ public class Lily5plus extends TajimaLabAI {
                 myWorkerNum -= 1;
             }
         } else {
-            if (enemyRes2 == 1  && enemyWorkerNum > 0) {
+            if (enemyRes2 == 1 && enemyWorkerNum > 0) {
                 // 相手だけS 3-2打てそう
                 evaluation += -2.0 * this.resourceValue;
                 enemyWorkerNum -= 1;
@@ -1300,7 +1316,7 @@ public class Lily5plus extends TajimaLabAI {
      */
     @Override
     protected void think() {
-        
+
         // 夏冬なら表彰チェック
         if (this.mode == NORMAL_MODE && this.gameBoard.getSeason().contains("b")) {
             this.checkAwardable();
@@ -1371,6 +1387,10 @@ public class Lily5plus extends TajimaLabAI {
             // 全部の場所ループ
             // 5-3の時
             if (p.equals("5-3")) {
+                // 誰かが5-3を打ってない限り飛ばす
+                if (this.gameBoard.getTrend().equals("T0")) {
+                    continue;
+                }
                 for (String t : Game.TREAND_ID_LIST) {
                     // 全部のトレンドループ
                     for (String w : workers) {
@@ -1384,8 +1404,26 @@ public class Lily5plus extends TajimaLabAI {
                         if (eva != null) {
                             this.addMessage(a + " -> " + eva);
                         }
+                        // 5-3で評価値が同じ時
+                        if (bestAction.place.equals("5-3")) {
+                            if (eva != null && Objects.equals(eva, bestEva)) {
+                                String trendA = bestAction.trend;
+                                String trendB = a.trend;
+                                int myScrA = this.gameBoard.getScoreOf(trendA, this.myNumber);
+                                int myScrB = this.gameBoard.getScoreOf(trendB, this.myNumber);
+                                int enemyScrA = this.gameBoard.getScoreOf(trendA, this.enemyNumber);
+                                int enemyScrB = this.gameBoard.getScoreOf(trendB, this.enemyNumber);
+                                int scrDiffA = myScrA - enemyScrA;
+                                int scrDiffB = myScrB - enemyScrB;
+                                if (scrDiffA <= scrDiffB) {
+                                    // 勝てそうな方に更新
+                                    bestEva = eva;
+                                    bestAction = a;
+                                }
+                            }
+                        }
                         // 評価良いの見つけたら
-                        if (eva != null && eva >= bestEva) {
+                        else if (eva != null && eva >= bestEva) {
                             // 更新
                             bestEva = eva;
                             bestAction = a;
@@ -1413,12 +1451,12 @@ public class Lily5plus extends TajimaLabAI {
                 }
             }
         }
-        
+
         // PもSも実験に置くとき，Sの方を先に置く（ただしノーマルモード）
-        if(this.mode == NORMAL_MODE && bestAction.worker.equals("P") && bestAction.place.contains("2-") && this.gameBoard.getResourcesOf(this.myNumber).hasWorkerOf("S")){
+        if (this.mode == NORMAL_MODE && bestAction.worker.equals("P") && bestAction.place.contains("2-") && this.gameBoard.getResourcesOf(this.myNumber).hasWorkerOf("S")) {
             bestAction = new Action("S", bestAction.place);
         }
-        
+
         this.addMessage("===========================");
         this.addMessage("========== think end ==========");
         this.addMessage("===========================");
