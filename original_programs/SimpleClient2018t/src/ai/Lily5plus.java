@@ -1319,8 +1319,10 @@ public class Lily5plus extends TajimaLabAI {
     protected void think() {
 
         // 夏冬なら表彰チェック
-        if (this.mode == NORMAL_MODE && this.gameBoard.getSeason().contains("b")) {
-            this.checkAwardable();
+        if (this.mode == NORMAL_MODE || this.mode == AWARD_MODE) {
+            if (this.gameBoard.getSeason().contains("b")) {
+                this.checkAwardable();
+            }
         }
 
         this.addMessage("==========================");
@@ -1422,8 +1424,7 @@ public class Lily5plus extends TajimaLabAI {
                                     bestAction = a;
                                 }
                             }
-                        }
-                        // 評価良いの見つけたら
+                        } // 評価良いの見つけたら
                         else if (eva != null && eva >= bestEva) {
                             // 更新
                             bestEva = eva;
