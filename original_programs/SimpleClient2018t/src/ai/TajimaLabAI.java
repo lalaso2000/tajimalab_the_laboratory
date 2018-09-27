@@ -412,8 +412,8 @@ public abstract class TajimaLabAI extends LaboAI {
                         break;
                 }
             }
-            resources[0].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
-            resources[1].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
+            resources[0].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount * SCount[0]);
+            resources[1].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount * SCount[1]);
         }
 
         //実験による研究ポイントの獲得

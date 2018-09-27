@@ -527,8 +527,8 @@ public class Game extends Observable {
                         SCount[1]++;
                     }
                 }
-                this.gameResource[0].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
-                this.gameResource[1].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount);
+                this.gameResource[0].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount * SCount[0]);
+                this.gameResource[1].addReserchPoint((int) ((SCount[0] + SCount[1]) / 2) * PACount * SCount[1]);
             }
 
             //実験による研究ポイントの獲得

@@ -21,7 +21,7 @@ import network.ServerThread;
  */
 public class Laboratory2017Server {
     public static final String TITLE = "The Laboratory 2018 Server (tajima lab)";
-    public static final String VERSION = "ver1.10  b18062500t001";
+    public static final String VERSION = "ver1.11  b18092700t001";
 
 
     /**
