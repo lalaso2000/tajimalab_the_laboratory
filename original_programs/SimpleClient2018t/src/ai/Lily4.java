@@ -44,7 +44,7 @@ public class Lily4 extends TajimaLabAI {
     public Lily4(Game game) {
         super(game);
         // 名前変えておく
-        this.myName = "Lily 48";
+        this.myName = "Lily 4 v1.11";
         // 最初はお金と研究ポイントを稼ぐモード
         this.modeChange(INIT_MODE);
 
