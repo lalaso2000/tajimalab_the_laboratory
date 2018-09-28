@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -81,7 +79,7 @@ public class Lily5plus extends TajimaLabAI {
      */
     public Lily5plus(Game game) {
         super(game);
-        this.myName = "Lily ∞";
+        this.myName = "Lily ∞ v1.11";
         this.mode = NORMAL_MODE;
     }
 
@@ -1408,7 +1406,7 @@ public class Lily5plus extends TajimaLabAI {
                             this.addMessage(a + " -> " + eva);
                         }
                         // 5-3で評価値が同じ時
-                        if (bestAction.place.equals("5-3")) {
+                        if (bestAction != null && bestAction.place.equals("5-3")) {
                             if (eva != null && Objects.equals(eva, bestEva)) {
                                 String trendA = bestAction.trend;
                                 String trendB = a.trend;
@@ -1478,12 +1476,17 @@ public class Lily5plus extends TajimaLabAI {
         this.awardPath = new ArrayList<>();
         // 季節ごとにモードを変化
         String season = this.gameBoard.getSeason();
-        if (season.equals("5b") || season.equals("6a")) {
-            this.modeChange(FINAL_MODE_1);
-        } else if (season.equals("6b")) {
-            this.modeChange(FINAL_MODE_2);
-        } else {
-            this.modeChange(NORMAL_MODE);
+        switch (season) {
+            case "5b":
+            case "6a":
+                this.modeChange(FINAL_MODE_1);
+                break;
+            case "6b":
+                this.modeChange(FINAL_MODE_2);
+                break;
+            default:
+                this.modeChange(NORMAL_MODE);
+                break;
         }
     }
 
